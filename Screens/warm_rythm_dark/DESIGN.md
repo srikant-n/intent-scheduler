@@ -1,5 +1,5 @@
 ---
-name: Chronicle Dark
+name: Intent Scheduler Dark
 colors:
   surface: '#121318'
   surface-dim: '#121318'

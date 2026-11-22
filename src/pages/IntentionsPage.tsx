@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Archive, CalendarPlus, ChevronDown, Database, Pencil, Plus, Repeat, RotateCcw, Search, SlidersHorizontal } from 'lucide-react';
+import { FormEvent, useMemo, useState } from 'react';
+import { Archive, CalendarPlus, ChevronDown, Database, Pencil, Pin, Plus, Repeat, RotateCcw, Search, SlidersHorizontal, Zap } from 'lucide-react';
 import clsx from 'clsx';
 import { useCategories } from '@/hooks/useCategories';
 import { useIntentions } from '@/hooks/useIntentions';
@@ -32,6 +32,8 @@ const sortOptions: { key: Sort; label: string }[] = [
   { key: 'recent', label: 'Recently Added' },
 ];
 
+const quickAddDurations = [15, 25, 30, 45, 60, 90];
+
 function PriorityChip({ priority }: { priority: string | null }) {
   if (!priority || priority === 'none') return null;
   return (
@@ -54,6 +56,12 @@ export function IntentionsPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [categoryFormOpen, setCategoryFormOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [quickTitle, setQuickTitle] = useState('');
+  const [quickCategoryId, setQuickCategoryId] = useState('');
+  const [quickRecurring, setQuickRecurring] = useState(false);
+  const [quickDuration, setQuickDuration] = useState(45);
+  const [quickNotes, setQuickNotes] = useState('');
+  const [quickSaving, setQuickSaving] = useState(false);
 
   const active = useIntentions('active');
   const archived = useIntentions('archived');
@@ -94,6 +102,33 @@ export function IntentionsPage() {
     };
     if (editing) await active.update.mutateAsync({ id: editing.id, ...payload });
     else await active.create.mutateAsync(payload);
+  };
+
+  const quickAddCategoryId = quickCategoryId || categories[0]?.id || '';
+  const quickAddCategory = categoryById(categories, quickAddCategoryId || null);
+
+  const quickAdd = async (event: FormEvent) => {
+    event.preventDefault();
+    const title = quickTitle.trim();
+    if (!title || quickSaving) return;
+    setQuickSaving(true);
+    try {
+      await active.create.mutateAsync({
+        title,
+        categoryId: quickAddCategoryId || null,
+        isRecurring: quickRecurring,
+        defaultDurationMins: quickDuration,
+        targetSessionsPerWeek: null,
+        preferredWeekdays: [],
+        notes: quickNotes.trim() || null,
+        priority: null,
+      });
+      setQuickTitle('');
+      setQuickNotes('');
+      setQuickDuration(45);
+    } finally {
+      setQuickSaving(false);
+    }
   };
 
   const addToToday = async (item: Intention) => {
@@ -192,7 +227,7 @@ export function IntentionsPage() {
         <div>
           <div className="mb-1 flex items-center gap-2">
             <span className="inline-flex items-center gap-1 rounded-full bg-surface-high px-2 py-0.5 text-[10px] font-semibold text-text-muted">
-              <Database size={11} className="text-success" /> chronicle.db • {active.intentions.length} ready slots
+              <Database size={11} className="text-success" /> intents.db • {active.intentions.length} ready slots
             </span>
           </div>
           <div className="flex items-baseline gap-2">
@@ -320,6 +355,84 @@ export function IntentionsPage() {
               <div className="flex justify-between"><span className="text-text-muted">Archived</span><span className="font-bold text-text">{counts.archived}</span></div>
               <div className="flex justify-between border-t border-border pt-2"><span className="text-text-muted">Est. workload</span><span className="font-bold text-accent">{formatDuration(totalPlanned)}</span></div>
             </div>
+          </div>
+          <div className="card flex flex-col gap-3 p-4">
+            <div className="flex items-center justify-between border-b border-border/60 pb-2">
+              <div className="flex items-center gap-2">
+                <Zap size={16} className="text-accent" />
+                <span className="text-sm font-bold tracking-tight text-text">Quick Add to Menu</span>
+              </div>
+              <span className="rounded-full bg-surface-high px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-text-muted">Local Sync</span>
+            </div>
+            <form onSubmit={quickAdd} className="flex flex-col gap-3">
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-text-subtle">Task Title</label>
+                <Input autoFocus value={quickTitle} onChange={(e) => setQuickTitle(e.target.value)} placeholder="e.g. Draft quarterly retrospective" required />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-text-subtle">Category Taxonomy</label>
+                <div className="relative">
+                  <span className="pointer-events-none absolute left-3 top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full" style={{ backgroundColor: quickAddCategory?.colorHex ?? '#78716c' }} />
+                  <Select value={quickAddCategoryId} onChange={(e) => setQuickCategoryId(e.target.value)} className="pl-8">
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.id}>{category.name} ({category.colorHex})</option>
+                    ))}
+                  </Select>
+                </div>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-text-subtle">Task Cadence</label>
+                <div className="grid grid-cols-2 gap-1.5 rounded-xl bg-surface p-1">
+                  {([
+                    { key: false, label: 'One-Off', icon: <Pin size={13} /> },
+                    { key: true, label: 'Habitual', icon: <Repeat size={13} /> },
+                  ] as const).map((option) => (
+                    <button
+                      key={String(option.key)}
+                      type="button"
+                      onClick={() => setQuickRecurring(option.key)}
+                      className={clsx(
+                        'flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-[11px] font-semibold transition',
+                        quickRecurring === option.key ? 'bg-surface-high text-text shadow-sm' : 'text-text-muted hover:text-text',
+                      )}
+                    >
+                      {option.icon}
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-text-subtle">Default Target Duration</label>
+                  <span className="text-[11px] font-bold text-accent">{quickDuration} min</span>
+                </div>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {quickAddDurations.map((mins) => (
+                    <button
+                      key={mins}
+                      type="button"
+                      onClick={() => setQuickDuration(mins)}
+                      className={clsx(
+                        'rounded-lg py-1.5 text-[11px] font-semibold transition',
+                        quickDuration === mins ? 'bg-accent text-accent-contrast shadow-sm' : 'bg-surface text-text-muted hover:bg-surface-high hover:text-text',
+                      )}
+                    >
+                      {mins}m
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-text-subtle">Notes (Optional)</label>
+                <Input value={quickNotes} onChange={(e) => setQuickNotes(e.target.value)} placeholder="Key deliverable or link..." />
+              </div>
+              <div className="flex flex-col gap-1.5 pt-1">
+                <Button type="submit" variant="primary" className="w-full" disabled={quickSaving || !quickTitle.trim()}>
+                  <Plus size={15} /> {quickSaving ? 'Saving…' : 'Save Intention (Enter)'}
+                </Button>
+              </div>
+            </form>
           </div>
           <Button variant="secondary" className="w-full" onClick={() => { setEditingCategory(null); setCategoryFormOpen(true); }}>
             <Plus size={14} /> Manage categories
