@@ -1,0 +1,658 @@
+<!DOCTYPE html><html class="h-full" lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "primary-fixed-dim": "#ffb599", "tertiary-fixed-dim": "#4edea3", "on-primary-container": "#fffbff", "secondary": "#4648d4", "on-tertiary-fixed-variant": "#005236", "background": "#fff8f5", "on-tertiary-container": "#f5fff6", "on-primary": "#ffffff", "tertiary-container": "#00855b", "secondary-fixed": "#e1e0ff", "on-secondary": "#ffffff", "surface-tint": "#a73a00", "on-background": "#1f1b17", "on-secondary-fixed": "#07006c", "tertiary-fixed": "#6ffbbe", "error-container": "#ffdad6", "surface-container": "#f6ece6", "on-tertiary": "#ffffff", "inverse-on-surface": "#f9efe8", "surface-dim": "#e2d8d2", "surface-variant": "#eae1da", "on-primary-fixed": "#370e00", "outline-variant": "#e2bfb2", "inverse-primary": "#ffb599", "surface": "#fff8f5", "secondary-fixed-dim": "#c0c1ff", "primary-container": "#cc4900", "on-error-container": "#93000a", "surface-container-highest": "#eae1da", "on-surface": "#1f1b17", "on-primary-fixed-variant": "#7f2b00", "on-tertiary-fixed": "#002113", "outline": "#8e7166", "on-error": "#ffffff", "surface-container-lowest": "#ffffff", "surface-bright": "#fff8f5", "error": "#ba1a1a", "tertiary": "#006947", "secondary-container": "#6063ee", "primary": "#a33900", "surface-container-low": "#fcf2eb", "on-secondary-fixed-variant": "#2f2ebe", "inverse-surface": "#342f2b", "primary-fixed": "#ffdbce", "on-surface-variant": "#5a4138", "on-secondary-container": "#fffbff", "surface-container-high": "#f0e6e0" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-sm": "0.5rem", "space-xs": "0.25rem", "gutter-desktop": "1.5rem", "space-md": "0.875rem", "space-xl": "2rem", "gutter": "1rem", "space-lg": "1.25rem", "margin-desktop": "1.75rem", "margin": "1rem" }, "fontFamily": { "headline-md": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "numerical-timer": ["Plus Jakarta Sans"], "label-sm": ["Plus Jakarta Sans"], "label-lg": ["Plus Jakarta Sans"], "display": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"] }, "fontSize": { "headline-md": ["1.375rem", { "lineHeight": "1.875rem", "letterSpacing": "-0.02em", "fontWeight": "600" }], "body-sm": ["0.8125rem", { "lineHeight": "1.25rem", "fontWeight": "400" }], "headline-sm": ["1.125rem", { "lineHeight": "1.5rem", "letterSpacing": "-0.015em", "fontWeight": "600" }], "label-md": ["0.75rem", { "lineHeight": "1rem", "letterSpacing": "0.02em", "fontWeight": "600" }], "headline-lg": ["1.75rem", { "lineHeight": "2.25rem", "letterSpacing": "-0.025em", "fontWeight": "700" }], "numerical-timer": ["1.5rem", { "lineHeight": "1.75rem", "letterSpacing": "-0.03em", "fontWeight": "600" }], "label-sm": ["0.6875rem", { "lineHeight": "0.875rem", "letterSpacing": "0.04em", "fontWeight": "700" }], "label-lg": ["0.875rem", { "lineHeight": "1.25rem", "letterSpacing": "-0.01em", "fontWeight": "600" }], "display": ["2.25rem", { "lineHeight": "2.75rem", "letterSpacing": "-0.03em", "fontWeight": "700" }], "body-lg": ["1rem", { "lineHeight": "1.6rem", "fontWeight": "400" }], "body-md": ["0.875rem", { "lineHeight": "1.45rem", "fontWeight": "400" }] } } } };</script></head><body class="bg-surface font-body-md text-on-surface antialiased select-none"><header class="fixed top-0 left-0 right-0 h-10 z-50 bg-surface/90 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)] flex items-center justify-between px-space-md select-none"><div class="flex items-center gap-space-sm"><img alt="Chronicle App Icon" class="h-5 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ALJJyrBDxvpOMW4q8zZbhpC11BIe-g9vmWSApNnUU3qYtXcV12Xm0OusKXhjl-e7a57ODpLmMtmB0amfvcrI6guaDcCZ6qvS1j6jjSUv7etSVzIzx_LHKXt9dTqJasXQnP02_fX828CKLKweogsu19ZciFORfpZssQROP-F8RjuOYo2g0w74jbfvwYcmGhE0lwayJKCrfsUlWS1EhADELBI8lGfMYSPJMnSvWIAM1M483vqh"><span class="font-label-lg text-label-lg text-on-surface tracking-tight">Chronicle</span><span class="px-space-xs py-0.5 rounded bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">v1.0.4</span><div class="flex items-center gap-1.5 px-space-xs py-0.5 rounded-full bg-surface-container-low text-tertiary font-label-sm text-label-sm"><span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span><span>SQLite Local</span></div></div><div class="flex items-center gap-space-xs px-space-md py-1 rounded bg-surface-container-low text-on-surface-variant font-label-md text-label-md cursor-grab active:cursor-grabbing"><span class="material-symbols-outlined text-[16px]">calendar_today</span><span>Today, Thursday Oct 24</span></div><div class="flex items-center gap-space-sm"><div class="flex items-center gap-space-xs px-space-sm py-1 rounded bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm"><span class="material-symbols-outlined text-[14px]">search</span><span>Ctrl+K</span></div><button class="flex items-center gap-1 px-space-sm py-1 rounded bg-primary text-on-primary font-label-sm text-label-sm hover:bg-primary-container transition-colors" type="button"><span class="material-symbols-outlined text-[14px]">add</span><span>Quick Log</span></button><div class="flex items-center ml-space-xs"><button aria-label="Minimize" class="h-7 w-9 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors rounded" type="button"><span class="material-symbols-outlined text-[14px]">remove</span></button><button aria-label="Maximize" class="h-7 w-9 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors rounded" type="button"><span class="material-symbols-outlined text-[14px]">crop_square</span></button><button aria-label="Close" class="h-7 w-9 flex items-center justify-center text-on-surface-variant hover:bg-error hover:text-on-error transition-colors rounded" type="button"><span class="material-symbols-outlined text-[14px]">close</span></button></div><div class="w-7 h-7 rounded-full bg-primary flex items-center justify-center ml-1"><span class="material-symbols-outlined text-on-primary text-[14px]">person</span></div></div></header><aside class="fixed left-0 top-10 bottom-0 w-64 bg-surface-container-low z-40 flex flex-col justify-between p-space-md shadow-[0_1px_8px_rgba(0,0,0,0.03)]"><div class="flex flex-col gap-space-lg overflow-y-auto"><div class="flex flex-col gap-space-xs"><span class="px-space-sm font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Views</span><nav class="flex flex-col gap-1" data-active-classes="bg-primary-container text-on-primary-container font-semibold rounded-lg shadow-sm"><a class="flex items-center justify-between px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-md text-label-md transition-all" data-path="dual-track-today" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">view_column</span><span>Dual-Track Today</span></div><span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm font-medium">4 active</span></a><a class="flex items-center justify-between px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-md text-label-md transition-all" data-path="weekly-planner" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">calendar_view_week</span><span>Weekly Planner</span></div><span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm font-medium">32 planned</span></a><a class="flex items-center justify-between px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-md text-label-md transition-all" data-path="task-backlog" href="#">
+  <div class="flex items-center gap-space-sm">
+    <span class="material-symbols-outlined text-[18px]">list_alt</span>
+    <span>Intentions</span>
+  </div>
+  <span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant text-xs font-medium">42 items</span>
+</a><a aria-current="page" class="flex items-center justify-between px-space-sm py-2 transition-all bg-primary-container text-on-primary-container font-semibold rounded-lg shadow-sm" data-path="time-analytics" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">donut_large</span><span>Time Analytics</span></div></a><a class="flex items-center justify-between px-space-sm py-2 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-md text-label-md transition-all" data-path="data-vault-and-backup" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">database</span><span>Data Vault</span></div></a></nav></div><div class="flex flex-col gap-space-xs"><div class="flex items-center justify-between px-space-sm"><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Intentions</span><span class="material-symbols-outlined text-[16px] text-on-surface-variant cursor-pointer hover:text-on-surface">tune</span></div><div class="px-space-xs"><div class="flex items-center gap-space-xs px-space-sm py-1.5 rounded-lg bg-surface-container text-on-surface-variant font-body-sm text-body-sm"><span class="material-symbols-outlined text-[16px]">add</span><input class="bg-transparent focus:outline-none w-full text-on-surface placeholder:text-outline font-body-sm text-body-sm" placeholder="Add to Menu..." readonly="" type="text"></div></div><div class="flex flex-col gap-1 mt-space-xs"><div class="flex items-center justify-between px-space-sm py-1 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-md text-label-md cursor-pointer"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-tertiary"></span><span>Health &amp; Movement</span></div><span class="font-label-sm text-label-sm text-outline">3</span></div><div class="flex items-center justify-between px-space-sm py-1 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-md text-label-md cursor-pointer"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-secondary"></span><span>Deep Learning</span></div><span class="font-label-sm text-label-sm text-outline">5</span></div><div class="flex items-center justify-between px-space-sm py-1 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-md text-label-md cursor-pointer"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-primary"></span><span>Indie Projects</span></div><span class="font-label-sm text-label-sm text-outline">4</span></div><div class="flex items-center justify-between px-space-sm py-1 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-md text-label-md cursor-pointer"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-error"></span><span>Daily Errands</span></div><span class="font-label-sm text-label-sm text-outline">2</span></div><div class="flex items-center justify-between px-space-sm py-1 rounded text-on-surface-variant hover:bg-surface-container hover:text-on-surface font-label-md text-label-md cursor-pointer"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-secondary-container"></span><span>Rest &amp; Play</span></div><span class="font-label-sm text-label-sm text-outline">3</span></div></div><div class="flex items-center gap-1 p-0.5 rounded-lg bg-surface-container-high mt-space-xs"><button class="flex-1 py-1 rounded text-center font-label-sm text-label-sm bg-surface-container-lowest text-on-surface shadow-sm" type="button">One-Off</button><button class="flex-1 py-1 rounded text-center font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface" type="button">Habitual</button></div></div></div><div class="flex flex-col border-t border-outline-variant/60 pt-space-sm mt-auto">
+  <div class="text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant mb-1.5 flex items-center justify-between px-space-xs">
+    <span>Appearance</span>
+    <span class="text-[10px] text-outline font-normal">SQLite sync</span>
+  </div>
+  <div class="grid grid-cols-3 bg-surface-container p-0.5 rounded-lg text-xs mb-2">
+    <button type="button" class="flex items-center justify-center gap-1 py-1 rounded bg-surface-container-lowest text-on-surface font-medium shadow-sm transition-all" title="Light Theme">
+      <span class="material-symbols-outlined text-[14px] text-primary">light_mode</span>
+      <span class="text-[11px]">Light</span>
+    </button>
+    <button type="button" class="flex items-center justify-center gap-1 py-1 rounded text-on-surface-variant hover:text-on-surface transition-all" title="Dark Theme">
+      <span class="material-symbols-outlined text-[14px]">dark_mode</span>
+      <span class="text-[11px]">Dark</span>
+    </button>
+    <button type="button" class="flex items-center justify-center gap-1 py-1 rounded text-on-surface-variant hover:text-on-surface transition-all" title="System Theme">
+      <span class="material-symbols-outlined text-[14px]">desktop_windows</span>
+      <span class="text-[11px]">Auto</span>
+    </button>
+  </div>
+  <div class="flex items-center justify-between text-xs text-on-surface-variant pt-1 px-space-xs">
+    <button type="button" class="flex items-center gap-1.5 hover:text-on-surface transition-colors font-label-md text-label-md">
+      <span class="material-symbols-outlined text-[16px]">settings</span>
+      <span>Settings</span>
+    </button>
+    <button type="button" class="flex items-center gap-1 hover:text-on-surface transition-colors font-label-md text-label-md">
+      <span class="material-symbols-outlined text-[16px]">help_outline</span>
+      <span>Hotkeys</span>
+      <kbd class="px-1.5 py-0.2 rounded bg-surface-container-high font-label-sm text-label-sm text-on-surface ml-1">?</kbd>
+    </button>
+  </div>
+</div></aside><div class="pl-64"><main class="relative pt-10 min-h-screen bg-surface w-full px-space-lg pb-28"><div class="flex flex-col w-full">
+<!-- View Switcher & Period Selector Bar -->
+<div class="flex flex-col xl:flex-row xl:items-center justify-between gap-space-md py-space-sm">
+<div class="flex items-center gap-1.5 p-1 rounded-xl bg-surface-container w-fit shadow-sm">
+<button class="px-space-md py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-colors" type="button">Daily Reflection</button>
+<button class="px-space-md py-1.5 rounded-lg bg-surface-container-lowest text-primary font-label-md text-label-md shadow-sm" type="button">Weekly Analytics</button>
+<button class="px-space-md py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-colors" type="button">Monthly Trends</button>
+<button class="px-space-md py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-colors flex items-center gap-1" type="button">
+<span>Drift Analysis</span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+</button>
+</div>
+<div class="flex flex-wrap items-center gap-space-sm">
+<div class="flex items-center gap-1 bg-surface-container-low px-2 py-1 rounded-lg">
+<button class="px-2 py-1 rounded font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container-high transition-colors" type="button">Today</button>
+<button class="px-2.5 py-1 rounded font-label-sm text-label-sm bg-primary-container text-on-primary-container shadow-xs" type="button">This Week</button>
+<button class="px-2 py-1 rounded font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container-high transition-colors" type="button">Last 14 Days</button>
+<button class="px-2 py-1 rounded font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container-high transition-colors" type="button">All Time</button>
+</div>
+<div class="flex items-center gap-space-xs px-space-md py-1.5 rounded-lg bg-surface-container-lowest shadow-sm text-on-surface font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px] text-primary">calendar_month</span>
+<span>Oct 18 – Oct 24, 2024</span>
+<span class="material-symbols-outlined text-[14px] text-outline ml-1">expand_more</span>
+</div>
+<button class="flex items-center gap-1 px-space-md py-1.5 rounded-lg bg-surface-container-lowest border border-outline-variant text-on-surface font-medium hover:bg-surface-container-high hover:border-outline shadow-xs transition-colors font-label-sm text-label-sm" id="exportBtn" type="button">
+<span class="material-symbols-outlined text-[16px] text-on-surface">ios_share</span>
+<span>Export (.csv / .json)</span>
+</button>
+</div>
+</div>
+<!-- Warm Tactile Banner: Insight Note -->
+<div class="relative overflow-hidden rounded-2xl bg-surface-container-low p-space-lg shadow-sm mt-space-md">
+<div class="absolute -right-8 -bottom-8 w-44 h-44 rounded-full bg-primary-fixed-dim/30 blur-2xl pointer-events-none"></div>
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md relative z-10">
+<div class="flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-xl bg-primary-fixed text-primary flex items-center justify-center shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[22px]">auto_awesome</span>
+</div>
+<div class="flex flex-col gap-0.5">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-primary uppercase tracking-wider">Humane Weekly Rhythm Insight</span>
+<span class="px-2 py-0.5 rounded-full font-label-sm text-label-sm font-semibold" style="background-color: rgb(220, 252, 231); color: rgb(6, 78, 59);">Gentle Pacing</span>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface text-balance max-w-3xl">
+            You tend to underestimate <span class="font-semibold text-primary">Indie Projects</span> by an average of <span class="px-1.5 py-0.5 rounded bg-surface-container-highest font-mono font-semibold">+22 minutes</span>, but your Morning Health routines have reached a near-perfect <span class="font-semibold text-tertiary">96% Intent alignment</span>. Time well savored.
+          </p>
+</div>
+</div>
+<div class="flex items-center gap-2 shrink-0">
+<button class="px-space-md py-2 rounded-xl bg-surface-container-lowest border border-outline-variant text-on-surface font-medium hover:bg-surface-container-high hover:border-outline font-label-md text-label-md shadow-xs transition-colors" type="button">
+          View Reflection Log
+        </button>
+<button class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant hover:text-on-surface" title="Dismiss suggestion" type="button">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+</div>
+</div>
+<!-- 4 Top KPI Cards (Bento Tile Flow) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-md mt-space-md">
+<!-- Card 1: Intent -->
+<div class="p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow group">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-outline-variant"></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Planned Intent</span>
+</div>
+<span class="material-symbols-outlined text-[18px] text-outline group-hover:text-primary transition-colors">event_upcoming</span>
+</div>
+<div class="my-space-md"><div class="flex items-baseline gap-2"><span class="font-display text-display text-on-surface tabular-nums">36<span class="text-headline-md font-normal text-outline">h</span> 30<span class="text-headline-md font-normal text-outline">m</span></span></div><span class="font-body-sm text-body-sm text-on-surface-variant">Across 32 intentional blocks • 40h cap</span></div>
+<div class="flex items-center justify-between pt-space-xs">
+<div class="flex items-center gap-1 font-label-sm text-label-sm text-outline">
+<span>Target pace: 40h/wk</span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-surface-container font-label-sm text-label-sm text-on-surface-variant">Steady</span>
+</div>
+</div>
+<!-- Card 2: Reality -->
+<div class="p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow group">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Actual Reality</span>
+</div>
+<span class="material-symbols-outlined text-[18px] text-outline group-hover:text-primary transition-colors">history_edu</span>
+</div>
+<div class="my-space-md"><div class="flex items-baseline gap-2"><span class="font-display text-display text-on-surface tabular-nums">24<span class="text-headline-md font-normal text-outline">h</span> 45<span class="text-headline-md font-normal text-outline">m</span></span></div><span class="font-body-sm text-body-sm text-tertiary flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">verified</span>Through Thursday afternoon • 86% pacing fidelity</span></div>
+<div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 67.8%;"></div>
+</div>
+</div>
+<!-- Card 3: Spontaneous -->
+<div class="p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow group">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Spontaneous Life</span>
+</div>
+<span class="material-symbols-outlined text-[18px] text-outline group-hover:text-secondary transition-colors">nature_people</span>
+</div>
+<div class="my-space-md">
+<div class="flex items-baseline gap-2">
+<span class="font-display text-display text-on-surface tabular-nums">3<span class="text-headline-md font-normal text-outline">h</span> 25<span class="text-headline-md font-normal text-outline">m</span></span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">6 mindful ad-hoc entries</span>
+</div>
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="px-1.5 py-0.5 rounded bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm">Forest Walk</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container font-label-sm text-label-sm text-on-surface-variant">Call with Leo</span>
+</div>
+</div>
+<!-- Card 4: Estimation Drift Score -->
+<div class="p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow group">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-tertiary"></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Estimation Drift</span>
+</div>
+<span class="material-symbols-outlined text-[18px] text-outline group-hover:text-tertiary transition-colors">tune</span>
+</div>
+<div class="my-space-md">
+<div class="flex items-baseline gap-2">
+<span class="font-display text-display text-primary tabular-nums">±18<span class="text-headline-md font-normal text-outline">m</span></span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface">Average variance per session</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="px-2 py-0.5 rounded-full font-label-sm text-label-sm font-semibold flex items-center gap-1" style="background-color: rgb(220, 252, 231); color: rgb(6, 78, 59);"><span>Cozy &amp; Realistic</span><span class="material-symbols-outlined text-[12px]">arrow_back_ios_new</span></span>
+<span class="font-label-sm text-label-sm text-outline">Grade: A</span>
+</div>
+</div>
+</div>
+<!-- Analytical Visualizations: 2 Split Pillars -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-md mt-space-md">
+<!-- Chart 1: Intent vs Reality by Category (7 Cols) -->
+<div class="lg:col-span-7 p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-start justify-between">
+<div class="flex flex-col gap-0.5">
+<span class="font-headline-sm text-headline-sm text-on-surface">Intent vs. Reality by Category</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Comparing intentional estimates against your recorded time</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm text-on-surface-variant">
+<span class="w-3 h-3 rounded bg-surface-container-high border-2 border-dashed border-outline/40"></span>
+<span>Planned</span>
+</div>
+<div class="flex items-center gap-1.5 font-label-sm text-label-sm text-on-surface-variant">
+<span class="w-3 h-3 rounded bg-primary"></span>
+<span>Actual</span>
+</div>
+</div>
+</div>
+<!-- Category Rows -->
+<div class="flex flex-col gap-space-md mt-space-lg">
+<!-- 1: Deep Learning -->
+<div class="flex flex-col gap-1.5 p-space-sm rounded-xl hover:bg-surface-container-low transition-colors">
+<div class="flex items-center justify-between">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-900 border border-blue-200 text-xs font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>Deep Learning &amp; Research</span>
+<div class="flex items-center gap-space-sm font-label-md text-label-md tabular-nums">
+<span class="text-outline">Plan: 10h 00m</span>
+<span class="font-semibold text-secondary">Act: 8h 45m</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">-1h 15m (-12%)</span>
+</div>
+</div>
+<div class="relative h-6 bg-surface-container rounded-lg overflow-hidden flex items-center px-2">
+<!-- Planned wireframe track -->
+<div class="absolute left-0 top-0 bottom-0 bg-secondary/15 rounded-lg border-r-2 border-dashed border-secondary" style="width: 70%"></div>
+<!-- Actual solid track -->
+<div class="absolute left-0 top-1 bottom-1 bg-secondary rounded-md shadow-xs transition-all duration-500" style="width: 61%"></div>
+<span class="relative z-10 font-label-sm text-label-sm text-on-secondary font-medium ml-1">8h 45m logged</span>
+</div>
+<div class="flex items-center justify-between text-outline font-label-sm text-label-sm px-1">
+<span>Tendency: Over-budgeted • Wrap up early comfortably</span>
+<span class="text-secondary font-medium">87.5% Realization</span>
+</div>
+</div>
+<!-- 2: Indie Projects -->
+<div class="flex flex-col gap-1.5 p-space-sm rounded-xl hover:bg-surface-container-low transition-colors">
+<div class="flex items-center justify-between">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-orange-50 text-orange-900 border border-orange-200 text-xs font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-orange-600"></span>Indie Projects &amp; Craft</span>
+<div class="flex items-center gap-space-sm font-label-md text-label-md tabular-nums">
+<span class="text-outline">Plan: 12h 30m</span>
+<span class="font-semibold text-primary">Act: 14h 10m</span>
+<span class="px-1.5 py-0.5 rounded bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-semibold">+1h 40m (+13%)</span>
+</div>
+</div>
+<div class="relative h-6 bg-surface-container rounded-lg overflow-hidden flex items-center px-2">
+<div class="absolute left-0 top-0 bottom-0 bg-primary/20 rounded-lg border-r-2 border-dashed border-primary" style="width: 78%"></div>
+<div class="absolute left-0 top-1 bottom-1 bg-primary rounded-md shadow-xs transition-all duration-500" style="width: 88%"></div>
+<span class="relative z-10 font-label-sm text-label-sm text-on-primary font-medium ml-1">14h 10m logged</span>
+</div>
+<div class="flex items-center justify-between text-outline font-label-sm text-label-sm px-1">
+<span class="text-primary font-medium">Flow state absorption • Tasks run longer than anticipated</span>
+<span class="text-primary-container font-semibold">+14% Overrun</span>
+</div>
+</div>
+<!-- 3: Health & Movement -->
+<div class="flex flex-col gap-1.5 p-space-sm rounded-xl hover:bg-surface-container-low transition-colors">
+<div class="flex items-center justify-between">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>Health &amp; Movement</span>
+<div class="flex items-center gap-space-sm font-label-md text-label-md tabular-nums">
+<span class="text-outline">Plan: 6h 00m</span>
+<span class="font-semibold text-tertiary">Act: 6h 15m</span>
+<span class="px-2 py-0.5 rounded-full font-label-sm text-label-sm font-semibold flex items-center gap-1" style="background-color: rgb(220, 252, 231); color: rgb(6, 78, 59);"><span>Cozy &amp; Realistic</span><span class="material-symbols-outlined text-[12px]">arrow_back_ios_new</span></span>
+</div>
+</div>
+<div class="relative h-6 bg-surface-container rounded-lg overflow-hidden flex items-center px-2">
+<div class="absolute left-0 top-0 bottom-0 bg-tertiary/20 rounded-lg border-r-2 border-dashed border-tertiary" style="width: 42%"></div>
+<div class="absolute left-0 top-1 bottom-1 bg-tertiary rounded-md shadow-xs transition-all duration-500" style="width: 44%"></div>
+<span class="relative z-10 font-label-sm text-label-sm text-on-tertiary font-medium ml-1">6h 15m logged</span>
+</div>
+<div class="flex items-center justify-between text-outline font-label-sm text-label-sm px-1">
+<span class="text-tertiary font-medium">Ritualized cadence • Consistent adherence</span>
+<span class="text-tertiary font-semibold">104% Target Match</span>
+</div>
+</div>
+<!-- 4: Daily Errands -->
+<div class="flex flex-col gap-1.5 p-space-sm rounded-xl hover:bg-surface-container-low transition-colors">
+<div class="flex items-center justify-between">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-200 text-xs font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>Daily Errands &amp; Life Admin</span>
+<div class="flex items-center gap-space-sm font-label-md text-label-md tabular-nums">
+<span class="text-outline">Plan: 4h 30m</span>
+<span class="font-semibold text-on-surface">Act: 3h 15m</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface font-label-sm text-label-sm">-1h 15m</span>
+</div>
+</div>
+<div class="relative h-6 bg-surface-container rounded-lg overflow-hidden flex items-center px-2">
+<div class="absolute left-0 top-0 bottom-0 bg-outline/20 rounded-lg border-r-2 border-dashed border-outline" style="width: 32%"></div>
+<div class="absolute left-0 top-1 bottom-1 bg-outline rounded-md shadow-xs transition-all duration-500" style="width: 23%"></div>
+<span class="relative z-10 font-label-sm text-label-sm text-surface-container-lowest font-medium ml-1">3h 15m</span>
+</div>
+<div class="flex items-center justify-between text-outline font-label-sm text-label-sm px-1">
+<span>Quick execution • Minimal friction</span>
+<span>72% of budget used</span>
+</div>
+</div>
+<!-- 5: Rest & Spontaneous -->
+<div class="flex flex-col gap-1.5 p-space-sm rounded-xl hover:bg-surface-container-low transition-colors">
+<div class="flex items-center justify-between">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-900 border border-purple-200 text-xs font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-purple-600"></span>Rest &amp; Serendipity</span>
+<div class="flex items-center gap-space-sm font-label-md text-label-md tabular-nums">
+<span class="text-outline">Plan: 5h 15m</span>
+<span class="font-semibold text-secondary-container">Act: 6h 25m</span>
+<span class="px-1.5 py-0.5 rounded bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm">+1h 10m</span>
+</div>
+</div>
+<div class="relative h-6 bg-surface-container rounded-lg overflow-hidden flex items-center px-2">
+<div class="absolute left-0 top-0 bottom-0 bg-secondary-container/20 rounded-lg border-r-2 border-dashed border-secondary-container" style="width: 36%"></div>
+<div class="absolute left-0 top-1 bottom-1 bg-secondary-container rounded-md shadow-xs transition-all duration-500" style="width: 44%"></div>
+<span class="relative z-10 font-label-sm text-label-sm text-on-secondary-container font-medium ml-1">6h 25m logged</span>
+</div>
+<div class="flex items-center justify-between text-outline font-label-sm text-label-sm px-1">
+<span class="text-secondary-container font-medium">Rejuvenation buffer generously respected</span>
+<span>122% Delight</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-space-lg pt-space-sm border-t border-surface-container flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant">
+<span>Totals: 36h 30m planned vs 24h 45m tracked</span>
+<button class="flex items-center gap-1 px-3 py-1 rounded-lg bg-surface-container-lowest border border-outline-variant text-primary font-medium hover:bg-surface-container-high hover:border-primary shadow-xs transition-colors font-label-sm text-label-sm" type="button"><span>Inspect category weights</span><span class="material-symbols-outlined text-[14px]">arrow_forward</span></button>
+</div>
+</div>
+<!-- Chart 2: Daily Rhythm Dual-Track Mon-Sun (5 Cols) -->
+<div class="lg:col-span-5 p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between">
+<div class="flex flex-col gap-0.5">
+<span class="font-headline-sm text-headline-sm text-on-surface">Daily Rhythm Alignment</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Planned vs. Actual per day (Mon–Sun)</span>
+</div>
+<div class="flex items-center gap-1 bg-surface-container-lowest border border-outline-variant px-2 py-1 rounded-lg shadow-xs font-label-sm text-label-sm text-on-surface font-medium">
+<button type="button" class="hover:text-primary transition-colors flex items-center justify-center" title="Previous week"><span class="material-symbols-outlined text-[14px]">chevron_left</span></button>
+<span class="px-1">Week 43</span>
+<button type="button" class="hover:text-primary transition-colors flex items-center justify-center" title="Next week"><span class="material-symbols-outlined text-[14px]">chevron_right</span></button>
+</div>
+</div>
+<!-- Custom SVG Dual Bar Chart -->
+<div class="mt-space-lg">
+<div class="w-full flex items-end justify-between gap-2 h-48 pt-4 px-2 bg-surface-container-low rounded-xl">
+<!-- Mon -->
+<div class="flex-1 flex flex-col items-center gap-1 group cursor-pointer">
+<span class="font-label-sm text-label-sm text-outline opacity-0 group-hover:opacity-100 transition-opacity tabular-nums">5.5h</span>
+<div class="flex items-end gap-1 w-full justify-center h-32">
+<!-- Planned -->
+<div class="w-2.5 rounded-t bg-surface-container-high border border-dashed border-outline-variant transition-all group-hover:bg-primary-fixed" style="height: 65%" title="Mon Planned: 5.2h"></div>
+<!-- Actual -->
+<div class="w-2.5 rounded-t bg-primary transition-all group-hover:brightness-110" style="height: 68%" title="Mon Actual: 5.5h"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1">Mon</span>
+</div>
+<!-- Tue -->
+<div class="flex-1 flex flex-col items-center gap-1 group cursor-pointer">
+<span class="font-label-sm text-label-sm text-outline opacity-0 group-hover:opacity-100 transition-opacity tabular-nums">6.0h</span>
+<div class="flex items-end gap-1 w-full justify-center h-32">
+<div class="w-2.5 rounded-t bg-surface-container-high border border-dashed border-outline-variant" style="height: 75%" title="Tue Planned: 6.0h"></div>
+<div class="w-2.5 rounded-t bg-primary" style="height: 75%" title="Tue Actual: 6.0h"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1">Tue</span>
+</div>
+<!-- Wed -->
+<div class="flex-1 flex flex-col items-center gap-1 group cursor-pointer">
+<span class="font-label-sm text-label-sm text-outline opacity-0 group-hover:opacity-100 transition-opacity tabular-nums">6.8h</span>
+<div class="flex items-end gap-1 w-full justify-center h-32">
+<div class="w-2.5 rounded-t bg-surface-container-high border border-dashed border-outline-variant" style="height: 70%" title="Wed Planned: 5.6h"></div>
+<div class="w-2.5 rounded-t bg-primary" style="height: 85%" title="Wed Actual: 6.8h"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1">Wed</span>
+</div>
+<!-- Thu (Today) -->
+<div class="flex-1 flex flex-col items-center gap-1 group cursor-pointer bg-primary-fixed/20 rounded-lg pb-1">
+<span class="font-label-sm text-label-sm text-primary font-semibold tabular-nums">4.2h</span>
+<div class="flex items-end gap-1 w-full justify-center h-32">
+<div class="w-2.5 rounded-t bg-surface-container-high border border-dashed border-primary" style="height: 62%" title="Thu Planned: 5.0h"></div>
+<div class="w-2.5 rounded-t bg-primary shadow-sm" style="height: 52%" title="Thu Actual (In Progress): 4.2h"></div>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-bold mt-1">Thu*</span>
+</div>
+<!-- Fri -->
+<div class="flex-1 flex flex-col items-center gap-1 group cursor-pointer">
+<span class="font-label-sm text-label-sm text-outline opacity-0 group-hover:opacity-100 transition-opacity tabular-nums">5.0h</span>
+<div class="flex items-end gap-1 w-full justify-center h-32">
+<div class="w-2.5 rounded-t bg-surface-container-high border border-dashed border-outline-variant" style="height: 65%"></div>
+<div class="w-2.5 rounded-t bg-surface-dim" style="height: 60%"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1">Fri</span>
+</div>
+<!-- Sat -->
+<div class="flex-1 flex flex-col items-center gap-1 group cursor-pointer">
+<span class="font-label-sm text-label-sm text-outline opacity-0 group-hover:opacity-100 transition-opacity tabular-nums">3.5h</span>
+<div class="flex items-end gap-1 w-full justify-center h-32">
+<div class="w-2.5 rounded-t bg-surface-container-high border border-dashed border-outline-variant" style="height: 40%"></div>
+<div class="w-2.5 rounded-t bg-surface-dim" style="height: 42%"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1">Sat</span>
+</div>
+<!-- Sun -->
+<div class="flex-1 flex flex-col items-center gap-1 group cursor-pointer">
+<span class="font-label-sm text-label-sm text-outline opacity-0 group-hover:opacity-100 transition-opacity tabular-nums">2.0h</span>
+<div class="flex items-end gap-1 w-full justify-center h-32">
+<div class="w-2.5 rounded-t bg-surface-container-high border border-dashed border-outline-variant" style="height: 25%"></div>
+<div class="w-2.5 rounded-t bg-surface-dim" style="height: 25%"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1">Sun</span>
+</div>
+</div>
+</div>
+<div class="mt-space-md p-space-md rounded-xl bg-surface-container-low flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-[20px]">lightbulb</span>
+<p class="font-body-sm text-body-sm text-on-surface">
+            Wednesday afternoons show your peak creative duration. Thursdays consistently balance intentional focus with gentle wind-down.
+          </p>
+</div>
+</div>
+<div class="mt-space-md flex items-center justify-between text-outline font-label-sm text-label-sm">
+<span>*Thursday timer active</span>
+<span>Week Average: 4.9h / day</span>
+</div>
+</div>
+</div>
+<!-- Section 3 & 4: Deep Pattern Analysis & Rollover Log -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-md mt-space-md">
+<!-- Chronic Over-runs & Under-runs (7 Cols) -->
+<div class="lg:col-span-7 p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-md">
+<div class="flex flex-col gap-0.5">
+<span class="font-headline-sm text-headline-sm text-on-surface">Estimation Bias &amp; Habitual Drift</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Repeated patterns identified in your personal task catalog</span>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface" title="Filter patterns" type="button">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+</button>
+</div>
+<div class="flex flex-col gap-space-sm">
+<!-- Pattern Item 1 -->
+<div class="p-space-md rounded-xl bg-surface-container-low flex items-center justify-between gap-space-md hover:bg-surface-container transition-colors">
+<div class="flex items-start gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-primary-fixed text-primary flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">schedule</span>
+</div>
+<div class="flex flex-col gap-0.5">
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg text-on-surface">Tauri &amp; Rust Architecture</span>
+<span class="px-1.5 py-0.5 rounded bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-label-sm">Underestimated</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Over 4 tracked sessions • High architectural complexity bias</span>
+</div>
+</div>
+<div class="text-right shrink-0">
+<span class="font-label-lg text-label-lg text-primary font-bold tabular-nums">+35 min</span>
+<span class="block font-label-sm text-label-sm text-outline">avg variance</span>
+</div>
+</div>
+<!-- Pattern Item 2 -->
+<div class="p-space-md rounded-xl bg-surface-container-low flex items-center justify-between gap-space-md hover:bg-surface-container transition-colors">
+<div class="flex items-start gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-tertiary-fixed text-tertiary flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+</div>
+<div class="flex flex-col gap-0.5">
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg text-on-surface">Morning Mobility &amp; Tea</span>
+<span class="px-2 py-0.5 rounded-full font-label-sm text-label-sm font-semibold flex items-center gap-1" style="background-color: rgb(220, 252, 231); color: rgb(6, 78, 59);"><span>Cozy &amp; Realistic</span><span class="material-symbols-outlined text-[12px]">arrow_back_ios_new</span></span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Over 6 tracked sessions • Solid anchored daily rhythm</span>
+</div>
+</div>
+<div class="text-right shrink-0">
+<span class="font-label-lg text-label-lg text-tertiary font-bold tabular-nums">0 min</span>
+<span class="block font-label-sm text-label-sm text-outline">perfect match</span>
+</div>
+</div>
+<!-- Pattern Item 3 -->
+<div class="p-space-md rounded-xl bg-surface-container-low flex items-center justify-between gap-space-md hover:bg-surface-container transition-colors">
+<div class="flex items-start gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high text-on-surface-variant flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">speed</span>
+</div>
+<div class="flex items-col gap-0.5">
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg text-on-surface">Grocery &amp; Pantry Supplies</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-highest text-on-surface font-label-sm text-label-sm">Overestimated</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Over 3 runs • Tends to finish faster than calendar block</span>
+</div>
+</div>
+<div class="text-right shrink-0">
+<span class="font-label-lg text-label-lg text-on-surface font-bold tabular-nums">-15 min</span>
+<span class="block font-label-sm text-label-sm text-outline">saved per run</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm border-t border-surface-container flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-outline">Totals: 36h 30m planned vs 24h 45m tracked</span>
+<button class="px-space-md py-1.5 rounded-lg bg-surface-container-lowest border border-outline-variant text-on-surface font-medium hover:bg-surface-container-high hover:border-outline shadow-xs transition-colors font-label-sm text-label-sm" type="button">
+          Apply Suggested Padding
+        </button>
+</div>
+</div>
+<!-- Rollover & Postponement Reflection (5 Cols) -->
+<div class="lg:col-span-5 p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-md">
+<div class="flex flex-col gap-0.5">
+<span class="font-headline-sm text-headline-sm text-on-surface">Rollover &amp; Dismissals</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Intentions postponed with grace, not guilt</span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-surface-container font-label-sm text-label-sm text-on-surface">5 items this week</span>
+</div>
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-center justify-between p-space-sm rounded-xl bg-surface-container-low">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-outline">turn_right</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Clean up local dev branches</span>
+<span class="font-label-sm text-label-sm text-outline">Rolled 2 times • Deprioritized</span>
+</div>
+</div>
+<div class="flex items-center gap-1">
+<button class="px-2.5 py-1 rounded-lg bg-surface-container-lowest border border-outline-variant text-on-surface font-medium hover:bg-surface-container-high hover:border-outline font-label-sm text-label-sm shadow-xs transition-colors" type="button">Schedule</button>
+<button class="p-1 rounded text-outline hover:text-error" title="Drop task quietly" type="button">
+<span class="material-symbols-outlined text-[16px]">delete_sweep</span>
+</button>
+</div>
+</div>
+<div class="flex items-center justify-between p-space-sm rounded-xl bg-surface-container-low">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-tertiary">check</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface line-through opacity-75">Read Rust Async Book Ch. 4</span>
+<span class="font-label-sm text-label-sm text-tertiary">Completed yesterday after 1 rollover</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-outline">Done</span>
+</div>
+<div class="flex items-center justify-between p-space-sm rounded-xl bg-surface-container-low">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-outline">free_cancellation</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Audit subscription renewals</span>
+<span class="font-label-sm text-label-sm text-outline">Dismissed intentionally • Not urgent</span>
+</div>
+</div>
+<span class="px-1.5 py-0.5 rounded bg-surface-container font-label-sm text-label-sm text-outline">Released</span>
+</div>
+</div>
+</div>
+<div class="mt-space-md p-space-sm rounded-xl bg-surface-container flex items-center justify-between">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Postponing is self-compassion, not failure.</span>
+<button class="px-3 py-1 rounded-lg bg-surface-container-lowest border border-outline-variant text-primary font-medium hover:bg-surface-container-high hover:border-primary shadow-xs transition-colors font-label-sm text-label-sm" type="button">Clean Inbox</button>
+</div>
+</div>
+</div>
+<!-- Warm Photo Tactile Journal Footer Strip -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md mt-space-md">
+<div class="relative overflow-hidden rounded-2xl p-space-md bg-surface-container-lowest shadow-sm flex items-center gap-space-md">
+<div class="w-16 h-16 rounded-xl bg-primary-fixed text-primary flex items-center justify-center shrink-0 shadow-sm"><span class="material-symbols-outlined text-[32px]">edit_note</span></div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-primary uppercase tracking-wider">Mindful Journaling</span>
+<span class="font-label-lg text-label-lg text-on-surface">Weekly Retrospective Ready</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Write 3 reflective sentences before Friday dinner.</span>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-2xl p-space-md bg-surface-container-lowest shadow-sm flex items-center gap-space-md">
+<div class="w-16 h-16 rounded-xl bg-secondary-fixed text-secondary flex items-center justify-center shrink-0 shadow-sm"><span class="material-symbols-outlined text-[32px]">bedtime</span></div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Rest Buffer</span>
+<span class="font-label-lg text-label-lg text-on-surface">Saturday Silence Scheduled</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">4 continuous unprogrammed hours saved for rest.</span>
+</div>
+</div>
+<div class="relative overflow-hidden rounded-2xl p-space-md bg-surface-container-lowest shadow-sm flex items-center gap-space-md">
+<div class="w-16 h-16 rounded-xl bg-tertiary-fixed flex items-center justify-center text-tertiary shrink-0">
+<span class="material-symbols-outlined text-[32px]">spa</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-tertiary uppercase tracking-wider">Rhythm Score</span>
+<span class="font-label-lg text-label-lg text-on-surface">94 / 100 Harmony</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Calm pacing maintained without cognitive debt.</span>
+</div>
+</div>
+</div>
+</div>
+<script>
+  (function() {
+    const exportBtn = document.getElementById('exportBtn');
+    if (exportBtn) {
+      exportBtn.addEventListener('click', () => {
+        const timestamp = new Date().toISOString().slice(0, 10);
+        const dummyData = {
+          dateRange: "2024-10-18 to 2024-10-24",
+          totalIntentMinutes: 2295,
+          totalRealityMinutes: 2090,
+          driftAverageMinutes: 18,
+          categories: [
+            { name: "Deep Learning", planned: "10h 00m", actual: "8h 45m" },
+            { name: "Indie Projects", planned: "12h 30m", actual: "14h 10m" },
+            { name: "Health & Vitality", planned: "6h 00m", actual: "6h 15m" },
+            { name: "Daily Errands", planned: "4h 30m", actual: "3h 15m" },
+            { name: "Rest & Spontaneous", planned: "5h 15m", actual: "6h 25m" }
+          ]
+        };
+        const blob = new Blob([JSON.stringify(dummyData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `chronicle-reflection-${timestamp}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+    }
+  })();
+</script></main></div><div class="fixed bottom-6 left-[calc(50%+8rem)] -translate-x-1/2 z-50 flex items-center gap-space-lg px-5 py-3 rounded-2xl bg-surface-container-lowest/95 backdrop-blur-xl border border-outline-variant/60 shadow-[0_8px_24px_-4px_rgba(28,25,23,0.12)] w-max max-w-[calc(100vw-18rem)]">
+  <!-- Left side: Live indicator badge & Task metadata -->
+  <div class="flex items-center gap-3">
+    <div class="flex items-center gap-1.5 px-2 py-1 rounded-full bg-error/10 text-error border border-error/20 whitespace-nowrap shrink-0">
+      <span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+      <span class="font-label-sm text-[11px] font-bold tracking-wider uppercase text-error">RECORDING REALITY</span>
+    </div>
+    <div class="flex flex-col">
+      <div class="flex items-center gap-2">
+        <span class="font-headline-sm text-body-lg font-bold text-on-surface tracking-tight whitespace-nowrap">Writing Design Spec</span>
+        <button type="button" class="text-outline hover:text-on-surface transition-colors flex items-center" title="Edit Task">
+          <span class="material-symbols-outlined text-[16px]">edit</span>
+        </button>
+        <span class="text-primary font-label-sm text-label-sm font-semibold flex items-center gap-1">
+          <span>•</span> Indie Projects
+        </span>
+      </div>
+      <span class="font-body-sm text-[12px] text-on-surface-variant flex items-center gap-1.5">
+        <span>• Tauri Schema</span>
+        <span>• Slot: 01:15 PM</span>
+      </span>
+    </div>
+  </div>
+
+  <div class="h-8 w-px bg-surface-container-high hidden md:block"></div>
+
+  <!-- Center: Large Tabular Timer, Target, Progress Bar & Extension -->
+  <div class="flex items-center gap-space-md">
+    <div class="flex flex-col gap-1">
+      <div class="flex items-baseline gap-1.5">
+        <span class="font-numerical-timer text-numerical-timer font-mono text-primary font-bold tabular-nums">00:38:14</span>
+        <span class="font-label-sm text-label-sm text-outline tabular-nums whitespace-nowrap">/ 45m target</span>
+      </div>
+      <!-- Tactile Progress Bar (85% width) -->
+      <div class="w-36 bg-surface-container rounded-full h-1.5 overflow-hidden">
+        <div class="bg-primary h-full rounded-full transition-all duration-500" style="width: 85%"></div>
+      </div>
+    </div>
+    <!-- Quick extension chips -->
+    <div class="flex items-center gap-1">
+      <button type="button" title="Add 5 minutes" class="px-2 py-1 rounded-lg bg-surface-container-lowest border border-outline-variant hover:bg-surface-container-high hover:border-outline text-on-surface font-medium font-label-sm text-label-sm shadow-xs transition-colors tabular-nums">+5m</button>
+      <button type="button" title="Add 15 minutes" class="px-2 py-1 rounded-lg bg-surface-container-lowest border border-outline-variant hover:bg-surface-container-high hover:border-outline text-on-surface font-medium font-label-sm text-label-sm shadow-xs transition-colors tabular-nums">+15m</button>
+    </div>
+  </div>
+
+  <div class="h-8 w-px bg-surface-container-high hidden md:block"></div>
+
+  <!-- Right side: Session action buttons -->
+  <div class="flex items-center gap-1.5">
+    <button type="button" title="Pause session" class="p-2 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors flex items-center justify-center">
+      <span class="material-symbols-outlined text-[20px]">pause</span>
+    </button>
+    <button type="button" title="Add session note" class="p-2 rounded-xl text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors flex items-center justify-center">
+      <span class="material-symbols-outlined text-[20px]">edit_note</span>
+    </button>
+    <button type="button" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-primary text-on-primary hover:bg-primary-container transition-colors shadow-sm font-label-md text-label-md font-medium ml-1 whitespace-nowrap">
+      <span class="material-symbols-outlined text-[18px]">check_circle</span>
+      <span>Finish &amp; Commit</span>
+    </button>
+    <button type="button" title="Discard session" class="p-2 rounded-xl text-outline hover:text-error hover:bg-error-container/30 transition-colors flex items-center justify-center">
+      <span class="material-symbols-outlined text-[18px]">delete</span>
+    </button>
+  </div>
+</div>
+
+</body></html>

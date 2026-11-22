@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+
+<html class="h-full dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base { html, body { margin: 0; padding: 0; } body { overscroll-behavior: none; } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "tertiary": "#7bd0ff",
+          "surface-container-lowest": "#0d0e13",
+          "on-background": "#e3e2e9",
+          "secondary": "#ffb690",
+          "on-tertiary-fixed-variant": "#004c69",
+          "on-primary": "#5a1c00",
+          "secondary-container": "#ec6a06",
+          "outline-variant": "#5a4138",
+          "secondary-fixed": "#ffdbca",
+          "tertiary-container": "#009bd1",
+          "primary-fixed": "#ffdbce",
+          "on-secondary-container": "#4a1c00",
+          "background": "#121318",
+          "tertiary-fixed": "#c4e7ff",
+          "primary-container": "#f66018",
+          "on-tertiary-container": "#002d40",
+          "inverse-on-surface": "#2f3035",
+          "on-surface": "#e3e2e9",
+          "surface-tint": "#ffb599",
+          "surface-variant": "#34343a",
+          "error-container": "#93000a",
+          "inverse-primary": "#a73a00",
+          "surface-container-highest": "#34343a",
+          "primary": "#ffb599",
+          "primary-fixed-dim": "#ffb599",
+          "on-primary-container": "#4f1700",
+          "on-tertiary": "#00354a",
+          "surface-dim": "#121318",
+          "on-primary-fixed-variant": "#7f2b00",
+          "outline": "#a98a7e",
+          "on-secondary-fixed": "#341100",
+          "on-tertiary-fixed": "#001e2c",
+          "secondary-fixed-dim": "#ffb690",
+          "surface-bright": "#38393e",
+          "surface-container": "#1e1f24",
+          "on-error-container": "#ffdad6",
+          "on-secondary-fixed-variant": "#783200",
+          "tertiary-fixed-dim": "#7bd0ff",
+          "surface-container-low": "#1a1b20",
+          "error": "#ffb4ab",
+          "inverse-surface": "#e3e2e9",
+          "on-primary-fixed": "#370e00",
+          "surface-container-high": "#292a2f",
+          "on-error": "#690005",
+          "on-surface-variant": "#e2bfb2",
+          "surface": "#121318",
+          "on-secondary": "#552100"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.25rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "margin": "1rem",
+          "gutter": "1rem",
+          "space-xs": "0.25rem",
+          "space-md": "1rem",
+          "space-sm": "0.5rem",
+          "margin-desktop": "2rem",
+          "gutter-desktop": "1.5rem",
+          "space-lg": "1.5rem",
+          "space-xl": "2.5rem"
+        },
+        "fontFamily": {
+          "headline-lg-mobile": ["Plus Jakarta Sans"],
+          "body-lg": ["Plus Jakarta Sans"],
+          "headline-xl": ["Plus Jakarta Sans"],
+          "label-md": ["Plus Jakarta Sans"],
+          "body-sm": ["Plus Jakarta Sans"],
+          "headline-md": ["Plus Jakarta Sans"],
+          "label-lg": ["Plus Jakarta Sans"],
+          "headline-xl-mobile": ["Plus Jakarta Sans"],
+          "headline-lg": ["Plus Jakarta Sans"],
+          "headline-sm": ["Plus Jakarta Sans"],
+          "body-md": ["Plus Jakarta Sans"],
+          "label-sm": ["Plus Jakarta Sans"]
+        },
+        "fontSize": {
+          "headline-lg-mobile": ["22px", { "lineHeight": "30px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+          "body-lg": ["16px", { "lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "400" }],
+          "headline-xl": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.025em", "fontWeight": "700" }],
+          "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+          "body-sm": ["12px", { "lineHeight": "18px", "letterSpacing": "0.005em", "fontWeight": "400" }],
+          "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+          "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+          "headline-xl-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+          "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+          "headline-sm": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+          "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }],
+          "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "700" }]
+        }
+      }
+    }
+  };
+</script></head><body class="bg-surface font-body-md text-on-surface antialiased select-none dark"><header class="fixed top-0 left-0 right-0 h-10 z-50 bg-[#121318]/90 backdrop-blur-md border-b border-surface-container-highest shadow-[0_1px_8px_rgba(0,0,0,0.4)] flex items-center justify-between px-space-md select-none"><div class="flex items-center gap-space-sm"><img alt="Chronicle App Icon" class="h-5 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ALJJyrBDxvpOMW4q8zZbhpC11BIe-g9vmWSApNnUU3qYtXcV12Xm0OusKXhjl-e7a57ODpLmMtmB0amfvcrI6guaDcCZ6qvS1j6jjSUv7etSVzIzx_LHKXt9dTqJasXQnP02_fX828CKLKweogsu19ZciFORfpZssQROP-F8RjuOYo2g0w74jbfvwYcmGhE0lwayJKCrfsUlWS1EhADELBI8lGfMYSPJMnSvWIAM1M483vqh"/><span class="font-label-lg text-label-lg text-slate-100 tracking-tight font-semibold">Chronicle</span><span class="px-space-xs py-0.5 rounded bg-surface-container-high text-slate-400 font-label-sm text-label-sm border border-surface-container-highest">v1.0.4</span><div class="flex items-center gap-1.5 px-space-xs py-0.5 rounded-full bg-surface-container text-tertiary font-label-sm text-label-sm border border-tertiary/20"><span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span><span>SQLite Local</span></div></div><div class="flex items-center gap-space-xs px-space-md py-1 rounded bg-surface-container-low border border-surface-container-high text-slate-300 font-label-md text-label-md cursor-grab active:cursor-grabbing"><span class="material-symbols-outlined text-[16px] text-primary">calendar_today</span><span>Today, Thursday Oct 24</span></div><div class="flex items-center gap-space-sm"><div class="flex items-center gap-space-xs px-space-sm py-1 rounded bg-surface-container-low border border-surface-container-high text-slate-400 font-label-sm text-label-sm"><span class="material-symbols-outlined text-[14px]">search</span><span>Ctrl+K</span></div><button class="flex items-center gap-1 px-space-sm py-1 rounded bg-primary-container text-white font-label-sm text-label-sm hover:opacity-90 transition-opacity font-semibold shadow-sm" type="button"><span class="material-symbols-outlined text-[14px]">add</span><span>Quick Log</span></button><div class="flex items-center ml-space-xs"><button aria-label="Minimize" class="h-7 w-9 flex items-center justify-center text-slate-400 hover:bg-surface-container-high hover:text-slate-100 transition-colors rounded" type="button"><span class="material-symbols-outlined text-[14px]">remove</span></button><button aria-label="Maximize" class="h-7 w-9 flex items-center justify-center text-slate-400 hover:bg-surface-container-high hover:text-slate-100 transition-colors rounded" type="button"><span class="material-symbols-outlined text-[14px]">crop_square</span></button><button aria-label="Close" class="h-7 w-9 flex items-center justify-center text-slate-400 hover:bg-error-container hover:text-error transition-colors rounded" type="button"><span class="material-symbols-outlined text-[14px]">close</span></button></div><div class="w-7 h-7 rounded-full bg-primary-container flex items-center justify-center ml-1 text-white"><span class="material-symbols-outlined text-[14px]">person</span></div></div></header><aside class="fixed left-0 top-10 bottom-0 w-64 bg-surface-container-low border-r border-surface-container-highest z-40 flex flex-col justify-between p-space-md shadow-[0_4px_16px_rgba(0,0,0,0.4)]"><div class="flex flex-col gap-space-lg overflow-y-auto"><div class="flex flex-col gap-space-xs"><span class="px-space-sm font-label-sm text-label-sm text-slate-400 uppercase tracking-wider font-semibold">Views</span><nav class="flex flex-col gap-1" data-active-classes="bg-primary-container text-white font-semibold rounded-lg shadow-sm"><a aria-current="page" class="flex items-center justify-between px-space-sm py-2 transition-all bg-primary-container text-white font-semibold rounded-lg shadow-sm" data-path="dual-track-today" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">view_column</span><span>Dual-Track Today</span></div><span class="px-2 py-0.5 rounded-full bg-black/30 text-white font-label-sm text-label-sm font-medium">4 active</span></a><a class="flex items-center justify-between px-space-sm py-2 rounded-lg text-slate-400 hover:bg-surface-container hover:text-slate-200 font-label-md text-label-md transition-all" data-path="weekly-planner" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">calendar_view_week</span><span>Weekly Planner</span></div><span class="px-2 py-0.5 rounded-full bg-surface-container-high text-slate-400 font-label-sm text-label-sm font-medium">32 planned</span></a><a class="flex items-center justify-between px-space-sm py-2 rounded-lg text-slate-400 hover:bg-surface-container hover:text-slate-200 font-label-md text-label-md transition-all" data-path="task-backlog" href="#">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[18px]">list_alt</span>
+<span>Intentions</span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-slate-400 text-xs font-medium">42 items</span>
+</a><a class="flex items-center justify-between px-space-sm py-2 rounded-lg text-slate-400 hover:bg-surface-container hover:text-slate-200 font-label-md text-label-md transition-all" data-path="time-analytics" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">donut_large</span><span>Time Analytics</span></div></a><a class="flex items-center justify-between px-space-sm py-2 rounded-lg text-slate-400 hover:bg-surface-container hover:text-slate-200 font-label-md text-label-md transition-all" data-path="data-vault-and-backup" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-[18px]">database</span><span>Data Vault</span></div></a></nav></div><div class="flex flex-col gap-space-xs"><div class="flex items-center justify-between px-space-sm"><span class="font-label-sm text-label-sm text-slate-400 uppercase tracking-wider font-semibold">Intentions</span><span class="material-symbols-outlined text-[16px] text-slate-400 cursor-pointer hover:text-slate-200">tune</span></div><div class="px-space-xs"><div class="flex items-center gap-space-xs px-space-sm py-1.5 rounded-lg bg-surface-container border border-surface-container-highest text-slate-400 font-body-sm text-body-sm"><span class="material-symbols-outlined text-[16px]">add</span><input class="bg-transparent focus:outline-none w-full text-slate-200 placeholder:text-slate-500 font-body-sm text-body-sm" placeholder="Add to Menu..." readonly="" type="text"/></div></div><div class="flex flex-col gap-1 mt-space-xs"><div class="flex items-center justify-between px-space-sm py-1 rounded text-slate-300 hover:bg-surface-container hover:text-slate-100 font-label-md text-label-md cursor-pointer"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-tertiary"></span><span>Health &amp; Movement</span></div><span class="font-label-sm text-label-sm text-slate-500">3</span></div><div class="flex items-center justify-between px-space-sm py-1 rounded text-slate-300 hover:bg-surface-container hover:text-slate-100 font-label-md text-label-md cursor-pointer"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-secondary"></span><span>Deep Learning</span></div><span class="font-label-sm text-label-sm text-slate-500">5</span></div><div class="flex items-center justify-between px-space-sm py-1 rounded text-slate-300 hover:bg-surface-container hover:text-slate-100 font-label-md text-label-md cursor-pointer"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-primary"></span><span>Indie Projects</span></div><span class="font-label-sm text-label-sm text-slate-500">4</span></div><div class="flex items-center justify-between px-space-sm py-1 rounded text-slate-300 hover:bg-surface-container hover:text-slate-100 font-label-md text-label-md cursor-pointer"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-error"></span><span>Daily Errands</span></div><span class="font-label-sm text-label-sm text-slate-500">2</span></div><div class="flex items-center justify-between px-space-sm py-1 rounded text-slate-300 hover:bg-surface-container hover:text-slate-100 font-label-md text-label-md cursor-pointer"><div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-secondary-container"></span><span>Rest &amp; Play</span></div><span class="font-label-sm text-label-sm text-slate-500">3</span></div></div><div class="flex items-center gap-1 p-0.5 rounded-lg bg-surface-container mt-space-xs border border-surface-container-highest"><button class="flex-1 py-1 rounded text-center font-label-sm text-label-sm bg-surface-container-high text-slate-200 shadow-sm" type="button">One-Off</button><button class="flex-1 py-1 rounded text-center font-label-sm text-label-sm text-slate-400 hover:text-slate-200" type="button">Habitual</button></div></div></div><div class="flex flex-col border-t border-surface-container-highest pt-space-sm mt-auto">
+<div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center justify-between px-space-xs">
+<span>Appearance</span>
+<span class="text-[10px] text-slate-500 font-normal">SQLite sync</span>
+</div>
+<div class="grid grid-cols-3 bg-surface-container p-0.5 rounded-lg text-xs mb-2 border border-surface-container-highest">
+<button class="flex items-center justify-center gap-1 py-1 rounded text-slate-400 hover:text-slate-200 transition-all" title="Light Theme" type="button">
+<span class="material-symbols-outlined text-[14px]">light_mode</span>
+<span class="text-[11px]">Light</span>
+</button>
+<button class="flex items-center justify-center gap-1 py-1 rounded bg-surface-container-high text-primary font-semibold shadow-sm transition-all border border-primary/30" title="Dark Theme" type="button">
+<span class="material-symbols-outlined text-[14px] text-primary">dark_mode</span>
+<span class="text-[11px] text-slate-100">Dark</span>
+</button>
+<button class="flex items-center justify-center gap-1 py-1 rounded text-slate-400 hover:text-slate-200 transition-all" title="System Theme" type="button">
+<span class="material-symbols-outlined text-[14px]">desktop_windows</span>
+<span class="text-[11px]">Auto</span>
+</button>
+</div>
+<div class="flex items-center justify-between text-xs text-slate-400 pt-1 px-space-xs">
+<button class="flex items-center gap-1.5 hover:text-slate-200 transition-colors font-label-md text-label-md" type="button">
+<span class="material-symbols-outlined text-[16px]">settings</span>
+<span>Settings</span>
+</button>
+<button class="flex items-center gap-1 hover:text-slate-200 transition-colors font-label-md text-label-md" type="button">
+<span class="material-symbols-outlined text-[16px]">help_outline</span>
+<span>Hotkeys</span>
+<kbd class="px-1.5 py-0.2 rounded bg-surface-container-high border border-surface-container-highest font-label-sm text-label-sm text-slate-300 ml-1">?</kbd>
+</button>
+</div>
+</div></aside><div class="pl-64"><main class="relative pt-10 min-h-screen bg-background w-full px-space-lg pb-28"><div class="flex flex-col w-full gap-space-lg">
+<!-- TOP CONTEXTUAL HERO & DAY RIBBON -->
+<section class="flex flex-col gap-space-md bg-surface-container-low border border-surface-container-highest/80 p-space-lg rounded-xl shadow-lg relative overflow-hidden">
+<!-- Ambient organic gradient tint -->
+<div class="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-gradient-to-br from-primary-container/20 via-secondary-container/15 to-transparent blur-3xl pointer-events-none"></div>
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md relative z-10">
+<!-- Date Headline & Mini Day Strip -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs text-slate-400 font-label-sm text-label-sm uppercase tracking-wider">
+<span class="material-symbols-outlined text-[15px] text-primary">auto_awesome</span>
+<span>Daily Journal • Harmony View</span>
+</div>
+<div class="flex flex-wrap items-baseline gap-space-md">
+<h1 class="font-headline-lg text-headline-lg text-slate-100 tracking-tight font-bold">Thursday, October 24, 2024</h1>
+<span class="font-body-sm text-body-sm text-slate-400">Week 43 • Quiet Focus Day</span>
+</div>
+<!-- Mini Day Picker Bar -->
+<div class="flex items-center gap-1.5 mt-space-xs p-1 bg-surface-container border border-surface-container-highest rounded-lg self-start">
+<button class="px-2.5 py-1 rounded font-label-md text-label-md text-slate-400 hover:text-slate-200 hover:bg-surface-container-high transition-colors" type="button">Mon 21</button>
+<button class="px-2.5 py-1 rounded font-label-md text-label-md text-slate-400 hover:text-slate-200 hover:bg-surface-container-high transition-colors" type="button">Tue 22</button>
+<button class="px-2.5 py-1 rounded font-label-md text-label-md text-slate-400 hover:text-slate-200 hover:bg-surface-container-high transition-colors" type="button">Wed 23</button>
+<button class="px-3 py-1 rounded font-label-md text-label-md bg-primary-container text-white shadow-sm flex items-center gap-1.5 font-semibold" type="button">
+<span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+<span>Today Oct 24</span>
+</button>
+<button class="px-2.5 py-1 rounded font-label-md text-label-md text-slate-400 hover:text-slate-200 hover:bg-surface-container-high transition-colors" type="button">Fri 25</button>
+<button class="px-2.5 py-1 rounded font-label-md text-label-md text-slate-400 hover:text-slate-200 hover:bg-surface-container-high transition-colors" type="button">Sat 26</button>
+<button class="px-2.5 py-1 rounded font-label-md text-label-md text-slate-400 hover:text-slate-200 hover:bg-surface-container-high transition-colors" type="button">Sun 27</button>
+</div>
+</div>
+<!-- Quick Action Group -->
+<div class="flex items-center flex-wrap gap-space-sm self-start lg:self-center">
+<button class="flex items-center gap-space-xs px-space-md py-2 rounded-lg bg-surface-container text-slate-100 font-label-lg text-label-lg shadow-sm hover:bg-surface-container-high transition-all active:scale-[0.98] border border-surface-container-highest" id="openSpontaneousBtn" type="button">
+<span class="material-symbols-outlined text-[18px] text-primary">bolt</span>
+<span>Spontaneous Log</span>
+</button>
+<button class="flex items-center gap-space-xs px-space-md py-2 rounded-lg bg-secondary-container text-white font-label-lg text-label-lg shadow-sm hover:opacity-95 transition-all active:scale-[0.98] font-semibold" id="openRolloverBtn" type="button">
+<span class="material-symbols-outlined text-[18px]">bedtime</span>
+<span>End-of-Day Rollover</span>
+<span class="px-1.5 py-0.2 rounded-full bg-black/30 text-white font-label-sm text-label-sm ml-1">1 due</span>
+</button>
+</div>
+</div>
+<!-- Alignment Stat Pills and Sparkline Strip -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-sm pt-space-xs">
+<div class="flex items-center justify-between p-space-sm px-space-md rounded-lg bg-surface-container border border-surface-container-highest shadow-sm">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-slate-400">Intent Target</span>
+<span class="font-headline-sm text-headline-sm text-slate-100 font-bold">6h 15m</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-slate-300 border border-surface-container-highest">
+<span class="material-symbols-outlined text-[18px]">schedule</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-space-sm px-space-md rounded-lg bg-surface-container border border-surface-container-highest shadow-sm">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-slate-400">Tracked Reality</span>
+<span class="font-headline-sm text-headline-sm text-primary font-bold">4h 45m</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-primary/20 text-primary border border-primary/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">timelapse</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-space-sm px-space-md rounded-lg bg-surface-container border border-surface-container-highest shadow-sm">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-slate-400">Alignment Pacing</span>
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-tertiary font-bold">82% Harmony</span>
+<span class="material-symbols-outlined text-[16px] text-tertiary">balance</span>
+</div>
+</div>
+<div class="w-12 h-6 flex items-center">
+<!-- Sparkline representation of balanced distribution -->
+<svg class="w-full h-full text-tertiary overflow-visible" fill="none" viewbox="0 0 48 20">
+<path d="M2 14 Q 14 6, 24 10 T 46 4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2.5"></path>
+<circle cx="46" cy="4" fill="currentColor" r="2.5"></circle>
+</svg>
+</div>
+</div>
+<div class="flex items-center justify-between p-space-sm px-space-md rounded-lg bg-surface-container border border-surface-container-highest shadow-sm">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-slate-400">Mindful Drift</span>
+<span class="font-headline-sm text-headline-sm text-slate-200 font-bold">+20m Ad-hoc</span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-slate-300 border border-surface-container-highest font-label-sm text-label-sm">Gentle Pace</span>
+</div>
+</div>
+</section>
+<!-- WORKSPACE WRAPPER: DUAL-TRACK TIMELINE + BACKLOG PALETTE -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg">
+<!-- MAIN DUAL-TRACK TIMELINE (Left 9 cols on desktop) -->
+<div class="xl:col-span-9 flex flex-col bg-surface-container-low border border-surface-container-highest rounded-xl shadow-lg p-space-md lg:p-space-lg relative overflow-hidden">
+<!-- Track Header Labels -->
+<div class="grid grid-cols-12 pb-space-sm border-b border-surface-container-highest gap-2 items-center"><div class="col-span-5 flex items-center justify-between px-space-xs min-w-0"><div class="flex items-center gap-space-xs min-w-0 whitespace-nowrap"><span class="w-2.5 h-2.5 rounded-full bg-slate-400 flex-shrink-0"></span><span class="font-label-lg text-label-lg text-slate-200 uppercase tracking-wider font-semibold">Intent</span><span class="font-body-sm text-body-sm text-slate-500 hidden sm:inline">(Planned Schedule)</span></div><span class="font-label-sm text-label-sm text-slate-400 whitespace-nowrap flex-shrink-0 ml-1">6 Blocks</span></div><div class="col-span-2 text-center"><span class="font-label-sm text-label-sm text-slate-400 uppercase tracking-widest whitespace-nowrap font-semibold">Time Ruler</span></div><div class="col-span-5 flex items-center justify-between px-space-xs min-w-0"><div class="flex items-center gap-space-xs min-w-0 whitespace-nowrap"><span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse flex-shrink-0"></span><span class="font-label-lg text-label-lg text-slate-200 uppercase tracking-wider font-semibold">Reality</span><span class="font-body-sm text-body-sm text-slate-500 hidden sm:inline">(Actual Executed)</span></div><span class="font-label-sm text-label-sm text-tertiary flex items-center gap-1 font-semibold whitespace-nowrap flex-shrink-0 ml-1"><span class="material-symbols-outlined text-[14px]">sync</span> Live Synced</span></div></div>
+<!-- TIMELINE CANVAS WITH TIME RULER & DUAL TRACKS -->
+<div class="relative w-full mt-space-md select-none">
+<!-- Live Current Time Marker: 02:15 PM positioned at ~52% down the ruler -->
+<div class="absolute left-0 right-0 z-30 pointer-events-none flex items-center" style="top: 565px;">
+<!-- Left line -->
+<div class="flex-1 h-0.5 bg-primary/70"></div>
+<!-- Center indicator badge -->
+<div class="px-2.5 py-0.5 rounded-full bg-primary-container text-white font-label-sm text-label-sm shadow-md flex items-center gap-1 mx-2 font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+<span>Now: 02:15 PM</span>
+</div>
+<!-- Right line -->
+<div class="flex-1 h-0.5 bg-primary/70"></div>
+</div>
+<!-- 12-Hour Vertical Grid Framework (08:00 AM to 08:00 PM) -->
+<div class="flex flex-col divide-y divide-surface-container-highest/60">
+<!-- 08:00 AM -->
+<div class="grid grid-cols-12 min-h-[64px] gap-2 py-1 items-start relative group">
+<!-- Left Track: 08:30 Mobility -->
+<div class="col-span-5 relative h-full flex flex-col justify-end">
+<div class="p-2 rounded-lg bg-surface-container border border-dashed border-tertiary/50 text-slate-200 flex items-center justify-between shadow-xs hover:border-tertiary transition-all cursor-grab">
+<div class="flex items-center gap-2 min-w-0">
+<span class="material-symbols-outlined text-[16px] text-tertiary">check_circle</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-slate-100 font-semibold truncate">Morning Mobility &amp; Sunlight Walk</span>
+<span class="font-label-sm text-label-sm text-tertiary">08:30 - 09:15 • 45m</span>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-tertiary/10 text-tertiary border border-tertiary/30 font-label-sm text-label-sm font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>Health</span>
+</div>
+</div>
+<!-- Center Hour -->
+<div class="col-span-2 flex items-center justify-center text-slate-400 font-label-md text-label-md py-1">
+              08:00 AM
+            </div>
+<!-- Right Track: 08:35 Walk Actual -->
+<div class="col-span-5 relative h-full flex flex-col justify-end">
+<div class="p-2 rounded-lg bg-surface-container border border-surface-container-highest text-slate-200 flex items-center justify-between shadow-xs hover:shadow-sm transition-all">
+<div class="flex items-center gap-2 min-w-0">
+<span class="w-1.5 h-6 rounded-full bg-tertiary"></span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-slate-100 font-semibold truncate">Morning Mobility &amp; Walk</span>
+<span class="font-label-sm text-label-sm text-slate-400">08:35 - 09:20 • 45m</span>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-tertiary/10 text-tertiary border border-tertiary/30 font-label-sm text-label-sm font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>Health</span>
+</div>
+</div>
+</div>
+<!-- 09:00 AM -->
+<div class="grid grid-cols-12 min-h-[96px] gap-2 py-1 items-start relative group">
+<!-- Left Track: 09:30 - 11:30 Tauri Architecture (Spans across 09 and 10) -->
+<div class="col-span-5 relative h-full pt-4">
+<div class="p-3 rounded-lg bg-surface-container border border-dashed border-primary/50 text-slate-200 flex flex-col justify-between shadow-xs hover:border-primary transition-all cursor-grab">
+<div class="flex items-start justify-between gap-1">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-label-md text-label-md text-slate-100 font-semibold truncate">Tauri v2 SQLite Schema Architecture</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/30 font-label-sm text-label-sm font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span>Indie Projects</span>
+</div>
+<span class="font-label-sm text-label-sm text-slate-400 mt-0.5">09:30 - 11:30 • 2h 00m</span>
+</div>
+<button class="p-1 rounded bg-surface-container-high hover:bg-primary-container hover:text-white text-slate-300 transition-colors border border-surface-container-highest" title="Convert to Reality Log" type="button">
+<span class="material-symbols-outlined text-[16px]">done_all</span>
+</button>
+</div>
+<div class="flex items-center gap-2 mt-2 pt-2 border-t border-dashed border-surface-container-highest text-slate-400 font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">subdirectory_arrow_right</span>
+<span>Sub-tasks: Write PRAGMA migration tests</span>
+</div>
+</div>
+</div>
+<!-- Center Hour -->
+<div class="col-span-2 flex items-center justify-center text-slate-400 font-label-md text-label-md py-1">
+              09:00 AM
+            </div>
+<!-- Right Track: 09:40 Actual Execution -->
+<div class="col-span-5 relative h-full pt-5">
+<div class="p-3 rounded-lg bg-surface-container border border-surface-container-highest text-slate-200 flex flex-col justify-between shadow-xs">
+<div class="flex items-start justify-between gap-1">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-4 rounded-full bg-primary"></span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/30 font-label-sm text-label-sm font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span>Indie Projects</span>
+</div>
+<span class="font-label-sm text-label-sm text-slate-400 mt-0.5">09:40 - 11:55 • Actual: 2h 15m</span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-primary/20 text-primary font-label-sm text-label-sm whitespace-nowrap border border-primary/30 font-semibold">+15m Overrun</span>
+</div>
+<div class="mt-2 text-slate-400 font-body-sm text-body-sm italic bg-surface-container-lowest/80 border border-surface-container-highest px-2 py-1 rounded">
+                  "Had to debug foreign key pragma cascade support in Rust worker."
+                </div>
+</div>
+</div>
+</div>
+<!-- 10:00 AM (Continuation hour) -->
+<div class="grid grid-cols-12 min-h-[56px] gap-2 py-1 items-center relative">
+<div class="col-span-5 text-slate-400 font-label-sm text-label-sm pl-4 italic font-medium">
+              ↳ Continuation: Tauri Schema Design
+            </div>
+<div class="col-span-2 flex items-center justify-center text-slate-400 font-label-md text-label-md">
+              10:00 AM
+            </div>
+<div class="col-span-5 text-slate-400 font-label-sm text-label-sm pl-4 italic font-medium">
+              ↳ Deep work run • 120m elapsed
+            </div>
+</div>
+<!-- 11:00 AM -->
+<div class="grid grid-cols-12 min-h-[64px] gap-2 py-1 items-center relative">
+<div class="col-span-5 flex items-center justify-center p-2 rounded-lg border border-dashed border-surface-container-highest text-slate-400 hover:text-slate-200 hover:bg-surface-container transition-colors cursor-pointer font-label-sm text-label-sm">+ Drop Intention or Buffer Time</div>
+<div class="col-span-2 flex items-center justify-center text-slate-400 font-label-md text-label-md">
+              11:00 AM
+            </div>
+<div class="col-span-5 flex items-center justify-between p-2 rounded-lg bg-surface-container/70 border border-surface-container-highest text-slate-300">
+<span class="font-label-sm text-label-sm font-medium">Wrap up &amp; Git commit sync</span>
+<span class="font-label-sm text-label-sm text-slate-200 font-semibold">15m idle buffer</span>
+</div>
+</div>
+<!-- 12:00 PM (Noon Lunch) -->
+<div class="grid grid-cols-12 min-h-[72px] gap-2 py-1 items-center relative">
+<!-- Left Track: 12:00 - 12:45 Nourishing Lunch -->
+<div class="col-span-5">
+<div class="p-2.5 rounded-lg bg-surface-container border border-dashed border-secondary/50 text-slate-200 flex items-center justify-between shadow-xs">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-secondary">restaurant</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-slate-100 font-semibold">Nourishing Lunch &amp; Rust docs</span>
+<span class="font-label-sm text-label-sm text-secondary">12:00 - 12:45 • 45m</span>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-container/20 text-secondary border border-secondary/30 font-label-sm text-label-sm font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>Rest &amp; Play</span>
+</div>
+</div>
+<!-- Center Hour -->
+<div class="col-span-2 flex items-center justify-center text-slate-200 font-label-md text-label-md font-semibold">
+              12:00 PM
+            </div>
+<!-- Right Track: 12:10 - 12:50 Actual Lunch -->
+<div class="col-span-5">
+<div class="p-2.5 rounded-lg bg-surface-container border border-surface-container-highest text-slate-200 flex items-center justify-between shadow-xs">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-6 rounded-full bg-secondary"></span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-slate-100 font-semibold">Lunch &amp; Relax</span>
+<span class="font-label-sm text-label-sm text-slate-400">12:10 - 12:50 • 40m actual</span>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary-container/20 text-secondary border border-secondary/30 font-label-sm text-label-sm font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>Rest &amp; Play</span>
+</div>
+</div>
+</div>
+<!-- 01:00 PM (Active Segment) -->
+<div class="grid grid-cols-12 min-h-[96px] gap-2 py-1 items-start relative">
+<!-- Left Track: 01:15 Deep Work -->
+<div class="col-span-5 pl-4 text-slate-400 font-label-sm text-label-sm italic font-medium">
+              ↳ Continuation: Audio Waveform Component
+            </div>
+<!-- Center Hour -->
+<div class="col-span-2 flex items-center justify-center text-slate-400 font-label-md text-label-md py-1">
+              01:00 PM
+            </div>
+<!-- Right Track: 01:20 Active Tracker Log -->
+<div class="col-span-5 pt-4">
+<div class="p-3 rounded-lg bg-surface-container border border-surface-container-highest border-l-4 border-l-primary flex flex-col justify-between shadow-md"><div class="flex items-start justify-between gap-2"><div class="flex flex-col"><div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span><span class="font-label-md text-label-md font-semibold text-slate-100">Writing Design Spec</span><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/30 font-label-sm text-label-sm font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span>Indie Projects</span></div><span class="font-label-sm text-label-sm text-primary mt-0.5">01:15 - Live (02:15 PM) • 38m elapsed • Tauri Schema</span></div><span class="px-2 py-0.5 rounded-full bg-primary-container text-white font-label-sm text-label-sm uppercase tracking-wide font-semibold">In Progress</span></div><div class="flex items-center justify-between mt-2 pt-2 border-t border-surface-container-highest"><div class="flex items-center gap-1 text-slate-400 font-label-sm text-label-sm"><span>Target: 45m</span><span>•</span><span class="text-tertiary">7m remaining</span></div><div class="flex items-center gap-1"><button class="px-2 py-0.5 rounded bg-surface-container-high border border-surface-container-highest text-slate-300 font-label-sm text-label-sm hover:bg-surface-container-highest shadow-xs transition-colors" type="button">+5m</button><button class="px-2 py-0.5 rounded bg-surface-container-high border border-surface-container-highest text-slate-300 font-label-sm text-label-sm hover:bg-surface-container-highest shadow-xs transition-colors" type="button">+15m</button></div></div></div>
+</div>
+</div>
+<!-- 02:00 PM -->
+<div class="grid grid-cols-12 min-h-[72px] gap-2 py-1 items-center relative">
+<div class="col-span-5 pl-4 text-slate-500 font-label-sm text-label-sm italic">
+              ↳ Continuation: Audio Waveform Component
+            </div>
+<div class="col-span-2 flex items-center justify-center text-primary font-headline-sm text-headline-sm font-bold">
+              02:00 PM
+            </div>
+<!-- Spontaneous Unplanned Activity Entry -->
+<div class="col-span-5">
+<div class="p-2.5 rounded-lg bg-surface-container border border-surface-container-highest text-slate-200 flex items-center justify-between shadow-xs">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary">bolt</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-slate-100 font-medium">Quick call with auto mechanic</span>
+<span class="font-label-sm text-label-sm text-slate-400">02:45 - 03:10 • 25 mins</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 font-label-sm text-label-sm font-semibold">⚡ Unplanned</span>
+</div>
+</div>
+</div>
+<!-- 03:00 PM (Unfulfilled block on Intent) -->
+<div class="grid grid-cols-12 min-h-[72px] gap-2 py-1 items-center relative">
+<!-- Left Track: 03:30 Groceries (Unfulfilled) -->
+<div class="col-span-5">
+<div class="p-2.5 rounded-lg bg-error-container/20 border border-dashed border-error/50 text-slate-200 flex items-center justify-between shadow-xs">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-error">shopping_cart</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-slate-100 font-semibold">Weekly Groceries &amp; Pharmacy</span>
+<span class="font-label-sm text-label-sm text-slate-400">03:30 - 04:30 • 1h 00m</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-error-container/40 text-error border border-error/30 font-label-sm text-label-sm font-semibold">Rollover suggested</span>
+</div>
+</div>
+<!-- Center Hour -->
+<div class="col-span-2 flex items-center justify-center text-slate-400 font-label-md text-label-md">
+              03:00 PM
+            </div>
+<!-- Right Track: Empty Slot with friendly invitation -->
+<div class="col-span-5 flex items-center justify-center p-2 rounded-lg border border-dashed border-surface-container-highest text-slate-400 font-label-sm text-label-sm hover:bg-surface-container transition-colors cursor-pointer">
+<span>+ Click to quick log actual afternoon event</span>
+</div>
+</div>
+<!-- 04:00 PM -->
+<div class="grid grid-cols-12 min-h-[64px] gap-2 py-1 items-center relative">
+<div class="col-span-5 flex items-center justify-center p-2 rounded-lg border border-dashed border-surface-container-highest text-slate-500 font-label-sm text-label-sm hover:bg-surface-container transition-colors cursor-pointer">
+              + Free time slot
+            </div>
+<div class="col-span-2 flex items-center justify-center text-slate-400 font-label-md text-label-md">
+              04:00 PM
+            </div>
+<div class="col-span-5 flex items-center justify-center p-2 rounded-lg border border-dashed border-surface-container-highest text-slate-500 font-label-sm text-label-sm hover:bg-surface-container transition-colors cursor-pointer">
+              Pending afternoon logs...
+            </div>
+</div>
+<!-- 05:00 PM (Guitar Practice) -->
+<div class="grid grid-cols-12 min-h-[64px] gap-2 py-1 items-center relative">
+<!-- Left Track: 05:00 Guitar -->
+<div class="col-span-5">
+<div class="p-2.5 rounded-lg bg-surface-container border border-dashed border-surface-container-highest text-slate-200 flex items-center justify-between shadow-xs">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-tertiary">music_note</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-slate-100 font-semibold">Guitar Practice &amp; Recording Loop</span>
+<span class="font-label-sm text-label-sm text-slate-400">05:00 - 06:00 • 1h 00m</span>
+</div>
+</div>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high border border-surface-container-highest text-slate-300 font-label-sm text-label-sm font-medium">Habitual</span>
+</div>
+</div>
+<!-- Center Hour -->
+<div class="col-span-2 flex items-center justify-center text-slate-400 font-label-md text-label-md">
+              05:00 PM
+            </div>
+<!-- Right Track: Upcoming slot -->
+<div class="col-span-5 flex items-center justify-center p-2 rounded-lg border border-dashed border-surface-container-highest text-slate-500 font-label-sm text-label-sm">
+              Scheduled evening routine
+            </div>
+</div>
+<!-- 06:00 PM - 08:00 PM Summary footer marker -->
+<div class="grid grid-cols-12 min-h-[56px] gap-2 py-1 items-center relative">
+<div class="col-span-5 text-slate-500 font-label-sm text-label-sm pl-2">
+              Evening Wind-down &amp; Dinner
+            </div>
+<div class="col-span-2 flex items-center justify-center text-slate-400 font-label-md text-label-md">
+              06:00 PM - 08:00 PM
+            </div>
+<div class="col-span-5 text-slate-500 font-label-sm text-label-sm text-right pr-2">
+              End of planned focus day
+            </div>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT-HAND COLLAPSIBLE DOCK: THE BACKLOG MENU (3 cols on desktop) -->
+<aside class="xl:col-span-3 flex flex-col gap-space-md">
+<!-- Backlog Menu Card -->
+<div class="flex flex-col bg-surface-container-low border border-surface-container-highest rounded-xl shadow-lg p-space-md">
+<!-- Header & Quick Action -->
+<div class="flex items-center justify-between pb-space-sm border-b border-surface-container-highest">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[18px] text-primary">drag_indicator</span>
+<h2 class="font-headline-sm text-headline-sm text-slate-100 font-semibold">Intentions Menu</h2>
+</div>
+<button class="p-1 rounded text-slate-400 hover:text-slate-100 hover:bg-surface-container transition-colors" title="Intentions settings" type="button">
+<span class="material-symbols-outlined text-[16px]">more_horiz</span>
+</button>
+</div>
+<p class="font-body-sm text-body-sm text-slate-400 mt-2 font-medium">Drag and drop items directly onto an open slot in the Intent column.</p>
+<!-- Filter Segmented Tabs -->
+<div class="flex items-center p-0.5 bg-surface-container border border-surface-container-highest rounded-lg mt-space-sm">
+<button class="flex-1 py-1 rounded font-label-sm text-label-sm bg-surface-container-high text-slate-100 shadow-xs font-semibold" type="button">All (7)</button>
+<button class="flex-1 py-1 rounded font-label-sm text-label-sm text-slate-400 hover:text-slate-200" type="button">Habitual</button>
+<button class="flex-1 py-1 rounded font-label-sm text-label-sm text-slate-400 hover:text-slate-200" type="button">One-Off</button>
+</div>
+<!-- Draggable Cards List -->
+<div class="flex flex-col gap-space-xs mt-space-md"><!-- Item 1: Audio buffer -->
+<div class="p-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high border border-dashed border-surface-container-highest hover:border-primary cursor-grab active:cursor-grabbing transition-all flex flex-col gap-1 shadow-xs group" draggable="true">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-slate-200 group-hover:text-primary font-semibold">Fix audio buffer stutter</span>
+<span class="material-symbols-outlined text-[14px] text-slate-400 group-hover:text-primary">drag_handle</span>
+</div>
+<div class="flex items-center justify-between text-slate-300">
+<div class="flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span class="font-label-sm text-label-sm text-slate-400 font-medium">Deep Learning</span>
+</div>
+<span class="px-1.5 py-0.2 rounded bg-surface-container-high border border-surface-container-highest text-slate-300 font-label-sm text-label-sm font-semibold">30m</span>
+</div>
+</div>
+<!-- Item 2: Ergonomic wrist rest -->
+<div class="p-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high border border-dashed border-surface-container-highest hover:border-error cursor-grab active:cursor-grabbing transition-all flex flex-col gap-1 shadow-xs group" draggable="true">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-slate-200 group-hover:text-error font-semibold">Order ergonomic wrist rest</span>
+<span class="material-symbols-outlined text-[14px] text-slate-400 group-hover:text-error">drag_handle</span>
+</div>
+<div class="flex items-center justify-between text-slate-300">
+<div class="flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+<span class="font-label-sm text-label-sm text-slate-400 font-medium">Errands</span>
+</div>
+<span class="px-1.5 py-0.2 rounded bg-surface-container-high border border-surface-container-highest text-slate-300 font-label-sm text-label-sm font-semibold">15m</span>
+</div>
+</div>
+<!-- Item 3: Evening Yoga -->
+<div class="p-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high border border-dashed border-surface-container-highest hover:border-tertiary cursor-grab active:cursor-grabbing transition-all flex flex-col gap-1 shadow-xs group" draggable="true">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-slate-200 group-hover:text-tertiary font-semibold">15m Evening Wind-down Yoga</span>
+<span class="material-symbols-outlined text-[14px] text-slate-400 group-hover:text-tertiary">drag_handle</span>
+</div>
+<div class="flex items-center justify-between text-slate-300">
+<div class="flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+<span class="font-label-sm text-label-sm text-slate-400 font-medium">Health • Recurring</span>
+</div>
+<span class="px-1.5 py-0.2 rounded bg-surface-container-high border border-surface-container-highest text-slate-300 font-label-sm text-label-sm font-semibold">15m</span>
+</div>
+</div>
+<!-- Item 4: Read 2 Rust RFCs -->
+<div class="p-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high border border-dashed border-surface-container-highest hover:border-secondary cursor-grab active:cursor-grabbing transition-all flex flex-col gap-1 shadow-xs group" draggable="true">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-slate-200 group-hover:text-secondary font-semibold">Read 2 Rust RFCs (SIMD audio)</span>
+<span class="material-symbols-outlined text-[14px] text-slate-400 group-hover:text-secondary">drag_handle</span>
+</div>
+<div class="flex items-center justify-between text-slate-300">
+<div class="flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span class="font-label-sm text-label-sm text-slate-400 font-medium">Deep Learning</span>
+</div>
+<span class="px-1.5 py-0.2 rounded bg-surface-container-high border border-surface-container-highest text-slate-300 font-label-sm text-label-sm font-semibold">45m</span>
+</div>
+</div></div>
+<!-- Add Custom Backlog Task Input -->
+<div class="mt-space-md pt-space-sm border-t border-surface-container-highest">
+<div class="flex items-center gap-1 px-space-sm py-1.5 rounded-lg bg-surface-container border border-surface-container-highest font-body-sm text-body-sm text-slate-200">
+<span class="material-symbols-outlined text-[16px] text-slate-500">add_task</span>
+<input class="bg-transparent focus:outline-none w-full text-slate-200 placeholder:text-slate-500 font-body-sm text-body-sm" id="quickTaskInput" placeholder="Quick add intention... (#tag @mins)" type="text"/>
+<kbd class="px-1 py-0.5 rounded bg-surface-container-high border border-surface-container-highest text-slate-400 font-label-sm text-label-sm">↵</kbd>
+</div>
+</div>
+</div>
+<!-- Mindful Note / Reflection Card -->
+<div class="p-space-md rounded-xl bg-surface-container-low border border-surface-container-highest shadow-sm flex flex-col gap-2">
+<div class="flex items-center justify-between text-slate-400">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-primary">eco</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider font-semibold">Gentle Observation</span>
+</div>
+<span class="font-label-sm text-label-sm text-slate-500">Local SQLite</span>
+</div>
+<p class="font-body-sm text-body-sm text-slate-300 italic font-medium">Drag and drop items directly onto an open slot in the Intent column.</p>
+</div>
+</aside>
+</div>
+<!-- MODAL: SPONTANEOUS LOG DRAWER / DIALOG (Translucent dark overlay with glowing subtle border) -->
+<div class="fixed inset-0 z-50 bg-[#0d0e13]/80 backdrop-blur-sm flex items-center justify-center p-space-md" id="spontaneousModal"><div class="bg-[#1a1b20] border border-[#333642] w-full max-w-lg rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.65)] p-space-lg flex flex-col gap-space-md relative select-none" id="spontaneousModalCard"><div class="flex items-start justify-between border-b border-[#292a2f] pb-space-sm"><div class="flex items-center gap-space-sm"><div class="w-9 h-9 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shadow-xs"><span class="material-symbols-outlined text-[20px]">bolt</span></div><div class="flex flex-col"><div class="flex items-center gap-2"><h3 class="font-headline-sm text-headline-sm text-[#f8fafc] font-bold">Spontaneous Quick Log</h3><span class="px-2 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/30 font-label-sm text-label-sm font-semibold">⚡ Live Sync</span></div><p class="font-body-sm text-body-sm text-[#94a3b8] font-normal">Record ad-hoc life events &amp; unscheduled reality without needing a planned task.</p></div></div><div class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 rounded bg-[#292a2f] border border-[#34343a] font-label-sm text-label-sm text-[#94a3b8] font-semibold">Esc</kbd><button class="p-1 rounded text-[#94a3b8] hover:text-[#f8fafc] hover:bg-[#292a2f] transition-colors" id="closeSpontaneousBtn" type="button"><span class="material-symbols-outlined text-[20px]">close</span></button></div></div><div class="flex flex-col gap-space-sm"><div class="flex flex-col gap-1"><label class="font-label-sm text-label-sm text-[#94a3b8] font-bold uppercase tracking-wider">What happened in reality?</label><input class="w-full px-space-md py-2 rounded-lg bg-[#121318] text-[#f8fafc] font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-primary/40 border border-[#333642] focus:border-primary font-medium placeholder:text-[#5a4138]" placeholder="What happened in reality? e.g. Spontaneous coffee walk with Leo" type="text" value="Spontaneous coffee walk &amp; creative brainstorm with Leo"/></div><div class="flex flex-col gap-1.5"><div class="flex items-center justify-between"><span class="font-label-sm text-label-sm text-[#94a3b8] font-bold uppercase tracking-wider">Quick Duration</span><div class="flex items-center gap-1.5 text-slate-300 font-label-sm text-label-sm font-semibold"><span class="material-symbols-outlined text-[14px] text-primary">schedule</span><span>01:45 PM — 02:15 PM (30m)</span></div></div><div class="flex flex-wrap items-center gap-1.5"><button class="px-2.5 py-1 rounded-lg bg-[#22232a] border border-[#333642] text-[#e3e2e9] hover:bg-[#2c2d36] hover:text-[#f8fafc] font-label-sm text-label-sm font-semibold transition-colors shadow-xs" type="button">+15m</button><button class="px-2.5 py-1 rounded-lg bg-[#22232a] border border-[#333642] text-[#e3e2e9] hover:bg-[#2c2d36] hover:text-[#f8fafc] font-label-sm text-label-sm font-semibold transition-colors shadow-xs" type="button">+25m (Pomo)</button><button class="px-3 py-1 rounded-lg bg-primary-container text-white font-label-sm text-label-sm shadow-md font-bold border border-primary/50" type="button">+30m</button><button class="px-2.5 py-1 rounded-lg bg-[#22232a] border border-[#333642] text-[#e3e2e9] hover:bg-[#2c2d36] hover:text-[#f8fafc] font-label-sm text-label-sm font-semibold transition-colors shadow-xs" type="button">+45m</button><button class="px-2.5 py-1 rounded-lg bg-[#22232a] border border-[#333642] text-[#e3e2e9] hover:bg-[#2c2d36] hover:text-[#f8fafc] font-label-sm text-label-sm font-semibold transition-colors shadow-xs" type="button">+1h</button><button class="px-2.5 py-1 rounded-lg bg-[#22232a] border border-[#333642] text-[#e3e2e9] hover:bg-[#2c2d36] hover:text-[#f8fafc] font-label-sm text-label-sm font-semibold transition-colors shadow-xs" type="button">+1.5h</button></div></div><div class="flex flex-col gap-1.5"><span class="font-label-sm text-label-sm text-[#94a3b8] font-bold uppercase tracking-wider">Category / Taxonomy</span><div class="flex flex-wrap items-center gap-1.5"><button class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#162a34] hover:bg-[#1a3848] text-tertiary border border-tertiary/30 font-label-sm text-label-sm font-semibold transition-colors" type="button"><span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span><span>Health &amp; Movement</span></button><button class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#2a2430] hover:bg-[#382f42] text-secondary border border-secondary/30 font-label-sm text-label-sm font-semibold transition-colors" type="button"><span class="w-1.5 h-1.5 rounded-full bg-secondary"></span><span>Deep Learning</span></button><button class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/20 text-primary border border-primary/40 font-label-sm text-label-sm font-bold shadow-xs transition-colors" type="button"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span><span>Indie Projects</span><span class="material-symbols-outlined text-[14px]">check</span></button><button class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-error-container/30 hover:bg-error-container/50 text-error border border-error/30 font-label-sm text-label-sm font-semibold transition-colors" type="button"><span class="w-1.5 h-1.5 rounded-full bg-error"></span><span>Daily Errands &amp; Admin</span></button><button class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-container/20 hover:bg-secondary-container/35 text-secondary border border-secondary/30 font-label-sm text-label-sm font-semibold transition-colors" type="button"><span class="w-1.5 h-1.5 rounded-full bg-secondary-container"></span><span>Rest, Social &amp; Play</span></button></div></div><div class="flex flex-col gap-1"><label class="font-label-sm text-label-sm text-[#94a3b8] font-bold uppercase tracking-wider">Reality Reflection &amp; Context</label><textarea class="w-full px-space-md py-1.5 rounded-lg bg-[#121318] text-[#f8fafc] font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-primary/40 border border-[#333642] focus:border-primary resize-none font-medium" rows="2">Felt restorative, stepped away from screen to recharge ideas and calibrate audio waveform scope.</textarea></div><div class="flex flex-col gap-1.5"><span class="font-label-sm text-label-sm text-[#94a3b8] font-bold uppercase tracking-wider">Mood &amp; Energy Pill</span><div class="flex flex-wrap items-center gap-1.5"><button class="px-2.5 py-1 rounded-full bg-tertiary/20 text-tertiary font-label-sm text-label-sm font-bold border border-tertiary/40 flex items-center gap-1" type="button"><span>🌿 Restorative</span><span class="material-symbols-outlined text-[12px]">check</span></button><button class="px-2.5 py-1 rounded-full bg-[#22232a] hover:bg-[#2c2d36] text-[#e3e2e9] font-label-sm text-label-sm font-semibold border border-[#333642] transition-colors" type="button">⚡ Energizing</button><button class="px-2.5 py-1 rounded-full bg-[#22232a] hover:bg-[#2c2d36] text-[#e3e2e9] font-label-sm text-label-sm font-semibold border border-[#333642] transition-colors" type="button">🌀 Distraction</button><button class="px-2.5 py-1 rounded-full bg-[#22232a] hover:bg-[#2c2d36] text-[#e3e2e9] font-label-sm text-label-sm font-semibold border border-[#333642] transition-colors" type="button">🛠 Necessary Firefight</button></div></div><div class="p-space-sm rounded-lg bg-[#121318] border border-[#292a2f] flex flex-col gap-1.5"><label class="flex items-center gap-2 cursor-pointer"><input checked="" class="rounded border-[#5a4138] bg-[#1a1b20] text-primary-container focus:ring-primary/20" type="checkbox"/><span class="font-label-md text-label-md text-[#f8fafc] font-semibold">Insert into Today's Reality Track at current time (02:15 PM)</span></label><div class="flex items-center gap-space-md pl-6 text-[#94a3b8] font-label-sm text-label-sm font-medium"><label class="flex items-center gap-1 cursor-pointer"><input class="border-[#5a4138] bg-[#1a1b20] text-primary-container" name="buffer_mode" type="radio"/><span class="hover:text-primary font-medium text-[#94a3b8]">Deduct from buffer time</span></label><label class="flex items-center gap-1 cursor-pointer"><input checked="" class="border-[#5a4138] bg-[#1a1b20] text-primary-container" name="buffer_mode" type="radio"/><span class="hover:text-primary font-bold text-primary">Mark as Ad-hoc / Drift</span></label></div></div></div><div class="flex items-center justify-between pt-space-sm border-t border-[#292a2f]"><div class="flex items-center gap-1 text-[#94a3b8] font-label-sm text-label-sm font-medium"><span class="material-symbols-outlined text-[14px] text-tertiary">database</span><span>Stored immediately to local sqlite.db • Zero cloud sync</span></div><div class="flex items-center gap-space-sm"><button class="px-space-md py-1.5 rounded-lg bg-[#22232a] border border-[#333642] text-[#f8fafc] hover:bg-[#292a2f] font-label-md text-label-md font-semibold shadow-xs transition-colors" id="cancelSpontaneousBtn" type="button">Cancel (Esc)</button><button class="flex items-center gap-1.5 px-space-lg py-2 rounded-lg bg-primary-container text-white font-label-md text-label-md font-semibold shadow-sm hover:opacity-90 transition-all active:scale-[0.98]" id="saveSpontaneousBtn" type="button"><span class="material-symbols-outlined text-[16px]">save</span><span>Save to SQLite &amp; Track (Ctrl+↵)</span></button></div></div></div></div>
+<!-- MODAL: END-OF-DAY ROLLOVER DRAWER (Hidden by default, triggered by button) -->
+<div class="fixed inset-0 z-50 bg-[#0d0e13]/80 backdrop-blur-sm flex items-center justify-center p-space-md opacity-0 pointer-events-none transition-opacity duration-200" id="rolloverModal">
+<div class="bg-[#1a1b20] border border-[#333642] w-full max-w-lg rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.65)] p-space-lg flex flex-col gap-space-md transform scale-95 transition-transform duration-200" id="rolloverModalCard">
+<div class="flex items-center justify-between border-b border-[#292a2f] pb-space-sm">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-secondary-container/20 border border-secondary/30 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[18px]">bedtime</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-[#f8fafc] font-bold">End-of-Day Rollover Review</h3>
+</div>
+<button class="p-1 rounded text-[#94a3b8] hover:text-[#f8fafc] hover:bg-[#292a2f]" id="closeRolloverBtn" type="button">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<p class="font-body-sm text-body-sm text-[#94a3b8]">
+        Review unfulfilled intent blocks before closing your journal. Zero guilt allowed—simply decide where each task lives next.
+      </p>
+<!-- Unfulfilled Items Review List -->
+<div class="flex flex-col gap-space-sm">
+<div class="p-space-sm rounded-lg bg-[#121318] border border-[#292a2f] flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-error">shopping_cart</span>
+<span class="font-label-md text-label-md text-[#f8fafc] font-semibold">Weekly Groceries &amp; Pharmacy</span>
+</div>
+<span class="px-1.5 py-0.2 rounded bg-surface-container-high border border-surface-container-highest text-slate-300 font-label-sm text-label-sm">Planned: 1h 00m</span>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<button class="flex-1 py-1 rounded bg-secondary-container text-white font-label-sm text-label-sm hover:opacity-90 flex items-center justify-center gap-1 font-semibold" type="button">
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+<span>Move to Friday Oct 25</span>
+</button>
+<button class="px-3 py-1 rounded bg-[#22232a] border border-[#333642] text-[#f8fafc] font-label-sm text-label-sm hover:bg-[#292a2f]" type="button">Return to Intentions</button>
+<button class="px-2 py-1 rounded text-[#94a3b8] hover:text-error font-label-sm text-label-sm" type="button">
+              Dismiss
+            </button>
+</div>
+</div>
+<div class="p-space-sm rounded-lg bg-[#121318] border border-[#292a2f] flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-tertiary">music_note</span>
+<span class="font-label-md text-label-md text-[#f8fafc] font-semibold">Guitar Practice &amp; Recording Loop</span>
+</div>
+<span class="px-1.5 py-0.2 rounded bg-surface-container-high border border-surface-container-highest text-slate-300 font-label-sm text-label-sm">Planned: 1h 00m</span>
+</div>
+<div class="flex items-center gap-2 mt-1">
+<button class="flex-1 py-1 rounded bg-secondary-container text-white font-label-sm text-label-sm hover:opacity-90 flex items-center justify-center gap-1 font-semibold" type="button">
+<span class="material-symbols-outlined text-[14px]">bedtime</span>
+<span>Keep for tonight (08:30 PM)</span>
+</button>
+<button class="px-3 py-1 rounded bg-[#22232a] border border-[#333642] text-[#f8fafc] font-label-sm text-label-sm hover:bg-[#292a2f]" type="button">Return to Intentions</button>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between mt-space-xs pt-space-sm border-t border-[#292a2f]">
+<span class="font-label-sm text-label-sm text-[#94a3b8] flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-tertiary">check</span>
+<span>SQLite will archive today's state</span>
+</span>
+<button class="px-space-lg py-1.5 rounded-lg bg-secondary-container text-white font-label-md text-label-md font-semibold shadow-sm hover:opacity-95" id="confirmRolloverBtn" type="button">Complete Rollover</button>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Simple Micro-Interactions for Modals and Backlog Quick Add
+  const spontaneousBtn = document.getElementById('openSpontaneousBtn');
+  const spontaneousModal = document.getElementById('spontaneousModal');
+  const spontaneousCard = document.getElementById('spontaneousModalCard');
+  const closeSpontaneousBtn = document.getElementById('closeSpontaneousBtn');
+  const cancelSpontaneousBtn = document.getElementById('cancelSpontaneousBtn');
+  const saveSpontaneousBtn = document.getElementById('saveSpontaneousBtn');
+
+  function openSpontaneous() {
+    spontaneousModal.classList.remove('opacity-0', 'pointer-events-none');
+    spontaneousCard.classList.remove('scale-95');
+    spontaneousCard.classList.add('scale-100');
+  }
+
+  function closeSpontaneous() {
+    spontaneousModal.classList.add('opacity-0', 'pointer-events-none');
+    spontaneousCard.classList.remove('scale-100');
+    spontaneousCard.classList.add('scale-95');
+  }
+
+  spontaneousBtn?.addEventListener('click', openSpontaneous);
+  closeSpontaneousBtn?.addEventListener('click', closeSpontaneous);
+  cancelSpontaneousBtn?.addEventListener('click', closeSpontaneous);
+  saveSpontaneousBtn?.addEventListener('click', () => {
+    closeSpontaneous();
+  });
+
+  const rolloverBtn = document.getElementById('openRolloverBtn');
+  const rolloverModal = document.getElementById('rolloverModal');
+  const rolloverCard = document.getElementById('rolloverModalCard');
+  const closeRolloverBtn = document.getElementById('closeRolloverBtn');
+  const confirmRolloverBtn = document.getElementById('confirmRolloverBtn');
+
+  function openRollover() {
+    rolloverModal.classList.remove('opacity-0', 'pointer-events-none');
+    rolloverCard.classList.remove('scale-95');
+    rolloverCard.classList.add('scale-100');
+  }
+
+  function closeRollover() {
+    rolloverModal.classList.add('opacity-0', 'pointer-events-none');
+    rolloverCard.classList.remove('scale-100');
+    rolloverCard.classList.add('scale-95');
+  }
+
+  rolloverBtn?.addEventListener('click', openRollover);
+  closeRolloverBtn?.addEventListener('click', closeRollover);
+  confirmRolloverBtn?.addEventListener('click', closeRollover);
+
+  // Quick Task Input Enter Feedback
+  const quickTaskInput = document.getElementById('quickTaskInput');
+  quickTaskInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && quickTaskInput.value.trim() !== '') {
+      quickTaskInput.value = '';
+      quickTaskInput.placeholder = 'Task added to Backlog!';
+      setTimeout(() => {
+        quickTaskInput.placeholder = 'Quick add task... (#tag @mins)';
+      }, 1800);
+    }
+  });
+</script></main></div><div class="fixed bottom-6 -translate-x-1/2 z-50 flex items-center gap-space-lg px-5 py-3 rounded-2xl bg-[#1a1b20]/95 backdrop-blur-xl border border-[#333642] shadow-[0_16px_36px_rgba(0,0,0,0.7)] select-none left-[calc(50%+8rem)] w-max"><div class="flex items-center gap-space-md"><div class="flex items-center gap-2"><div class="relative flex items-center justify-center"><span class="w-3 h-3 rounded-full bg-primary/40 animate-ping absolute"></span><span class="w-2.5 h-2.5 rounded-full bg-primary relative"></span></div><div class="flex flex-col"><div class="flex items-center gap-1.5"><span class="font-label-sm text-label-sm uppercase tracking-wider text-primary font-bold whitespace-nowrap">RECORDING REALITY</span><span class="px-1.5 py-0.2 rounded-full bg-primary/20 text-primary border border-primary/30 font-label-sm text-label-sm whitespace-nowrap font-medium">• Indie Projects</span></div><div class="flex items-center gap-1.5"><div class="flex items-center gap-1 cursor-pointer group"><span class="font-label-lg text-label-lg font-semibold text-slate-100 whitespace-nowrap group-hover:text-primary transition-colors">Writing Design Spec</span><span class="material-symbols-outlined text-[14px] text-slate-400 group-hover:text-primary transition-colors">edit</span></div><span class="text-slate-400 font-body-sm text-body-sm hidden sm:inline whitespace-nowrap">• Tauri Schema • Slot: 01:15 PM</span></div></div></div></div><div class="h-8 w-px bg-surface-container-highest"></div><div class="flex flex-col items-center gap-1"><div class="flex gap-2 items-center"><span class="font-numerical-timer text-numerical-timer text-primary font-bold tabular-nums tracking-tight">00:38:14</span><span class="font-label-sm text-label-sm text-slate-400 whitespace-nowrap">/ 45m target</span><div class="flex items-center gap-1 ml-1"><button class="px-1.5 py-0.5 rounded bg-surface-container hover:bg-surface-container-high border border-surface-container-highest text-slate-300 hover:text-slate-100 font-label-sm text-label-sm transition-colors" type="button">+5m</button><button class="px-1.5 py-0.5 rounded bg-surface-container hover:bg-surface-container-high border border-surface-container-highest text-slate-300 hover:text-slate-100 font-label-sm text-label-sm transition-colors" type="button">+15m</button></div></div><div class="w-48 h-1.5 bg-surface-container-highest rounded-full overflow-hidden"><div class="h-full bg-primary rounded-full transition-all duration-300" style="width: 85%;"></div></div></div><div class="h-8 w-px bg-surface-container-highest"></div><div class="flex items-center gap-1.5"><button class="p-1.5 rounded-xl hover:bg-surface-container text-slate-400 hover:text-slate-100 transition-colors flex items-center justify-center" title="Pause session" type="button"><span class="material-symbols-outlined text-[20px]">pause</span></button><button class="p-1.5 rounded-xl hover:bg-surface-container text-slate-400 hover:text-slate-100 transition-colors flex items-center justify-center" title="Add contextual note" type="button"><span class="material-symbols-outlined text-[20px]">edit_note</span></button><button class="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-primary-container text-white font-label-sm text-label-sm font-semibold shadow-xs hover:opacity-90 transition-all active:scale-[0.98] whitespace-nowrap" type="button"><span class="material-symbols-outlined text-[16px]">check_circle</span><span>Finish &amp; Commit</span></button><button class="p-1.5 rounded-xl hover:bg-error-container/40 text-slate-400 hover:text-error transition-colors flex items-center justify-center ml-0.5" title="Discard track" type="button"><span class="material-symbols-outlined text-[18px]">delete</span></button></div></div>
+</body></html>
