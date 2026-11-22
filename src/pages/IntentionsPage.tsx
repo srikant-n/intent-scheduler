@@ -11,10 +11,11 @@ import { IntentionFormModal, IntentionFormValues } from '@/components/intentions
 import { CategoryFormModal } from '@/components/intentions/CategoryFormModal';
 import type { Category, Intention } from '@/types/database';
 import { categoryById } from '@/hooks/useCategories';
+import { filterSortIntentions, groupIntentionsByCategory, type IntentionFilter, type IntentionSort } from '@/utils/planner';
 import { formatDuration, minutesToTime, snapMinutes, todayISO } from '@/utils/time';
 
-type Filter = 'all' | 'recurring' | 'one-off' | 'archived';
-type Sort = 'category' | 'duration-desc' | 'duration-asc' | 'recent';
+type Filter = IntentionFilter;
+type Sort = IntentionSort;
 
 export function IntentionsPage() {
   const [filter, setFilter] = useState<Filter>('all');
@@ -31,34 +32,12 @@ export function IntentionsPage() {
   const schedule = useScheduleMutations();
 
   const intentions = filter === 'archived' ? archived.intentions : active.intentions;
-  const filtered = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    let items = intentions.filter((item) => {
-      if (filter === 'recurring') return item.isRecurring;
-      if (filter === 'one-off') return !item.isRecurring;
-      return true;
-    });
-    if (query) items = items.filter((item) => `${item.title} ${item.notes ?? ''}`.toLowerCase().includes(query));
-    const categoryName = (item: Intention) => categoryById(categories, item.categoryId)?.name ?? 'zzz';
-    if (sort === 'duration-desc') items = [...items].sort((a, b) => (b.defaultDurationMins ?? 0) - (a.defaultDurationMins ?? 0));
-    if (sort === 'duration-asc') items = [...items].sort((a, b) => (a.defaultDurationMins ?? 9999) - (b.defaultDurationMins ?? 9999));
-    if (sort === 'recent') items = [...items].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-    if (sort === 'category') items = [...items].sort((a, b) => categoryName(a).localeCompare(categoryName(b)) || a.title.localeCompare(b.title));
-    return items;
-  }, [intentions, filter, search, sort, categories]);
+  const filtered = useMemo(
+    () => filterSortIntentions(intentions, { filter, search, sort }, categories),
+    [intentions, filter, search, sort, categories],
+  );
 
-  const grouped = useMemo(() => {
-    const map = new Map<string, Intention[]>();
-    for (const item of filtered) {
-      const key = item.categoryId ?? 'uncategorized';
-      map.set(key, [...(map.get(key) ?? []), item]);
-    }
-    return [...map.entries()].sort(([a], [b]) => {
-      const an = a === 'uncategorized' ? 'zzz' : categoryById(categories, a)?.name ?? 'zzz';
-      const bn = b === 'uncategorized' ? 'zzz' : categoryById(categories, b)?.name ?? 'zzz';
-      return an.localeCompare(bn);
-    });
-  }, [filtered, categories]);
+  const grouped = useMemo(() => groupIntentionsByCategory(filtered, categories), [filtered, categories]);
 
   const saveIntention = async (values: IntentionFormValues) => {
     const payload = {

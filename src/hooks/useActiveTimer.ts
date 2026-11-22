@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createTimeLog, getActiveTimer, saveActiveTimer, updateScheduleBlock } from '@/db/queries';
 import type { ActiveTimerState, Intention, ScheduleBlock, TimeLogMood } from '@/types/database';
-import { elapsedMs, formatElapsed, localTimeFromDate, toISODate, uuid } from '@/utils/time';
+import { deriveLogTimes, elapsedMs, formatElapsed, uuid } from '@/utils/time';
 
 export interface StartTimerInput {
   task?: Intention | null;
@@ -11,17 +11,6 @@ export interface StartTimerInput {
   categoryId?: string | null;
   targetDurationMins?: number | null;
   notes?: string | null;
-}
-
-function deriveLogTimes(timer: ActiveTimerState, elapsed: number) {
-  const startDate = new Date(timer.startedAt);
-  const endDate = new Date(startDate.getTime() + elapsed);
-  const sameDay = toISODate(startDate) === toISODate(endDate);
-  return {
-    logDate: toISODate(startDate),
-    startTime: localTimeFromDate(startDate),
-    endTime: sameDay ? localTimeFromDate(endDate) : null,
-  };
 }
 
 export function useActiveTimer() {
@@ -50,7 +39,7 @@ export function useActiveTimer() {
     const finalElapsed = elapsedMs(value.startedAt, value.accumulatedPausedMs, value.pausedAt);
     if (saveLog && finalElapsed > 0) {
       const durationMins = Math.max(1, Math.round(finalElapsed / 60000));
-      const times = deriveLogTimes(value, finalElapsed);
+      const times = deriveLogTimes(value.startedAt, finalElapsed);
       await createTimeLog({
         taskId: value.taskId,
         scheduleBlockId: value.scheduleBlockId,

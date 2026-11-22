@@ -14,7 +14,8 @@ import { QuickLogModal } from '@/components/daily/QuickLogModal';
 import { RolloverModal } from '@/components/daily/RolloverModal';
 import { Button } from '@/components/common/Button';
 import { CategoryBadge } from '@/components/common/Badge';
-import type { EnrichedScheduleBlock, EnrichedTimeLog, Intention, ScheduleBlock, TimeLog } from '@/types/database';
+import type { EnrichedScheduleBlock, Intention, ScheduleBlock, TimeLog } from '@/types/database';
+import { computeDailySummary, enrichBlocks, enrichLogs, isPendingRolloverBlock } from '@/utils/planner';
 import { addDaysISO, formatDateLong, formatDuration, minutesToTime, timeToMinutes, todayISO } from '@/utils/time';
 import clsx from 'clsx';
 
@@ -24,27 +25,6 @@ interface DailyPageProps {
   quickLogOpen: boolean;
   onQuickLogOpenChange: (open: boolean) => void;
   onOpenIntentions: () => void;
-}
-
-function enrichBlocks(blocks: ScheduleBlock[], tasks: Intention[]): EnrichedScheduleBlock[] {
-  const taskMap = new Map(tasks.map((task) => [task.id, task]));
-  return blocks.map((block) => ({ ...block, task: taskMap.get(block.taskId) }));
-}
-
-function enrichLogs(logs: TimeLog[], tasks: Intention[], categories: ReturnType<typeof useCategories>['categories']): EnrichedTimeLog[] {
-  const taskMap = new Map(tasks.map((task) => [task.id, task]));
-  const categoryMap = new Map(categories.map((category) => [category.id, category]));
-  return logs.map((log) => {
-    const task = log.taskId ? taskMap.get(log.taskId) : undefined;
-    const category = categoryMap.get(log.categoryId ?? task?.categoryId ?? '');
-    return {
-      ...log,
-      task,
-      category,
-      displayCategory: category,
-      displayTitle: log.customTitle || task?.title || category?.name || 'Activity',
-    };
-  });
 }
 
 export function DailyPage({ date, onDateChange, quickLogOpen, onQuickLogOpenChange, onOpenIntentions }: DailyPageProps) {
@@ -71,23 +51,12 @@ export function DailyPage({ date, onDateChange, quickLogOpen, onQuickLogOpenChan
   const enrichedBlocks = useMemo(() => enrichBlocks(blocks, intentions), [blocks, intentions]);
   const enrichedLogs = useMemo(() => enrichLogs(logs, intentions, categories), [logs, intentions, categories]);
 
-  const summary = useMemo(() => {
-    const plannedMins = enrichedBlocks.filter((block) => block.status !== 'dismissed' && block.status !== 'rolled').reduce((sum, block) => sum + block.plannedDurationMins, 0);
-    const actualMins = enrichedLogs.reduce((sum, log) => sum + log.durationMins, 0);
-    const unplannedMins = enrichedLogs.filter((log) => !log.scheduleBlockId).reduce((sum, log) => sum + log.durationMins, 0);
-    const alignment = plannedMins > 0 ? Math.round((actualMins / plannedMins) * 100) : actualMins > 0 ? 100 : 0;
-    return { plannedMins, actualMins, unplannedMins, alignment, blockCount: enrichedBlocks.length, logCount: enrichedLogs.length };
-  }, [enrichedBlocks, enrichedLogs]);
+  const summary = useMemo(() => computeDailySummary(enrichedBlocks, enrichedLogs), [enrichedBlocks, enrichedLogs]);
 
   const pendingBlocks = useMemo(() => {
     const now = new Date();
     const nowMinutes = now.getHours() * 60 + now.getMinutes();
-    return enrichedBlocks.filter((block) => {
-      if (block.status !== 'planned') return false;
-      if (block.scheduledDate < todayISO()) return true;
-      if (block.scheduledDate === todayISO()) return timeToMinutes(block.endTime) <= nowMinutes;
-      return false;
-    });
+    return enrichedBlocks.filter((block) => isPendingRolloverBlock(block, todayISO(), nowMinutes));
   }, [enrichedBlocks]);
 
   const handleDropTask = async (task: Intention, startTime: string) => {

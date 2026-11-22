@@ -114,12 +114,27 @@ export function formatElapsed(ms: number): string {
   return [h, m, s].map((v) => String(v).padStart(2, '0')).join(':');
 }
 
+export function deriveLogTimes(startedAt: string, elapsed: number): { logDate: string; startTime: string; endTime: string | null } {
+  const startDate = new Date(startedAt);
+  const endDate = new Date(startDate.getTime() + elapsed);
+  const sameDay = toISODate(startDate) === toISODate(endDate);
+  return {
+    logDate: toISODate(startDate),
+    startTime: localTimeFromDate(startDate),
+    endTime: sameDay ? localTimeFromDate(endDate) : null,
+  };
+}
+
 export function localTimeFromDate(date: Date): string {
   return minutesToTime(date.getHours() * 60 + date.getMinutes());
 }
 
 export function isValidISODate(value: string): boolean {
-  return /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(parseISODate(value).getTime());
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = parseISODate(value);
+  if (Number.isNaN(date.getTime())) return false;
+  const [y, m, d] = value.split('-').map(Number);
+  return date.getFullYear() === y && date.getMonth() === (m ?? 0) - 1 && date.getDate() === d;
 }
 
 export function isValidTime(value: string): boolean {
