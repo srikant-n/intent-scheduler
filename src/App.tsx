@@ -4,6 +4,8 @@ import { TopBar } from '@/components/layout/TopBar';
 import { ActiveTimerBar } from '@/components/layout/ActiveTimerBar';
 import { DailyPage } from '@/pages/DailyPage';
 import { IntentionsPage } from '@/pages/IntentionsPage';
+import { WeeklyPage } from '@/pages/WeeklyPage';
+import { AnalyticsPage } from '@/pages/AnalyticsPage';
 import { PlaceholderPage } from '@/pages/PlaceholderPage';
 import { useIntentions } from '@/hooks/useIntentions';
 import { bootstrapDatabase } from '@/db/queries';
@@ -35,8 +37,8 @@ export default function App() {
             />
           )}
           {view === 'intentions' && <IntentionsPage />}
-          {view === 'weekly' && <PlaceholderPage title="Weekly Planner" description="The 7-day allocation desk is planned for the next phase." />}
-          {view === 'analytics' && <PlaceholderPage title="Time Analytics" description="Category variance, drift, and reflection dashboards are planned for the next phase." />}
+          {view === 'weekly' && <WeeklyPage date={date} onDateChange={setDate} />}
+          {view === 'analytics' && <AnalyticsPage date={date} onDateChange={setDate} />}
           {view === 'vault' && <PlaceholderPage title="Data Vault" description="Backup, restore, CSV export, and database health are planned for the next phase." />}
         </main>
       </div>

@@ -16,6 +16,8 @@ function makeIntention(overrides: Partial<Intention> = {}): Intention {
     categoryId: 'cat-1',
     isRecurring: true,
     defaultDurationMins: 60,
+    targetSessionsPerWeek: null,
+    preferredWeekdays: [],
     status: 'active',
     notes: 'async',
     priority: 'high',
@@ -48,6 +50,8 @@ describe('IntentionFormModal', () => {
       categoryId: 'cat-1',
       isRecurring: true,
       defaultDurationMins: null,
+      targetSessionsPerWeek: null,
+      preferredWeekdays: [],
       notes: '',
       priority: '',
     });

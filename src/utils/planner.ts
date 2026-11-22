@@ -1,12 +1,13 @@
 import type {
   Category,
-  EnrichedScheduleBlock,
-  EnrichedTimeLog,
   Intention,
   ScheduleBlock,
   TimeLog,
 } from '@/types/database';
 import { timeToMinutes } from '@/utils/time';
+import { enrichBlocks, enrichLogs } from '@/utils/enrich';
+
+export { enrichBlocks, enrichLogs };
 
 export interface DailySummary {
   plannedMins: number;
@@ -27,8 +28,14 @@ export function computeDailySummary(blocks: ScheduleBlock[], logs: TimeLog[]): D
   return { plannedMins, actualMins, unplannedMins, alignment, blockCount: blocks.length, logCount: logs.length };
 }
 
-export function isPendingRolloverBlock(block: ScheduleBlock, today: string, nowMinutes: number): boolean {
+export function isPendingRolloverBlock(
+  block: ScheduleBlock,
+  today: string,
+  nowMinutes: number,
+  hasLinkedActualMins = false,
+): boolean {
   if (block.status !== 'planned') return false;
+  if (hasLinkedActualMins) return false;
   if (block.scheduledDate < today) return true;
   if (block.scheduledDate === today) return timeToMinutes(block.endTime) <= nowMinutes;
   return false;
@@ -74,23 +81,4 @@ export function groupIntentionsByCategory(
   });
 }
 
-export function enrichBlocks(blocks: ScheduleBlock[], tasks: Intention[]): EnrichedScheduleBlock[] {
-  const taskMap = new Map(tasks.map((task) => [task.id, task]));
-  return blocks.map((block) => ({ ...block, task: taskMap.get(block.taskId) }));
-}
 
-export function enrichLogs(logs: TimeLog[], tasks: Intention[], categories: Category[]): EnrichedTimeLog[] {
-  const taskMap = new Map(tasks.map((task) => [task.id, task]));
-  const categoryMap = new Map(categories.map((category) => [category.id, category]));
-  return logs.map((log) => {
-    const task = log.taskId ? taskMap.get(log.taskId) : undefined;
-    const category = categoryMap.get(log.categoryId ?? task?.categoryId ?? '');
-    return {
-      ...log,
-      task,
-      category,
-      displayCategory: category,
-      displayTitle: log.customTitle || task?.title || category?.name || 'Activity',
-    };
-  });
-}

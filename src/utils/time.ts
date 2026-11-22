@@ -129,6 +129,53 @@ export function localTimeFromDate(date: Date): string {
   return minutesToTime(date.getHours() * 60 + date.getMinutes());
 }
 
+export function isoWeekdayISO(iso: string): number {
+  const day = parseISODate(iso).getDay();
+  return ((day + 6) % 7) + 1;
+}
+
+export function weekStartISO(referenceISO: string): string {
+  return weekDatesISO(referenceISO)[0];
+}
+
+export function weekEndISO(referenceISO: string): string {
+  return weekDatesISO(referenceISO)[6];
+}
+
+export function nextMondayISO(referenceISO: string): string {
+  const isoDay = isoWeekdayISO(referenceISO);
+  const delta = isoDay === 1 ? 7 : 8 - isoDay;
+  return addDaysISO(referenceISO, delta);
+}
+
+export function isoWeekNumber(iso: string): number {
+  const date = parseISODate(iso);
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+}
+
+export function formatWeekRangeShort(referenceISO: string): string {
+  const dates = weekDatesISO(referenceISO);
+  const start = parseISODate(dates[0]);
+  const end = parseISODate(dates[6]);
+  const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
+  const sameMonth = start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear();
+  return sameMonth
+    ? `${start.toLocaleDateString(undefined, { month: 'short' })} ${start.getDate()} – ${end.getDate()}, ${end.getFullYear()}`
+    : `${start.toLocaleDateString(undefined, opts)}, ${start.getFullYear()} – ${end.toLocaleDateString(undefined, opts)}, ${end.getFullYear()}`;
+}
+
+export function formatSignedDuration(mins: number | null | undefined): string {
+  if (mins == null || Number.isNaN(mins)) return '—';
+  const rounded = Math.round(mins);
+  if (rounded === 0) return '0m';
+  const sign = rounded > 0 ? '+' : '−';
+  return `${sign}${formatDuration(Math.abs(rounded))}`;
+}
+
 export function isValidISODate(value: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const date = parseISODate(value);

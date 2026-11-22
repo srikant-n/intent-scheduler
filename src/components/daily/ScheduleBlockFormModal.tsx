@@ -23,13 +23,14 @@ interface Props {
   tasks: Intention[];
   categories: Category[];
   defaultStartTime?: string;
+  defaultTaskId?: string;
   onSave: (values: ScheduleBlockFormValues) => Promise<void>;
   onDelete?: () => Promise<void>;
   onStartTimer?: () => Promise<void>;
   onLogActual?: (durationMins: number) => Promise<void>;
 }
 
-export function ScheduleBlockFormModal({ open, onClose, date, block, tasks, categories, defaultStartTime, onSave, onDelete, onStartTimer, onLogActual }: Props) {
+export function ScheduleBlockFormModal({ open, onClose, date, block, tasks, categories, defaultStartTime, defaultTaskId, onSave, onDelete, onStartTimer, onLogActual }: Props) {
   const [taskId, setTaskId] = useState('');
   const [startTime, setStartTime] = useState('09:00');
   const [endTime, setEndTime] = useState('10:00');
@@ -45,13 +46,13 @@ export function ScheduleBlockFormModal({ open, onClose, date, block, tasks, cate
     if (!open) return;
     const start = block?.startTime ?? defaultStartTime ?? '09:00';
     const end = block?.endTime ?? minutesToTime(timeToMinutes(start) + (block?.plannedDurationMins ?? task?.defaultDurationMins ?? 60));
-    setTaskId(block?.taskId ?? tasks[0]?.id ?? '');
+    setTaskId(block?.taskId ?? defaultTaskId ?? tasks[0]?.id ?? '');
     setStartTime(start);
     setEndTime(end);
     setDuration(String(block?.plannedDurationMins ?? (start && end ? Math.max(1, timeToMinutes(end) - timeToMinutes(start)) : task?.defaultDurationMins ?? 60)));
     setNotes(block?.notes ?? '');
     setStatus(block?.status ?? 'planned');
-  }, [open, block, tasks, defaultStartTime, task?.defaultDurationMins]);
+  }, [open, block, tasks, defaultStartTime, defaultTaskId, task?.defaultDurationMins]);
 
   const updateEndFromDuration = (value: string) => {
     setDuration(value);

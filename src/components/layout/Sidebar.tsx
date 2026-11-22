@@ -7,9 +7,9 @@ export type ViewKey = 'daily' | 'weekly' | 'intentions' | 'analytics' | 'vault';
 
 const navItems: { key: ViewKey; label: string; icon: typeof CalendarDays; enabled: boolean }[] = [
   { key: 'daily', label: 'Dual-Track Today', icon: CalendarDays, enabled: true },
-  { key: 'weekly', label: 'Weekly Planner', icon: CalendarRange, enabled: false },
+  { key: 'weekly', label: 'Weekly Planner', icon: CalendarRange, enabled: true },
   { key: 'intentions', label: 'Intentions', icon: ListTodo, enabled: true },
-  { key: 'analytics', label: 'Time Analytics', icon: BarChart3, enabled: false },
+  { key: 'analytics', label: 'Time Analytics', icon: BarChart3, enabled: true },
   { key: 'vault', label: 'Data Vault', icon: Database, enabled: false },
 ];
 

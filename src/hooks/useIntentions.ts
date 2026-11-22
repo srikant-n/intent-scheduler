@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   archiveIntention,
   createIntention,
+  listAllIntentions,
   listIntentions,
   restoreIntention,
   updateIntention,
@@ -36,6 +37,32 @@ export function useIntentions(status: TaskStatus = 'active') {
     update,
     archive,
     restore,
+  };
+}
+
+export function useAllIntentions() {
+  const queryClient = useQueryClient();
+  const query = useQuery({ queryKey: ['intentions', 'all'], queryFn: listAllIntentions });
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: ['intentions'] });
+    queryClient.invalidateQueries({ queryKey: ['schedule'] });
+  };
+
+  const create = useMutation({
+    mutationFn: (input: Parameters<typeof createIntention>[0]) => createIntention(input),
+    onSuccess: invalidate,
+  });
+
+  const update = useMutation({
+    mutationFn: ({ id, ...input }: { id: string } & Parameters<typeof updateIntention>[1]) => updateIntention(id, input),
+    onSuccess: invalidate,
+  });
+
+  return {
+    intentions: query.data ?? [],
+    isLoading: query.isLoading,
+    create,
+    update,
   };
 }
 

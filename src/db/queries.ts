@@ -29,11 +29,16 @@ interface TaskRow {
   category_id: string | null;
   is_recurring: number;
   default_duration_mins: number | null;
+  target_sessions_per_week: number | null;
+  preferred_weekdays: string | null;
   status: string;
   notes: string | null;
   priority: string | null;
   created_at: string;
 }
+
+const TASK_COLUMNS =
+  'id, title, category_id, is_recurring, default_duration_mins, target_sessions_per_week, preferred_weekdays, status, notes, priority, created_at';
 
 interface ScheduleBlockRow {
   id: string;
@@ -74,6 +79,17 @@ function mapCategory(row: CategoryRow): Category {
   return { id: row.id, name: row.name, colorHex: row.color_hex, createdAt: row.created_at };
 }
 
+function parsePreferredWeekdays(raw: string | null): number[] {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((day): day is number => Number.isInteger(day) && day >= 1 && day <= 7);
+  } catch {
+    return [];
+  }
+}
+
 function mapTask(row: TaskRow): Intention {
   return {
     id: row.id,
@@ -81,6 +97,8 @@ function mapTask(row: TaskRow): Intention {
     categoryId: row.category_id,
     isRecurring: row.is_recurring === 1,
     defaultDurationMins: row.default_duration_mins,
+    targetSessionsPerWeek: row.target_sessions_per_week,
+    preferredWeekdays: parsePreferredWeekdays(row.preferred_weekdays),
     status: row.status as TaskStatus,
     notes: row.notes,
     priority: row.priority,
@@ -183,9 +201,14 @@ export async function deleteCategory(id: string): Promise<void> {
 
 export async function listIntentions(status: TaskStatus = 'active'): Promise<Intention[]> {
   const rows = await selectRows<TaskRow>(
-    'SELECT id, title, category_id, is_recurring, default_duration_mins, status, notes, priority, created_at FROM tasks WHERE status = $1 ORDER BY created_at DESC',
+    `SELECT ${TASK_COLUMNS} FROM tasks WHERE status = $1 ORDER BY created_at DESC`,
     [status],
   );
+  return rows.map(mapTask);
+}
+
+export async function listAllIntentions(): Promise<Intention[]> {
+  const rows = await selectRows<TaskRow>(`SELECT ${TASK_COLUMNS} FROM tasks ORDER BY created_at DESC`);
   return rows.map(mapTask);
 }
 
@@ -194,18 +217,23 @@ export async function createIntention(input: {
   categoryId: string | null;
   isRecurring: boolean;
   defaultDurationMins: number | null;
+  targetSessionsPerWeek?: number | null;
+  preferredWeekdays?: number[];
   notes?: string | null;
   priority?: string | null;
 }): Promise<Intention> {
   const title = input.title.trim();
   if (!title) throw new Error('Intention title is required');
   if (input.defaultDurationMins != null) assertPositiveInt(input.defaultDurationMins, 'Default duration');
+  if (input.targetSessionsPerWeek != null) assertPositiveInt(input.targetSessionsPerWeek, 'Target sessions per week');
   const id = uuid();
   const createdAt = nowIso();
+  const preferredWeekdays = input.isRecurring ? JSON.stringify(input.preferredWeekdays ?? []) : '[]';
+  const targetSessions = input.isRecurring ? (input.targetSessionsPerWeek ?? null) : null;
   await executeSql(
-    `INSERT INTO tasks (id, title, category_id, is_recurring, default_duration_mins, status, notes, priority, created_at)
-     VALUES ($1, $2, $3, $4, $5, 'active', $6, $7, $8)`,
-    [id, title, input.categoryId, input.isRecurring ? 1 : 0, input.defaultDurationMins, input.notes ?? null, input.priority ?? null, createdAt],
+    `INSERT INTO tasks (id, title, category_id, is_recurring, default_duration_mins, target_sessions_per_week, preferred_weekdays, status, notes, priority, created_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, 'active', $8, $9, $10)`,
+    [id, title, input.categoryId, input.isRecurring ? 1 : 0, input.defaultDurationMins, targetSessions, preferredWeekdays, input.notes ?? null, input.priority ?? null, createdAt],
   );
   return {
     id,
@@ -213,6 +241,8 @@ export async function createIntention(input: {
     categoryId: input.categoryId,
     isRecurring: input.isRecurring,
     defaultDurationMins: input.defaultDurationMins,
+    targetSessionsPerWeek: targetSessions,
+    preferredWeekdays: input.isRecurring ? (input.preferredWeekdays ?? []) : [],
     status: 'active',
     notes: input.notes ?? null,
     priority: input.priority ?? null,
@@ -227,6 +257,8 @@ export async function updateIntention(
     categoryId: string | null;
     isRecurring: boolean;
     defaultDurationMins: number | null;
+    targetSessionsPerWeek?: number | null;
+    preferredWeekdays?: number[];
     notes?: string | null;
     priority?: string | null;
     status?: TaskStatus;
@@ -235,11 +267,14 @@ export async function updateIntention(
   const title = input.title.trim();
   if (!title) throw new Error('Intention title is required');
   if (input.defaultDurationMins != null) assertPositiveInt(input.defaultDurationMins, 'Default duration');
+  if (input.targetSessionsPerWeek != null) assertPositiveInt(input.targetSessionsPerWeek, 'Target sessions per week');
+  const preferredWeekdays = input.isRecurring ? JSON.stringify(input.preferredWeekdays ?? []) : '[]';
+  const targetSessions = input.isRecurring ? (input.targetSessionsPerWeek ?? null) : null;
   await executeSql(
     `UPDATE tasks
-     SET title = $1, category_id = $2, is_recurring = $3, default_duration_mins = $4, notes = $5, priority = $6, status = $7
-     WHERE id = $8`,
-    [title, input.categoryId, input.isRecurring ? 1 : 0, input.defaultDurationMins, input.notes ?? null, input.priority ?? null, input.status ?? 'active', id],
+     SET title = $1, category_id = $2, is_recurring = $3, default_duration_mins = $4, target_sessions_per_week = $5, preferred_weekdays = $6, notes = $7, priority = $8, status = $9
+     WHERE id = $10`,
+    [title, input.categoryId, input.isRecurring ? 1 : 0, input.defaultDurationMins, targetSessions, preferredWeekdays, input.notes ?? null, input.priority ?? null, input.status ?? 'active', id],
   );
 }
 
@@ -349,6 +384,23 @@ export async function updateScheduleBlock(
 
 export async function deleteScheduleBlock(id: string): Promise<void> {
   await executeSql('DELETE FROM schedule_blocks WHERE id = $1', [id]);
+}
+
+export async function runBatchActions<T>(
+  items: T[],
+  action: (item: T) => Promise<void>,
+): Promise<{ succeeded: T[]; failed: { item: T; error: string }[] }> {
+  const succeeded: T[] = [];
+  const failed: { item: T; error: string }[] = [];
+  for (const item of items) {
+    try {
+      await action(item);
+      succeeded.push(item);
+    } catch (error) {
+      failed.push({ item, error: error instanceof Error ? error.message : String(error) });
+    }
+  }
+  return { succeeded, failed };
 }
 
 export async function listTimeLogs(date: string): Promise<TimeLog[]> {
@@ -507,6 +559,7 @@ const DEFAULT_SETTINGS: Record<string, string> = {
   snap_interval_minutes: '15',
   day_start_hour: '6',
   day_end_hour: '22',
+  weekly_capacity_minutes: JSON.stringify({ 1: 360, 2: 360, 3: 360, 4: 360, 5: 360, 6: 240, 7: 180 }),
 };
 
 let bootstrapPromise: Promise<void> | null = null;

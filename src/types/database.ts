@@ -17,6 +17,8 @@ export interface Intention {
   categoryId: string | null;
   isRecurring: boolean;
   defaultDurationMins: number | null;
+  targetSessionsPerWeek: number | null;
+  preferredWeekdays: number[];
   status: TaskStatus;
   notes: string | null;
   priority: string | null;

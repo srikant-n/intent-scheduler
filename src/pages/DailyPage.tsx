@@ -17,6 +17,7 @@ import { CategoryBadge } from '@/components/common/Badge';
 import type { EnrichedScheduleBlock, Intention, ScheduleBlock, TimeLog } from '@/types/database';
 import { computeDailySummary, enrichBlocks, enrichLogs, isPendingRolloverBlock } from '@/utils/planner';
 import { addDaysISO, formatDateLong, formatDuration, minutesToTime, timeToMinutes, todayISO } from '@/utils/time';
+import { setDragSourceHeight } from '@/utils/dragContext';
 import clsx from 'clsx';
 
 interface DailyPageProps {
@@ -56,14 +57,31 @@ export function DailyPage({ date, onDateChange, quickLogOpen, onQuickLogOpenChan
   const pendingBlocks = useMemo(() => {
     const now = new Date();
     const nowMinutes = now.getHours() * 60 + now.getMinutes();
-    return enrichedBlocks.filter((block) => isPendingRolloverBlock(block, todayISO(), nowMinutes));
-  }, [enrichedBlocks]);
+    const actualByBlock = new Map<string, number>();
+    for (const log of enrichedLogs) {
+      if (!log.scheduleBlockId) continue;
+      actualByBlock.set(log.scheduleBlockId, (actualByBlock.get(log.scheduleBlockId) ?? 0) + log.durationMins);
+    }
+    return enrichedBlocks.filter((block) =>
+      isPendingRolloverBlock(block, todayISO(), nowMinutes, (actualByBlock.get(block.id) ?? 0) > 0),
+    );
+  }, [enrichedBlocks, enrichedLogs]);
 
   const handleDropTask = async (task: Intention, startTime: string) => {
     const duration = task.defaultDurationMins ?? 30;
     await schedule.create.mutateAsync({
       taskId: task.id,
       scheduledDate: date,
+      startTime,
+      endTime: minutesToTime(timeToMinutes(startTime) + duration),
+      plannedDurationMins: duration,
+    });
+  };
+
+  const moveBlockToTime = async (block: ScheduleBlock, startTime: string) => {
+    const duration = block.plannedDurationMins;
+    await schedule.update.mutateAsync({
+      id: block.id,
       startTime,
       endTime: minutesToTime(timeToMinutes(startTime) + duration),
       plannedDurationMins: duration,
@@ -229,6 +247,7 @@ export function DailyPage({ date, onDateChange, quickLogOpen, onQuickLogOpenChan
               dayStartHour={dayBounds.data?.start ?? 6}
               dayEndHour={dayBounds.data?.end ?? 22}
               onDropTask={handleDropTask}
+              onDropBlock={moveBlockToTime}
               onBlockClick={(block) => openBlockForm(block)}
               onLogClick={(log) => openLogForm(log)}
               onPlannedSlotClick={(startTime) => openBlockForm(null, startTime)}
@@ -254,7 +273,10 @@ export function DailyPage({ date, onDateChange, quickLogOpen, onQuickLogOpenChan
                   <div
                     key={item.id}
                     draggable
-                    onDragStart={(event) => event.dataTransfer.setData('application/x-intent-scheduler-task', JSON.stringify(item))}
+                    onDragStart={(event) => {
+                      setDragSourceHeight(event.currentTarget.getBoundingClientRect().height);
+                      event.dataTransfer.setData('application/x-intent-scheduler-task', JSON.stringify(item));
+                    }}
                     className="flex cursor-grab items-center gap-2 rounded-xl border border-border bg-surface-low px-3 py-2 transition hover:border-accent active:cursor-grabbing"
                   >
                     <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: category?.colorHex ?? 'var(--text-subtle)' }} />

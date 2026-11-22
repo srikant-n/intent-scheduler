@@ -20,6 +20,8 @@ function makeIntention(overrides: Partial<Intention> = {}): Intention {
     categoryId: 'cat-1',
     isRecurring: false,
     defaultDurationMins: 45,
+    targetSessionsPerWeek: null,
+    preferredWeekdays: [],
     status: 'active',
     notes: null,
     priority: null,

@@ -2,6 +2,7 @@ import { useMemo, useRef } from 'react';
 import type { Category, EnrichedScheduleBlock, EnrichedTimeLog, Intention, ScheduleBlock, TimeLog } from '@/types/database';
 import { categoryById } from '@/hooks/useCategories';
 import { formatDuration, formatTime12, minutesToTime, timeToMinutes } from '@/utils/time';
+import { getDragSourceHeight, setDragSourceHeight, BLOCK_DRAG_MIME } from '@/utils/dragContext';
 import clsx from 'clsx';
 
 interface DailyTimelineProps {
@@ -13,6 +14,7 @@ interface DailyTimelineProps {
   dayEndHour: number;
   hourHeight?: number;
   onDropTask: (task: Intention, startTime: string) => void;
+  onDropBlock: (block: ScheduleBlock, startTime: string) => void;
   onBlockClick: (block: ScheduleBlock) => void;
   onLogClick: (log: TimeLog) => void;
   onPlannedSlotClick: (startTime: string) => void;
@@ -29,6 +31,7 @@ export function DailyTimeline({
   dayEndHour,
   hourHeight = 56,
   onDropTask,
+  onDropBlock,
   onBlockClick,
   onLogClick,
   onPlannedSlotClick,
@@ -36,6 +39,7 @@ export function DailyTimeline({
 }: DailyTimelineProps) {
   const plannedRef = useRef<HTMLDivElement>(null);
   const actualRef = useRef<HTMLDivElement>(null);
+  const suppressClickUntil = useRef(0);
   const startMinutes = dayStartHour * 60;
   const endMinutes = dayEndHour * 60;
   const totalMinutes = Math.max(60, endMinutes - startMinutes);
@@ -47,7 +51,8 @@ export function DailyTimeline({
   const timeFromEvent = (event: React.DragEvent<HTMLElement> | React.MouseEvent<HTMLElement>, ref: HTMLDivElement | null) => {
     if (!ref) return minutesToTime(startMinutes);
     const rect = ref.getBoundingClientRect();
-    const ratio = Math.min(1, Math.max(0, (event.clientY - rect.top) / height));
+    const grabOffset = 'dataTransfer' in event ? getDragSourceHeight() / 2 : 0;
+    const ratio = Math.min(1, Math.max(0, (event.clientY - rect.top - grabOffset) / height));
     const minutes = startMinutes + ratio * totalMinutes;
     const snapped = Math.round(minutes / SNAP) * SNAP;
     return minutesToTime(Math.min(endMinutes - SNAP, Math.max(startMinutes, snapped)));
@@ -55,6 +60,17 @@ export function DailyTimeline({
 
   const handleDrop = (event: React.DragEvent<HTMLElement>, ref: HTMLDivElement | null) => {
     event.preventDefault();
+    suppressClickUntil.current = Date.now() + 300;
+    const blockRaw = event.dataTransfer.getData(BLOCK_DRAG_MIME);
+    if (blockRaw) {
+      try {
+        const payload = JSON.parse(blockRaw) as ScheduleBlock;
+        onDropBlock(payload, timeFromEvent(event, ref));
+        return;
+      } catch {
+        // fall through to intention payload
+      }
+    }
     const raw = event.dataTransfer.getData('application/x-intent-scheduler-task');
     if (!raw) return;
     try {
@@ -105,7 +121,10 @@ export function DailyTimeline({
           style={{ height }}
           onDragOver={(event) => event.preventDefault()}
           onDrop={(event) => handleDrop(event, plannedRef.current)}
-          onClick={(event) => onPlannedSlotClick(timeFromEvent(event, plannedRef.current))}
+          onClick={(event) => {
+            if (Date.now() < suppressClickUntil.current) return;
+            onPlannedSlotClick(timeFromEvent(event, plannedRef.current));
+          }}
         >
           {hours.map((minutes) => (
             <div key={minutes} className={clsx('absolute left-0 right-0 timeline-grid-line', minutes !== startMinutes && 'timeline-hour-line')} style={{ top: ((minutes - startMinutes) / totalMinutes) * height }} />
@@ -123,7 +142,17 @@ export function DailyTimeline({
                 <button
                   key={block.id}
                   type="button"
-                  onClick={(event) => { event.stopPropagation(); onBlockClick(block); }}
+                  draggable
+                  onDragStart={(event) => {
+                    setDragSourceHeight(event.currentTarget.getBoundingClientRect().height);
+                    event.dataTransfer.setData(BLOCK_DRAG_MIME, JSON.stringify(block));
+                    event.dataTransfer.effectAllowed = 'move';
+                  }}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    if (Date.now() < suppressClickUntil.current) return;
+                    onBlockClick(block);
+                  }}
                   className={clsx('timeline-block timeline-block-planned px-2 py-1.5 text-left', block.status === 'completed' && 'border-success/60')}
                   style={{ ...style, borderColor: category?.colorHex ?? 'var(--border-strong)' }}
                 >

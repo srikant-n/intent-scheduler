@@ -28,8 +28,11 @@ See the full specification in [`Docs/Personal Task & Time Tracker - Application 
 ### Daily & Weekly Schedule Planner (Intent)
 
 - **Daily dual-track view** — side-by-side "Planned" and "Actuals" timelines; drag Intentions onto time-blocked grid slots snapped to 15/30-minute intervals.
-- **Weekly grid view** — 7-day timeline with exact time-blocking, aggregated daily/weekly workload totals.
-- **End-of-day rollover** — unfulfilled planned blocks can be shifted to the next day, returned to Intentions, or dismissed.
+- **Weekly planner board** — horizontally scrollable Monday–Sunday columns with per-weekday capacity bars, exact `HH:MM` block cards, status styling, linked actual minutes/variance, drag-and-drop intention scheduling and block moves with overlap confirmation.
+- **Per-weekday capacity** — editable minute targets per ISO weekday stored as JSON in `app_settings` (`weekly_capacity_minutes`), seeded with Mon–Fri 360 / Sat 240 / Sun 180.
+- **Habit distribution** — recurring intentions carry `target_sessions_per_week` plus optional preferred ISO weekdays; the distribution modal previews deficit-filling proposals within remaining capacity before writing non-duplicate blocks.
+- **Batch weekly rollover** — pending blocks (past end time, no linked actual minutes) can be moved +1 day, moved to next Monday, rescheduled, dismissed, or returned to the backlog; every move preserves `rolled_from_block_id` lineage.
+- **Weekly CSV export** — one enriched row per schedule block for the Mon–Sun week, saved via the native save dialog through a `.csv`-only Rust command.
 
 ### Actual Task & Time Logging (Reality)
 
@@ -39,8 +42,7 @@ See the full specification in [`Docs/Personal Task & Time Tracker - Application 
 
 ### Daily & Weekly Time Analytics
 
-- Daily category breakdown with absolute planned-vs-actual variance.
-- Weekly stacked category bar charts, task-level aggregations, and estimation drift metrics (e.g., chronic under-estimation).
+- Week-scoped dashboard (previous/next/this week) with KPI grid, per-category planned-vs-actual variance and tendency labels, stacked daily category chart, Mon–Sun planned-vs-actual rhythm, estimation drift grading with task-level bias detection, rollover analytics, and deterministic local reflection insights (no external services).
 
 ### Data Portability
 
@@ -131,4 +133,4 @@ tracker-app/
 
 ## Status
 
-Specification complete — implementation not yet started.
+Daily planner, intentions, weekly planner (capacity, habit distribution, batch rollover, CSV export), and week-scoped analytics are implemented. Data Vault (JSON backup/restore) remains planned.

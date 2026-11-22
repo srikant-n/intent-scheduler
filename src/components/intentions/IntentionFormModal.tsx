@@ -9,6 +9,8 @@ export interface IntentionFormValues {
   categoryId: string | null;
   isRecurring: boolean;
   defaultDurationMins: number | null;
+  targetSessionsPerWeek: number | null;
+  preferredWeekdays: number[];
   notes: string;
   priority: string;
 }
@@ -22,12 +24,23 @@ interface Props {
 }
 
 const durations = [15, 20, 25, 30, 45, 60, 90, 120];
+const weekdayOptions = [
+  { day: 1, label: 'Mon' },
+  { day: 2, label: 'Tue' },
+  { day: 3, label: 'Wed' },
+  { day: 4, label: 'Thu' },
+  { day: 5, label: 'Fri' },
+  { day: 6, label: 'Sat' },
+  { day: 7, label: 'Sun' },
+];
 
 export function IntentionFormModal({ open, onClose, intention, categories, onSave }: Props) {
   const [title, setTitle] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [isRecurring, setIsRecurring] = useState(false);
   const [duration, setDuration] = useState('45');
+  const [targetSessions, setTargetSessions] = useState('');
+  const [preferredDays, setPreferredDays] = useState<number[]>([]);
   const [notes, setNotes] = useState('');
   const [priority, setPriority] = useState('none');
   const [saving, setSaving] = useState(false);
@@ -38,6 +51,8 @@ export function IntentionFormModal({ open, onClose, intention, categories, onSav
     setCategoryId(intention?.categoryId ?? categories[0]?.id ?? '');
     setIsRecurring(intention?.isRecurring ?? false);
     setDuration(String(intention?.defaultDurationMins ?? 45));
+    setTargetSessions(intention?.targetSessionsPerWeek != null ? String(intention.targetSessionsPerWeek) : '');
+    setPreferredDays(intention?.preferredWeekdays ?? []);
     setNotes(intention?.notes ?? '');
     setPriority(intention?.priority ?? 'none');
   }, [open, intention, categories]);
@@ -51,6 +66,8 @@ export function IntentionFormModal({ open, onClose, intention, categories, onSav
         categoryId: categoryId || null,
         isRecurring,
         defaultDurationMins: duration ? Number(duration) : null,
+        targetSessionsPerWeek: isRecurring && targetSessions ? Number(targetSessions) : null,
+        preferredWeekdays: isRecurring ? preferredDays : [],
         notes,
         priority: priority === 'none' ? '' : priority,
       });
@@ -97,6 +114,35 @@ export function IntentionFormModal({ open, onClose, intention, categories, onSav
             </Select>
           </Field>
         </div>
+        {isRecurring && (
+          <div className="space-y-3 rounded-xl border border-border bg-surface-low p-3">
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Sessions per week" hint="Used by Weekly habit distribution">
+                <Select value={targetSessions} onChange={(e) => setTargetSessions(e.target.value)}>
+                  <option value="">No target</option>
+                  {[1, 2, 3, 4, 5, 6, 7].map((n) => <option key={n} value={n}>{n}× / week</option>)}
+                </Select>
+              </Field>
+              <Field label="Preferred days" hint="Optional — empty means any day">
+                <div className="flex flex-wrap gap-1 pt-1">
+                  {weekdayOptions.map(({ day, label }) => {
+                    const active = preferredDays.includes(day);
+                    return (
+                      <button
+                        key={day}
+                        type="button"
+                        onClick={() => setPreferredDays((prev) => active ? prev.filter((d) => d !== day) : [...prev, day].sort())}
+                        className={`rounded-md border px-2 py-1 text-[11px] font-bold transition ${active ? 'border-accent bg-accent-soft text-accent' : 'border-border bg-surface text-text-muted hover:text-text'}`}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </Field>
+            </div>
+          </div>
+        )}
         <Field label="Notes">
           <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Optional context or sub-intent" />
         </Field>
