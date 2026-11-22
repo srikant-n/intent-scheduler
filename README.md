@@ -71,7 +71,7 @@ See the full specification in [`Docs/Personal Task & Time Tracker - Application 
 | Desktop shell | Tauri v2 (Rust core) + WebView2 | Native Windows app, ~10 MB `.msi` distribution |
 | Frontend | React 19 + TypeScript + Tailwind CSS | Type-safe UI with Lucide icons |
 | Data orchestration | TanStack Query v5 | Caching, optimistic updates, reactive state over IPC |
-| Database | SQLite via `tauri-plugin-sql` | Local ACID database in `%APPDATA%/com.personal.timetracker/tracker.db` |
+| Database | SQLite via `tauri-plugin-sql` | Local ACID database in `%APPDATA%/intent-tracker/tracker.db` |
 | System integration | `tauri-plugin-dialog`, `tauri-plugin-fs` | Native file dialogs for backup import/export |
 
 ## Data Flow

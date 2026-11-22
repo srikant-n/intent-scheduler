@@ -6,7 +6,7 @@ import { DailyPage } from '@/pages/DailyPage';
 import { IntentionsPage } from '@/pages/IntentionsPage';
 import { WeeklyPage } from '@/pages/WeeklyPage';
 import { AnalyticsPage } from '@/pages/AnalyticsPage';
-import { PlaceholderPage } from '@/pages/PlaceholderPage';
+import { VaultPage } from '@/pages/VaultPage';
 import { useIntentions } from '@/hooks/useIntentions';
 import { bootstrapDatabase } from '@/db/queries';
 import { todayISO } from '@/utils/time';
@@ -39,7 +39,7 @@ export default function App() {
           {view === 'intentions' && <IntentionsPage />}
           {view === 'weekly' && <WeeklyPage date={date} onDateChange={setDate} />}
           {view === 'analytics' && <AnalyticsPage date={date} onDateChange={setDate} />}
-          {view === 'vault' && <PlaceholderPage title="Data Vault" description="Backup, restore, CSV export, and database health are planned for the next phase." />}
+          {view === 'vault' && <VaultPage />}
         </main>
       </div>
       <ActiveTimerBar />

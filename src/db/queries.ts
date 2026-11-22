@@ -10,6 +10,9 @@ import {
   TimeLogMood,
 } from '@/types/database';
 import { isValidISODate, isValidTime, uuid } from '@/utils/time';
+import { buildVaultPayload, vaultPayloadIssues, type VaultPayload, type VaultRow } from '@/utils/vault';
+import { invoke } from '@tauri-apps/api/core';
+import pkg from '../../package.json';
 import { executeSql, selectRows } from './client';
 
 function nowIso(): string {
@@ -552,6 +555,106 @@ const DEFAULT_CATEGORIES = [
   { name: 'Daily Errands', colorHex: '#d97706' },
   { name: 'Rest & Play', colorHex: '#8b5cf6' },
 ];
+
+export interface VaultCounts {
+  blocks: number;
+  logs: number;
+  tasks: number;
+  categories: number;
+  settings: number;
+}
+
+export async function getVaultCounts(): Promise<VaultCounts> {
+  const count = async (table: string) => {
+    const rows = await selectRows<{ count: number }>(`SELECT COUNT(*) AS count FROM ${table}`);
+    return rows[0]?.count ?? 0;
+  };
+  const [blocks, logs, tasks, categories, settings] = await Promise.all([
+    count('schedule_blocks'),
+    count('time_logs'),
+    count('tasks'),
+    count('categories'),
+    count('app_settings'),
+  ]);
+  return { blocks, logs, tasks, categories, settings };
+}
+
+const ALLOWED_PRAGMAS = new Set([
+  'journal_mode',
+  'synchronous',
+  'cache_size',
+  'foreign_keys',
+  'auto_vacuum',
+  'page_size',
+  'encoding',
+]);
+
+export async function getPragmaValue(name: string): Promise<string> {
+  if (!ALLOWED_PRAGMAS.has(name)) throw new Error(`PRAGMA ${name} is not allowed`);
+  const rows = await selectRows<Record<string, unknown>>(`PRAGMA ${name}`);
+  const row = rows[0];
+  if (!row) return '';
+  const value = Object.values(row)[0];
+  return value == null ? '' : String(value);
+}
+
+export async function runIntegrityCheck(): Promise<string> {
+  const rows = await selectRows<Record<string, unknown>>('PRAGMA integrity_check');
+  const messages = rows.map((row) => String(Object.values(row)[0] ?? '')).filter(Boolean);
+  return messages.length === 0 ? 'ok' : messages.join('; ');
+}
+
+export async function vacuumDatabase(): Promise<void> {
+  await executeSql('VACUUM');
+}
+
+export async function exportVaultPayload(): Promise<VaultPayload> {
+  const [settings, categories, tasks, scheduleBlocks, timeLogs] = await Promise.all([
+    selectRows<VaultRow>('SELECT key, value, updated_at FROM app_settings ORDER BY key'),
+    selectRows<VaultRow>('SELECT id, name, color_hex, created_at FROM categories ORDER BY name'),
+    selectRows<VaultRow>(`SELECT ${TASK_COLUMNS} FROM tasks ORDER BY created_at`),
+    selectRows<VaultRow>(
+      'SELECT id, task_id, scheduled_date, start_time, end_time, planned_duration_mins, notes, status, rolled_from_block_id, created_at FROM schedule_blocks ORDER BY scheduled_date, start_time',
+    ),
+    selectRows<VaultRow>(
+      'SELECT id, task_id, schedule_block_id, custom_title, category_id, log_date, start_time, end_time, duration_mins, notes, mood, is_ad_hoc, created_at FROM time_logs ORDER BY log_date, created_at',
+    ),
+  ]);
+  return buildVaultPayload({
+    settings,
+    categories,
+    tasks,
+    scheduleBlocks,
+    timeLogs,
+    appVersion: pkg.version,
+  });
+}
+
+export type VaultImportMode = 'merge' | 'replace';
+
+export interface VaultImportStats {
+  tables: { table: string; attempted: number; written: number }[];
+}
+
+export async function importVaultPayload(payload: VaultPayload, mode: VaultImportMode): Promise<VaultImportStats> {
+  const issues = vaultPayloadIssues(payload);
+  if (issues.length > 0) {
+    throw new Error(`Vault payload failed validation:\n${issues.slice(0, 10).join('\n')}${issues.length > 10 ? `\n…and ${issues.length - 10} more` : ''}`);
+  }
+  // The actual write runs in a single Rust transaction (plugin-sql's pool
+  // cannot span BEGIN/COMMIT across separate execute calls).
+  const raw = await invoke<{ tables: [string, { attempted: number; written: number }][] }>('import_vault', {
+    data: payload.data,
+    mode,
+  });
+  return {
+    tables: raw.tables.map(([table, stats]) => ({ table, ...stats })),
+  };
+}
+
+export async function recordVaultEvent(kind: 'export' | 'import'): Promise<void> {
+  await setSetting(`vault_last_${kind}_at`, nowIso());
+}
 
 const DEFAULT_SETTINGS: Record<string, string> = {
   theme_mode: 'system',
