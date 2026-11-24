@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   archiveIntention,
   createIntention,
+  deleteIntention,
   listAllIntentions,
   listIntentions,
   restoreIntention,
@@ -29,6 +30,7 @@ export function useIntentions(status: TaskStatus = 'active') {
 
   const archive = useMutation({ mutationFn: archiveIntention, onSuccess: invalidate });
   const restore = useMutation({ mutationFn: restoreIntention, onSuccess: invalidate });
+  const remove = useMutation({ mutationFn: deleteIntention, onSuccess: invalidate });
 
   return {
     intentions: query.data ?? [],
@@ -37,6 +39,7 @@ export function useIntentions(status: TaskStatus = 'active') {
     update,
     archive,
     restore,
+    remove,
   };
 }
 

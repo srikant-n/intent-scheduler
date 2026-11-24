@@ -59,46 +59,109 @@
   --accent: #4f46e5;
   --accent-strong: #4338ca;
   --accent-soft: rgba(79, 70, 229, 0.14);
+  --canvas: color-mix(in srgb, var(--accent) 3%, #fff8f5);
+  --surface: color-mix(in srgb, var(--accent) 2%, #ffffff);
+  --surface-low: color-mix(in srgb, var(--accent) 5%, #fcf2eb);
+  --surface-high: color-mix(in srgb, var(--accent) 9%, #f0e6e0);
+  --surface-highest: color-mix(in srgb, var(--accent) 13%, #eae1da);
+  --border: color-mix(in srgb, var(--accent) 6%, #eae6df);
+  --border-strong: color-mix(in srgb, var(--accent) 10%, #d6d0c7);
 }
 [data-accent='emerald'] {
   --accent: #059669;
   --accent-strong: #047857;
   --accent-soft: rgba(5, 150, 105, 0.14);
+  --canvas: color-mix(in srgb, var(--accent) 3%, #fff8f5);
+  --surface: color-mix(in srgb, var(--accent) 2%, #ffffff);
+  --surface-low: color-mix(in srgb, var(--accent) 5%, #fcf2eb);
+  --surface-high: color-mix(in srgb, var(--accent) 9%, #f0e6e0);
+  --surface-highest: color-mix(in srgb, var(--accent) 13%, #eae1da);
+  --border: color-mix(in srgb, var(--accent) 6%, #eae6df);
+  --border-strong: color-mix(in srgb, var(--accent) 10%, #d6d0c7);
 }
 [data-accent='rose'] {
   --accent: #e11d48;
   --accent-strong: #be123c;
   --accent-soft: rgba(225, 29, 72, 0.13);
+  --canvas: color-mix(in srgb, var(--accent) 3%, #fff8f5);
+  --surface: color-mix(in srgb, var(--accent) 2%, #ffffff);
+  --surface-low: color-mix(in srgb, var(--accent) 5%, #fcf2eb);
+  --surface-high: color-mix(in srgb, var(--accent) 9%, #f0e6e0);
+  --surface-highest: color-mix(in srgb, var(--accent) 13%, #eae1da);
+  --border: color-mix(in srgb, var(--accent) 6%, #eae6df);
+  --border-strong: color-mix(in srgb, var(--accent) 10%, #d6d0c7);
 }
 [data-accent='violet'] {
   --accent: #7c3aed;
   --accent-strong: #6d28d9;
   --accent-soft: rgba(124, 58, 237, 0.14);
+  --canvas: color-mix(in srgb, var(--accent) 3%, #fff8f5);
+  --surface: color-mix(in srgb, var(--accent) 2%, #ffffff);
+  --surface-low: color-mix(in srgb, var(--accent) 5%, #fcf2eb);
+  --surface-high: color-mix(in srgb, var(--accent) 9%, #f0e6e0);
+  --surface-highest: color-mix(in srgb, var(--accent) 13%, #eae1da);
+  --border: color-mix(in srgb, var(--accent) 6%, #eae6df);
+  --border-strong: color-mix(in srgb, var(--accent) 10%, #d6d0c7);
 }
 .dark[data-accent='ember'] {
   --accent: #f97316;
   --accent-strong: #ea580c;
   --accent-soft: rgba(249, 115, 22, 0.14);
+  --canvas: color-mix(in srgb, var(--accent) 4%, #121318);
+  --surface: color-mix(in srgb, var(--accent) 3%, #18191e);
+  --surface-low: color-mix(in srgb, var(--accent) 6%, #1a1b20);
+  --surface-high: color-mix(in srgb, var(--accent) 10%, #22242a);
+  --surface-highest: color-mix(in srgb, var(--accent) 14%, #2a2c35);
+  --border: color-mix(in srgb, var(--accent) 8%, #2d3139);
+  --border-strong: color-mix(in srgb, var(--accent) 14%, #475569);
 }
 .dark[data-accent='indigo'] {
   --accent: #818cf8;
   --accent-strong: #6366f1;
   --accent-soft: rgba(129, 140, 248, 0.14);
+  --canvas: color-mix(in srgb, var(--accent) 4%, #121318);
+  --surface: color-mix(in srgb, var(--accent) 3%, #18191e);
+  --surface-low: color-mix(in srgb, var(--accent) 6%, #1a1b20);
+  --surface-high: color-mix(in srgb, var(--accent) 10%, #22242a);
+  --surface-highest: color-mix(in srgb, var(--accent) 14%, #2a2c35);
+  --border: color-mix(in srgb, var(--accent) 8%, #2d3139);
+  --border-strong: color-mix(in srgb, var(--accent) 14%, #475569);
 }
 .dark[data-accent='emerald'] {
   --accent: #34d399;
   --accent-strong: #10b981;
   --accent-soft: rgba(52, 211, 153, 0.13);
+  --canvas: color-mix(in srgb, var(--accent) 4%, #121318);
+  --surface: color-mix(in srgb, var(--accent) 3%, #18191e);
+  --surface-low: color-mix(in srgb, var(--accent) 6%, #1a1b20);
+  --surface-high: color-mix(in srgb, var(--accent) 10%, #22242a);
+  --surface-highest: color-mix(in srgb, var(--accent) 14%, #2a2c35);
+  --border: color-mix(in srgb, var(--accent) 8%, #2d3139);
+  --border-strong: color-mix(in srgb, var(--accent) 14%, #475569);
 }
 .dark[data-accent='rose'] {
   --accent: #fb7185;
   --accent-strong: #f43f5e;
   --accent-soft: rgba(251, 113, 133, 0.13);
+  --canvas: color-mix(in srgb, var(--accent) 4%, #121318);
+  --surface: color-mix(in srgb, var(--accent) 3%, #18191e);
+  --surface-low: color-mix(in srgb, var(--accent) 6%, #1a1b20);
+  --surface-high: color-mix(in srgb, var(--accent) 10%, #22242a);
+  --surface-highest: color-mix(in srgb, var(--accent) 14%, #2a2c35);
+  --border: color-mix(in srgb, var(--accent) 8%, #2d3139);
+  --border-strong: color-mix(in srgb, var(--accent) 14%, #475569);
 }
 .dark[data-accent='violet'] {
   --accent: #a78bfa;
   --accent-strong: #8b5cf6;
   --accent-soft: rgba(167, 139, 250, 0.14);
+  --canvas: color-mix(in srgb, var(--accent) 4%, #121318);
+  --surface: color-mix(in srgb, var(--accent) 3%, #18191e);
+  --surface-low: color-mix(in srgb, var(--accent) 6%, #1a1b20);
+  --surface-high: color-mix(in srgb, var(--accent) 10%, #22242a);
+  --surface-highest: color-mix(in srgb, var(--accent) 14%, #2a2c35);
+  --border: color-mix(in srgb, var(--accent) 8%, #2d3139);
+  --border-strong: color-mix(in srgb, var(--accent) 14%, #475569);
 }
 
 @theme inline {

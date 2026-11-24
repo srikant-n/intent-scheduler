@@ -10,3 +10,4 @@ export function getDragSourceHeight(): number {
 
 export const TASK_DRAG_MIME = 'application/x-intent-scheduler-task';
 export const BLOCK_DRAG_MIME = 'application/x-intent-scheduler-block';
+export const LOG_DRAG_MIME = 'application/x-intent-scheduler-log';

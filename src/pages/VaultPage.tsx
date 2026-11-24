@@ -3,6 +3,7 @@ import { AlertTriangle, CheckCircle2, Database, Lock, ShieldCheck } from 'lucide
 import { VaultHealthCard } from '@/components/vault/VaultHealthCard';
 import { ExportVaultCard } from '@/components/vault/ExportVaultCard';
 import { RestoreVaultCard } from '@/components/vault/RestoreVaultCard';
+import { ClearVaultCard } from '@/components/vault/ClearVaultCard';
 import { useVaultHealth } from '@/hooks/useVault';
 import clsx from 'clsx';
 
@@ -56,12 +57,13 @@ export function VaultPage() {
         </div>
       </section>
 
-      <VaultHealthCard onNotify={notify} />
-
       <section className="grid gap-5 lg:grid-cols-2">
         <ExportVaultCard onNotify={notify} />
         <RestoreVaultCard onNotify={notify} />
       </section>
+
+      <VaultHealthCard onNotify={notify} />
+      <ClearVaultCard onNotify={notify} />
 
       <section className="flex flex-col items-center justify-between gap-4 rounded-xl border border-border bg-surface-low p-5 lg:flex-row">
         <div className="flex items-center gap-4">

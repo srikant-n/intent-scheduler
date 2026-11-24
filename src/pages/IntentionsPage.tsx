@@ -1,15 +1,16 @@
 import { FormEvent, useMemo, useState } from 'react';
-import { Archive, CalendarPlus, ChevronDown, Database, Pencil, Pin, Plus, Repeat, RotateCcw, Search, SlidersHorizontal, Zap } from 'lucide-react';
+import { Archive, CalendarPlus, ChevronDown, Database, Pencil, Pin, Plus, Repeat, RotateCcw, Search, SlidersHorizontal, Trash2, Zap } from 'lucide-react';
 import clsx from 'clsx';
 import { useCategories } from '@/hooks/useCategories';
 import { useIntentions } from '@/hooks/useIntentions';
 import { useScheduleMutations } from '@/hooks/useSchedule';
 import { Button } from '@/components/common/Button';
 import { EmptyState } from '@/components/common/EmptyState';
+import { Modal } from '@/components/common/Modal';
 import { Input, Select } from '@/components/common/Field';
 import { IntentionFormModal, IntentionFormValues } from '@/components/intentions/IntentionFormModal';
-import { CategoryFormModal } from '@/components/intentions/CategoryFormModal';
-import type { Category, Intention } from '@/types/database';
+import { ManageCategoriesModal } from '@/components/intentions/ManageCategoriesModal';
+import type { Intention } from '@/types/database';
 import { categoryById } from '@/hooks/useCategories';
 import { filterSortIntentions, groupIntentionsByCategory, type IntentionFilter, type IntentionSort } from '@/utils/planner';
 import { formatDuration, minutesToTime, snapMinutes, todayISO } from '@/utils/time';
@@ -54,18 +55,18 @@ export function IntentionsPage() {
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [editing, setEditing] = useState<Intention | null>(null);
   const [formOpen, setFormOpen] = useState(false);
-  const [categoryFormOpen, setCategoryFormOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [manageCategoriesOpen, setManageCategoriesOpen] = useState(false);
   const [quickTitle, setQuickTitle] = useState('');
   const [quickCategoryId, setQuickCategoryId] = useState('');
   const [quickRecurring, setQuickRecurring] = useState(false);
   const [quickDuration, setQuickDuration] = useState(45);
   const [quickNotes, setQuickNotes] = useState('');
   const [quickSaving, setQuickSaving] = useState(false);
+  const [deletingIntention, setDeletingIntention] = useState<Intention | null>(null);
 
   const active = useIntentions('active');
   const archived = useIntentions('archived');
-  const { categories, create: createCategory, update: updateCategory } = useCategories();
+  const { categories } = useCategories();
   const schedule = useScheduleMutations();
 
   const intentions = filter === 'archived' ? archived.intentions : active.intentions;
@@ -216,6 +217,13 @@ export function IntentionsPage() {
               <RotateCcw size={14} />
             </button>
           )}
+          <button
+            title="Delete"
+            onClick={() => setDeletingIntention(item)}
+            className="rounded-lg p-1.5 text-text-subtle transition hover:bg-surface-high hover:text-danger"
+          >
+            <Trash2 size={14} />
+          </button>
         </div>
       </div>
     );
@@ -239,8 +247,8 @@ export function IntentionsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="secondary" size="sm" onClick={() => { setEditingCategory(null); setCategoryFormOpen(true); }}>
-            <SlidersHorizontal size={13} /> Category
+          <Button variant="secondary" size="sm" onClick={() => setManageCategoriesOpen(true)}>
+            <SlidersHorizontal size={13} /> Manage Categories
           </Button>
           <Button variant="primary" onClick={() => openForm()}>
             <Plus size={15} /> New Intention
@@ -434,9 +442,6 @@ export function IntentionsPage() {
               </div>
             </form>
           </div>
-          <Button variant="secondary" className="w-full" onClick={() => { setEditingCategory(null); setCategoryFormOpen(true); }}>
-            <Plus size={14} /> Manage categories
-          </Button>
         </aside>
       </div>
 
@@ -447,15 +452,33 @@ export function IntentionsPage() {
         categories={categories}
         onSave={saveIntention}
       />
-      <CategoryFormModal
-        open={categoryFormOpen}
-        onClose={() => setCategoryFormOpen(false)}
-        category={editingCategory}
-        onSave={async (values) => {
-          if (editingCategory) await updateCategory.mutateAsync({ id: editingCategory.id, ...values });
-          else await createCategory.mutateAsync(values);
-        }}
+      <ManageCategoriesModal
+        open={manageCategoriesOpen}
+        onClose={() => setManageCategoriesOpen(false)}
       />
+      <Modal
+        open={deletingIntention !== null}
+        onClose={() => setDeletingIntention(null)}
+        title="Delete intention?"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-text-muted">
+            <span className="font-semibold text-text">{deletingIntention?.title}</span> will be permanently deleted. Its scheduled blocks are removed; logged time is kept as uncategorized activity.
+          </p>
+          <div className="flex justify-end gap-2">
+            <Button variant="secondary" onClick={() => setDeletingIntention(null)}>Cancel</Button>
+            <Button
+              variant="danger"
+              onClick={() => {
+                if (deletingIntention) active.remove.mutate(deletingIntention.id);
+                setDeletingIntention(null);
+              }}
+            >
+              <Trash2 size={14} /> Delete
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

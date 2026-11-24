@@ -88,6 +88,18 @@ export function DailyPage({ date, onDateChange, quickLogOpen, onQuickLogOpenChan
     });
   };
 
+  const moveLogToTime = async (log: TimeLog, startTime: string) => {
+    const dayStart = (dayBounds.data?.start ?? 6) * 60;
+    const dayEnd = (dayBounds.data?.end ?? 22) * 60;
+    const latestStart = Math.max(dayStart, dayEnd - log.durationMins);
+    const start = Math.min(Math.max(timeToMinutes(startTime), dayStart), latestStart);
+    await timeLogs.update.mutateAsync({
+      id: log.id,
+      startTime: minutesToTime(start),
+      endTime: minutesToTime(start + log.durationMins),
+    });
+  };
+
   const openBlockForm = (block: ScheduleBlock | null = null, startTime?: string) => setBlockForm({ open: true, block, startTime });
   const openLogForm = (log: TimeLog | null = null, startTime?: string) => setLogForm({ open: true, log, startTime });
 
@@ -252,6 +264,7 @@ export function DailyPage({ date, onDateChange, quickLogOpen, onQuickLogOpenChan
               onLogClick={(log) => openLogForm(log)}
               onPlannedSlotClick={(startTime) => openBlockForm(null, startTime)}
               onActualSlotClick={(startTime) => openLogForm(null, startTime)}
+              onDropLog={moveLogToTime}
             />
           )}
           <div className="flex flex-wrap gap-2 text-xs text-text-muted">

@@ -289,6 +289,13 @@ export async function restoreIntention(id: string): Promise<void> {
   await executeSql("UPDATE tasks SET status = 'active' WHERE id = $1", [id]);
 }
 
+export async function deleteIntention(id: string): Promise<void> {
+  await executeSql('UPDATE time_logs SET schedule_block_id = NULL WHERE schedule_block_id IN (SELECT id FROM schedule_blocks WHERE task_id = $1)', [id]);
+  await executeSql('UPDATE time_logs SET task_id = NULL WHERE task_id = $1', [id]);
+  await executeSql('DELETE FROM schedule_blocks WHERE task_id = $1', [id]);
+  await executeSql('DELETE FROM tasks WHERE id = $1', [id]);
+}
+
 export async function listScheduleBlocks(date: string): Promise<ScheduleBlock[]> {
   assertDate(date);
   const rows = await selectRows<ScheduleBlockRow>(
@@ -654,6 +661,17 @@ export async function importVaultPayload(payload: VaultPayload, mode: VaultImpor
 
 export async function recordVaultEvent(kind: 'export' | 'import'): Promise<void> {
   await setSetting(`vault_last_${kind}_at`, nowIso());
+}
+
+export async function clearVaultData(): Promise<void> {
+  // The actual delete runs in a single Rust transaction so partial wipes
+  // are impossible (plugin-sql's pool cannot span BEGIN/COMMIT across calls).
+  await invoke('clear_vault');
+  resetBootstrapDatabase();
+}
+
+export function resetBootstrapDatabase(): void {
+  bootstrapPromise = null;
 }
 
 const DEFAULT_SETTINGS: Record<string, string> = {

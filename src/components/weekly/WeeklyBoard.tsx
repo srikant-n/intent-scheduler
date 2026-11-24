@@ -2,6 +2,7 @@ import type { Category, EnrichedScheduleBlock, Intention } from '@/types/databas
 import type { WeeklyDaySummary } from '@/utils/weekly';
 import type { BoardMode } from './WeeklyBlockCard';
 import { WeeklyDayColumn } from './WeeklyDayColumn';
+import { useDragScroll } from '@/hooks/useDragScroll';
 
 interface Props {
   days: WeeklyDaySummary[];
@@ -16,8 +17,9 @@ interface Props {
 }
 
 export function WeeklyBoard({ days, blocksByDate, actualByBlock, categoryOf, mode, onAdd, onBlockClick, onDropTask, onDropBlock }: Props) {
+  const { ref, onPointerDown } = useDragScroll();
   return (
-    <div className="overflow-x-auto pb-2">
+    <div ref={ref} onPointerDown={onPointerDown} className="cursor-grab overflow-x-auto pb-2">
       <div className="flex min-w-[1200px] gap-2.5">
         {days.map((day) => (
           <WeeklyDayColumn

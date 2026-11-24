@@ -266,6 +266,32 @@ fn import_vault(app: tauri::AppHandle, data: JsonValue, mode: String) -> Result<
     }
 }
 
+#[tauri::command]
+fn clear_vault(app: tauri::AppHandle) -> Result<(), String> {
+    let db_path = database_path(&app)?;
+    let mut conn = Connection::open(&db_path)
+        .map_err(|err| format!("Cannot open database {}: {err}", db_path.display()))?;
+
+    let tx = conn
+        .transaction()
+        .map_err(|err| format!("Cannot begin clear transaction: {err}"))?;
+
+    let result = (|| -> Result<(), String> {
+        for table in VAULT_DELETE_ORDER {
+            tx.execute(&format!("DELETE FROM {table}"), [])
+                .map_err(|err| format!("Failed clearing {table}: {err}"))?;
+        }
+        Ok(())
+    })();
+
+    match result {
+        Ok(()) => tx
+            .commit()
+            .map_err(|err| format!("Failed committing clear: {err}")),
+        Err(err) => Err(err), // tx drops here -> automatic rollback
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let migrations = vec![
@@ -300,7 +326,8 @@ pub fn run() {
             save_text_file,
             get_database_file_info,
             reveal_path_in_explorer,
-            import_vault
+            import_vault,
+            clear_vault
         ])
         .run(tauri::generate_context!())
         .expect("error while running Intent Scheduler");

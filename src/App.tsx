@@ -25,7 +25,7 @@ export default function App() {
     <div className="min-h-full bg-canvas text-text">
       <Sidebar view={view} onChange={setView} intentionsCount={intentions.length} onQuickLog={() => { setView('daily'); setQuickLogOpen(true); }} />
       <div className="pl-60">
-        <TopBar date={date} onQuickLog={() => { setView('daily'); setQuickLogOpen(true); }} />
+        <TopBar date={date} />
         <main className="mx-auto w-full max-w-[1600px] px-6 py-6 pb-28">
           {view === 'daily' && (
             <DailyPage

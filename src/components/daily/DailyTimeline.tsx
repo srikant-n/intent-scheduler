@@ -2,7 +2,7 @@ import { useMemo, useRef } from 'react';
 import type { Category, EnrichedScheduleBlock, EnrichedTimeLog, Intention, ScheduleBlock, TimeLog } from '@/types/database';
 import { categoryById } from '@/hooks/useCategories';
 import { formatDuration, formatTime12, minutesToTime, timeToMinutes } from '@/utils/time';
-import { getDragSourceHeight, setDragSourceHeight, BLOCK_DRAG_MIME } from '@/utils/dragContext';
+import { getDragSourceHeight, setDragSourceHeight, BLOCK_DRAG_MIME, LOG_DRAG_MIME } from '@/utils/dragContext';
 import clsx from 'clsx';
 
 interface DailyTimelineProps {
@@ -19,6 +19,7 @@ interface DailyTimelineProps {
   onLogClick: (log: TimeLog) => void;
   onPlannedSlotClick: (startTime: string) => void;
   onActualSlotClick: (startTime: string) => void;
+  onDropLog: (log: TimeLog, startTime: string) => void;
 }
 
 const SNAP = 15;
@@ -36,6 +37,7 @@ export function DailyTimeline({
   onLogClick,
   onPlannedSlotClick,
   onActualSlotClick,
+  onDropLog,
 }: DailyTimelineProps) {
   const plannedRef = useRef<HTMLDivElement>(null);
   const actualRef = useRef<HTMLDivElement>(null);
@@ -76,6 +78,19 @@ export function DailyTimeline({
     try {
       const task = JSON.parse(raw) as Intention;
       onDropTask(task, timeFromEvent(event, ref));
+    } catch {
+      // Ignore malformed drag payloads.
+    }
+  };
+
+  const handleLogDrop = (event: React.DragEvent<HTMLElement>) => {
+    event.preventDefault();
+    suppressClickUntil.current = Date.now() + 300;
+    const raw = event.dataTransfer.getData(LOG_DRAG_MIME);
+    if (!raw) return;
+    try {
+      const log = JSON.parse(raw) as TimeLog;
+      onDropLog(log, timeFromEvent(event, actualRef.current));
     } catch {
       // Ignore malformed drag payloads.
     }
@@ -178,7 +193,12 @@ export function DailyTimeline({
           ref={actualRef}
           className="relative border-l border-border"
           style={{ height }}
-          onClick={(event) => onActualSlotClick(timeFromEvent(event, actualRef.current))}
+          onDragOver={(event) => event.preventDefault()}
+          onDrop={handleLogDrop}
+          onClick={(event) => {
+            if (Date.now() < suppressClickUntil.current) return;
+            onActualSlotClick(timeFromEvent(event, actualRef.current));
+          }}
         >
           {hours.map((minutes) => (
             <div key={minutes} className={clsx('absolute left-0 right-0 timeline-grid-line', minutes !== startMinutes && 'timeline-hour-line')} style={{ top: ((minutes - startMinutes) / totalMinutes) * height }} />
@@ -191,8 +211,14 @@ export function DailyTimeline({
               <button
                 key={log.id}
                 type="button"
+                draggable
+                onDragStart={(event) => {
+                  setDragSourceHeight(event.currentTarget.getBoundingClientRect().height);
+                  event.dataTransfer.setData(LOG_DRAG_MIME, JSON.stringify(log));
+                  event.dataTransfer.effectAllowed = 'move';
+                }}
                 onClick={(event) => { event.stopPropagation(); onLogClick(log); }}
-                className="timeline-block timeline-block-actual px-2 py-1.5 text-left"
+                className="timeline-block timeline-block-actual cursor-grab px-2 py-1.5 text-left active:cursor-grabbing"
                 style={{ ...style, borderColor: category?.colorHex ?? 'var(--accent)' }}
               >
                 <div className="truncate text-xs font-bold text-text">{log.displayTitle}</div>
