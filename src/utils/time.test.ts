@@ -5,14 +5,20 @@ import {
   elapsedMs,
   formatDateLong,
   formatDateShort,
+  formatDateTime12,
   formatDuration,
   formatElapsed,
+  formatSignedDuration,
   formatTime12,
   formatWeekRangeISO,
+  formatWeekRangeShort,
   isValidISODate,
   isValidTime,
+  isoWeekNumber,
+  isoWeekdayISO,
   localTimeFromDate,
   minutesToTime,
+  nextMondayISO,
   parseISODate,
   snapMinutes,
   timeToMinutes,
@@ -20,6 +26,8 @@ import {
   todayISO,
   uuid,
   weekDatesISO,
+  weekEndISO,
+  weekStartISO,
 } from './time';
 
 describe('ISO date helpers', () => {
@@ -206,5 +214,77 @@ describe('deriveLogTimes', () => {
     const result = deriveLogTimes(start.toISOString(), 2 * 3_600_000);
     expect(result.logDate).toBe('2026-11-22');
     expect(result.endTime).toBeNull();
+  });
+});
+
+describe('week helpers', () => {
+  it('isoWeekdayISO numbers Monday=1 through Sunday=7', () => {
+    expect(isoWeekdayISO('2026-11-16')).toBe(1); // Monday
+    expect(isoWeekdayISO('2026-11-18')).toBe(3); // Wednesday
+    expect(isoWeekdayISO('2026-11-22')).toBe(7); // Sunday
+  });
+
+  it('weekStartISO/weekEndISO return the containing Mon–Sun', () => {
+    expect(weekStartISO('2026-11-22')).toBe('2026-11-16');
+    expect(weekEndISO('2026-11-22')).toBe('2026-11-22');
+    expect(weekStartISO('2026-11-16')).toBe('2026-11-16');
+    expect(weekEndISO('2026-11-16')).toBe('2026-11-22');
+  });
+
+  it('nextMondayISO returns the following Monday', () => {
+    expect(nextMondayISO('2026-11-16')).toBe('2026-11-23'); // Monday -> +7
+    expect(nextMondayISO('2026-11-18')).toBe('2026-11-23'); // Wednesday
+    expect(nextMondayISO('2026-11-22')).toBe('2026-11-23'); // Sunday -> +1
+  });
+
+  it('isoWeekNumber follows ISO-8601 week numbering', () => {
+    expect(isoWeekNumber('2026-01-01')).toBe(1); // Thursday of week 1
+    expect(isoWeekNumber('2025-12-29')).toBe(1); // Monday of ISO week 1 of 2026
+    expect(isoWeekNumber('2026-11-16')).toBe(isoWeekNumber('2026-11-22'));
+    expect(isoWeekNumber('2026-11-23')).toBe(isoWeekNumber('2026-11-16') + 1);
+  });
+});
+
+describe('formatWeekRangeShort', () => {
+  it('collapses same-month ranges', () => {
+    expect(formatWeekRangeShort('2026-11-22')).toContain('Nov');
+    expect(formatWeekRangeShort('2026-11-22')).toContain('16');
+    expect(formatWeekRangeShort('2026-11-22')).toContain('22');
+    expect(formatWeekRangeShort('2026-11-22')).toContain('2026');
+  });
+
+  it('shows both months for cross-month weeks', () => {
+    // Week of 2026-11-30 runs Nov 30 – Dec 6
+    const label = formatWeekRangeShort('2026-11-30');
+    expect(label).toContain('Nov');
+    expect(label).toContain('Dec');
+    expect(label).toContain('2026');
+  });
+});
+
+describe('formatSignedDuration', () => {
+  it('prefixes positive values with + and uses U+2212 for negatives', () => {
+    expect(formatSignedDuration(45)).toBe('+45m');
+    expect(formatSignedDuration(90)).toBe('+1h 30m');
+    expect(formatSignedDuration(-90)).toBe('−1h 30m');
+    expect(formatSignedDuration(0)).toBe('0m');
+  });
+
+  it('returns placeholder for null/NaN', () => {
+    expect(formatSignedDuration(null)).toBe('—');
+    expect(formatSignedDuration(undefined)).toBe('—');
+    expect(formatSignedDuration(NaN)).toBe('—');
+  });
+});
+
+describe('formatDateTime12 / localTimeFromDate', () => {
+  it('formatDateTime12 passes invalid input through and formats valid ISO', () => {
+    expect(formatDateTime12('not-a-date')).toBe('not-a-date');
+    expect(formatDateTime12('2026-11-22T10:30:00.000Z').length).toBeGreaterThan(0);
+  });
+
+  it('localTimeFromDate returns padded HH:MM', () => {
+    expect(localTimeFromDate(new Date(2026, 10, 22, 9, 5))).toBe('09:05');
+    expect(localTimeFromDate(new Date(2026, 10, 22, 23, 59))).toBe('23:59');
   });
 });

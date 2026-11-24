@@ -86,6 +86,75 @@ describe('ScheduleBlockFormModal', () => {
     expect(onClose).toHaveBeenCalled();
   });
 
+  it('prefills notes, status, and times when editing a block', () => {
+    renderModal({
+      block: {
+        id: 'b1',
+        taskId: 'task-1',
+        scheduledDate: '2026-11-22',
+        startTime: '09:00',
+        endTime: '10:00',
+        plannedDurationMins: 60,
+        notes: 'plan notes',
+        status: 'completed',
+        rolledFromBlockId: null,
+        createdAt: 't',
+      },
+    });
+    expect(screen.getByDisplayValue('plan notes')).toBeInTheDocument();
+    expect((screen.getByLabelText('Status') as HTMLSelectElement).value).toBe('completed');
+    expect((screen.getByLabelText('Start') as HTMLInputElement).value).toBe('09:00');
+    expect((screen.getByLabelText('Duration') as HTMLInputElement).value).toBe('60');
+  });
+
+  it('reflects status selection in the saved payload', async () => {
+    const user = userEvent.setup();
+    const { onSave } = renderModal({ defaultStartTime: '14:00' });
+
+    await user.selectOptions(screen.getByLabelText('Status'), 'missed');
+    await user.click(screen.getByRole('button', { name: /Save Block/i }));
+
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ status: 'missed' }));
+  });
+
+  it('honors defaultTaskId when no block is given', () => {
+    const extra: Intention = { ...tasks[0], id: 'task-2', title: 'Write docs' };
+    renderModal({ tasks: [...tasks, extra], defaultTaskId: 'task-2' });
+    expect((screen.getByLabelText('Intention') as HTMLSelectElement).value).toBe('task-2');
+  });
+
+  it('invokes delete, start-timer, and log-actual handlers', async () => {
+    const user = userEvent.setup();
+    const onDelete = vi.fn().mockResolvedValue(undefined);
+    const onStartTimer = vi.fn().mockResolvedValue(undefined);
+    const onLogActual = vi.fn().mockResolvedValue(undefined);
+    renderModal({
+      block: {
+        id: 'b1',
+        taskId: 'task-1',
+        scheduledDate: '2026-11-22',
+        startTime: '09:00',
+        endTime: '10:00',
+        plannedDurationMins: 60,
+        notes: null,
+        status: 'planned',
+        rolledFromBlockId: null,
+        createdAt: 't',
+      },
+      onDelete,
+      onStartTimer,
+      onLogActual,
+    });
+
+    await user.click(screen.getByRole('button', { name: /^Delete$/i }));
+    await user.click(screen.getByRole('button', { name: /Start Timer/i }));
+    await user.click(screen.getByRole('button', { name: /Log Actual/i }));
+
+    expect(onDelete).toHaveBeenCalled();
+    expect(onStartTimer).toHaveBeenCalled();
+    expect(onLogActual).toHaveBeenCalledWith(60);
+  });
+
   it('shows action buttons only when editing an existing block', () => {
     const { unmount } = render(
       <ScheduleBlockFormModal

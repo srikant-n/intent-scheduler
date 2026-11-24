@@ -5,31 +5,55 @@ vi.mock('@/db/client', () => ({
   executeSql: vi.fn(),
 }));
 
+vi.mock('@tauri-apps/api/core', () => ({
+  invoke: vi.fn(),
+}));
+
+import { invoke } from '@tauri-apps/api/core';
 import { executeSql, selectRows } from '@/db/client';
 import {
   archiveIntention,
+  clearVaultData,
   createCategory,
   createIntention,
   createScheduleBlock,
   createTimeLog,
+  deleteCategory,
+  deleteIntention,
   deleteScheduleBlock,
+  deleteTimeLog,
+  exportVaultPayload,
   getActiveTimer,
   getAllSettings,
+  getPragmaValue,
   getSetting,
+  getVaultCounts,
+  importVaultPayload,
+  listAllIntentions,
   listCategories,
   listIntentions,
   listScheduleBlocks,
+  listScheduleBlocksRange,
   listTimeLogs,
+  listTimeLogsRange,
+  recordVaultEvent,
   restoreIntention,
+  runBatchActions,
+  runIntegrityCheck,
   saveActiveTimer,
   setSetting,
+  updateCategory,
+  updateIntention,
   updateScheduleBlock,
   updateTimeLog,
+  vacuumDatabase,
 } from './queries';
 import type { ActiveTimerState } from '@/types/database';
+import type { VaultPayload } from '@/utils/vault';
 
 const selectRowsMock = vi.mocked(selectRows);
 const executeSqlMock = vi.mocked(executeSql);
+const invokeMock = vi.mocked(invoke);
 
 const VALID_BLOCK_ROW = {
   id: 'block-1',
@@ -330,5 +354,237 @@ describe('bootstrapDatabase', () => {
     await mod.bootstrapDatabase();
     const categoryInserts = executeSqlMock.mock.calls.filter(([sql]) => String(sql).includes('INSERT INTO categories'));
     expect(categoryInserts).toHaveLength(0);
+  });
+});
+
+describe('category updates', () => {
+  it('updateCategory trims name and rejects empty', async () => {
+    await expect(updateCategory('c1', { name: '  ', colorHex: '#fff' })).rejects.toThrow('Category name is required');
+    expect(executeSqlMock).not.toHaveBeenCalled();
+
+    await updateCategory('c1', { name: '  Health  ', colorHex: '#059669' });
+    expect(executeSqlMock.mock.calls[0][1]).toEqual(['Health', '#059669', 'c1']);
+  });
+
+  it('deleteCategory deletes by id', async () => {
+    await deleteCategory('c1');
+    expect(executeSqlMock.mock.calls[0][0]).toContain('DELETE FROM categories');
+    expect(executeSqlMock.mock.calls[0][1]).toEqual(['c1']);
+  });
+});
+
+describe('intention updates and deletes', () => {
+  const updateInput = {
+    title: 'Study',
+    categoryId: 'cat-1',
+    isRecurring: false,
+    defaultDurationMins: 45,
+  };
+
+  it('listAllIntentions does not filter by status', async () => {
+    await listAllIntentions();
+    expect(selectRowsMock.mock.calls[0][0]).not.toContain('WHERE status');
+  });
+
+  it('listIntentions defaults to active status', async () => {
+    await listIntentions();
+    expect(selectRowsMock.mock.calls[0][1]).toEqual(['active']);
+  });
+
+  it('createIntention serializes habit fields only for recurring items', async () => {
+    await createIntention({
+      ...updateInput,
+      isRecurring: true,
+      targetSessionsPerWeek: 3,
+      preferredWeekdays: [1, 3, 5],
+    });
+    let params = executeSqlMock.mock.calls[0][1];
+    expect(params?.[5]).toBe(3); // target_sessions_per_week
+    expect(params?.[6]).toBe('[1,3,5]'); // preferred_weekdays JSON
+
+    executeSqlMock.mockClear();
+    await createIntention({
+      ...updateInput,
+      targetSessionsPerWeek: 3,
+      preferredWeekdays: [1, 3, 5],
+    });
+    params = executeSqlMock.mock.calls[0][1];
+    expect(params?.[5]).toBeNull();
+    expect(params?.[6]).toBe('[]');
+  });
+
+  it('updateIntention validates and normalizes habit fields', async () => {
+    await expect(updateIntention('t1', { ...updateInput, title: ' ' })).rejects.toThrow('Intention title is required');
+    await expect(updateIntention('t1', { ...updateInput, defaultDurationMins: 0 })).rejects.toThrow('positive integer');
+    await expect(updateIntention('t1', { ...updateInput, targetSessionsPerWeek: 2.5 })).rejects.toThrow('positive integer');
+    expect(executeSqlMock).not.toHaveBeenCalled();
+
+    await updateIntention('t1', {
+      ...updateInput,
+      isRecurring: true,
+      targetSessionsPerWeek: 4,
+      preferredWeekdays: [2, 4],
+      status: 'archived',
+    });
+    const params = executeSqlMock.mock.calls[0][1];
+    expect(params?.[4]).toBe(4);
+    expect(params?.[5]).toBe('[2,4]');
+    expect(params?.[8]).toBe('archived');
+    expect(params?.[9]).toBe('t1');
+  });
+
+  it('deleteIntention detaches logs, removes blocks, then deletes the task', async () => {
+    await deleteIntention('t1');
+    expect(executeSqlMock).toHaveBeenCalledTimes(4);
+    const sqls = executeSqlMock.mock.calls.map(([sql]) => String(sql));
+    expect(sqls[0]).toContain('schedule_block_id = NULL');
+    expect(sqls[1]).toContain('task_id = NULL');
+    expect(sqls[2]).toContain('DELETE FROM schedule_blocks');
+    expect(sqls[3]).toContain('DELETE FROM tasks');
+    for (const [, params] of executeSqlMock.mock.calls) expect(params).toEqual(['t1']);
+  });
+});
+
+describe('range listers and deletes', () => {
+  it('listScheduleBlocksRange validates dates and passes bounds', async () => {
+    await expect(listScheduleBlocksRange('bad', '2026-11-22')).rejects.toThrow('Invalid date');
+    await expect(listScheduleBlocksRange('2026-11-22', '2026-13-01')).rejects.toThrow('Invalid date');
+    expect(selectRowsMock).not.toHaveBeenCalled();
+
+    selectRowsMock.mockResolvedValueOnce([VALID_BLOCK_ROW]);
+    const blocks = await listScheduleBlocksRange('2026-11-16', '2026-11-22');
+    expect(selectRowsMock.mock.calls[0][1]).toEqual(['2026-11-16', '2026-11-22']);
+    expect(blocks[0].id).toBe('block-1');
+  });
+
+  it('listTimeLogsRange validates dates and maps rows', async () => {
+    await expect(listTimeLogsRange('2026-11-22', 'bad')).rejects.toThrow('Invalid date');
+    selectRowsMock.mockResolvedValueOnce([{ ...VALID_LOG_ROW, mood: 'restorative' }]);
+    const logs = await listTimeLogsRange('2026-11-16', '2026-11-22');
+    expect(selectRowsMock.mock.calls[0][1]).toEqual(['2026-11-16', '2026-11-22']);
+    expect(logs[0].mood).toBe('restorative');
+  });
+
+  it('deleteTimeLog deletes by id', async () => {
+    await deleteTimeLog('l1');
+    expect(executeSqlMock.mock.calls[0][0]).toContain('DELETE FROM time_logs');
+    expect(executeSqlMock.mock.calls[0][1]).toEqual(['l1']);
+  });
+});
+
+describe('runBatchActions', () => {
+  it('collects successes and per-item failures without aborting', async () => {
+    const action = vi.fn(async (n: number) => {
+      if (n === 2) throw new Error('boom');
+    });
+    const result = await runBatchActions([1, 2, 3], action);
+    expect(result.succeeded).toEqual([1, 3]);
+    expect(result.failed).toHaveLength(1);
+    expect(result.failed[0].item).toBe(2);
+    expect(result.failed[0].error).toBe('boom');
+    expect(action).toHaveBeenCalledTimes(3);
+  });
+});
+
+describe('vault counts and maintenance', () => {
+  it('getVaultCounts returns per-table counts', async () => {
+    selectRowsMock.mockImplementation(async (sql: string) => {
+      const table = String(sql);
+      if (table.includes('schedule_blocks')) return [{ count: 7 }];
+      if (table.includes('time_logs')) return [{ count: 8 }];
+      if (table.includes('FROM tasks')) return [{ count: 9 }];
+      if (table.includes('categories')) return [{ count: 10 }];
+      return [{ count: 11 }];
+    });
+    await expect(getVaultCounts()).resolves.toEqual({ blocks: 7, logs: 8, tasks: 9, categories: 10, settings: 11 });
+  });
+
+  it('getPragmaValue enforces the allowlist and extracts the value', async () => {
+    await expect(getPragmaValue('journal_mode')).resolves.toBe('');
+    selectRowsMock.mockResolvedValueOnce([{ journal_mode: 'wal' }]);
+    await expect(getPragmaValue('journal_mode')).resolves.toBe('wal');
+    await expect(getPragmaValue('DROP TABLE tasks')).rejects.toThrow('not allowed');
+  });
+
+  it('runIntegrityCheck returns ok or joined messages', async () => {
+    selectRowsMock.mockResolvedValueOnce([{ integrity_check: 'ok' }]);
+    await expect(runIntegrityCheck()).resolves.toBe('ok');
+    selectRowsMock.mockResolvedValueOnce([{ integrity_check: 'err1' }, { integrity_check: 'err2' }]);
+    await expect(runIntegrityCheck()).resolves.toBe('err1; err2');
+    selectRowsMock.mockResolvedValueOnce([]);
+    await expect(runIntegrityCheck()).resolves.toBe('ok');
+  });
+
+  it('vacuumDatabase runs VACUUM', async () => {
+    await vacuumDatabase();
+    expect(executeSqlMock.mock.calls[0][0]).toBe('VACUUM');
+  });
+
+  it('recordVaultEvent stamps export/import timestamps', async () => {
+    await recordVaultEvent('export');
+    expect(executeSqlMock.mock.calls[0][1]?.[0]).toBe('vault_last_export_at');
+    await recordVaultEvent('import');
+    expect(executeSqlMock.mock.calls[1][1]?.[0]).toBe('vault_last_import_at');
+  });
+});
+
+describe('vault export/import/clear', () => {
+  const emptyPayload = (): VaultPayload => ({
+    metadata: { schemaVersion: 1, exportedAt: '2026-11-22T00:00:00Z', appVersion: '0.1.0' },
+    data: { settings: [], categories: [], tasks: [], scheduleBlocks: [], timeLogs: [] },
+  });
+
+  it('exportVaultPayload queries all tables and wraps rows', async () => {
+    selectRowsMock.mockImplementation(async (sql: string) => {
+      if (String(sql).includes('app_settings')) return [{ key: 'k', value: 'v', updated_at: 't' }];
+      return [];
+    });
+    const payload = await exportVaultPayload();
+    expect(selectRowsMock).toHaveBeenCalledTimes(5);
+    expect(payload.metadata.schemaVersion).toBe(1);
+    expect(payload.metadata.appVersion).toBe('0.1.0');
+    expect(payload.data.settings).toHaveLength(1);
+    expect(payload.data.categories).toHaveLength(0);
+  });
+
+  it('importVaultPayload rejects invalid payloads before invoking Rust', async () => {
+    await expect(importVaultPayload({} as VaultPayload, 'merge')).rejects.toThrow('failed validation');
+    expect(invokeMock).not.toHaveBeenCalled();
+  });
+
+  it('importVaultPayload invokes import_vault and maps stats', async () => {
+    invokeMock.mockResolvedValueOnce({
+      tables: [
+        ['tasks', { attempted: 2, written: 2 }],
+        ['timeLogs', { attempted: 5, written: 3 }],
+      ],
+    });
+    const stats = await importVaultPayload(emptyPayload(), 'replace');
+    expect(invokeMock).toHaveBeenCalledWith('import_vault', { data: emptyPayload().data, mode: 'replace' });
+    expect(stats.tables).toEqual([
+      { table: 'tasks', attempted: 2, written: 2 },
+      { table: 'timeLogs', attempted: 5, written: 3 },
+    ]);
+  });
+
+  it('clearVaultData invokes clear_vault and resets bootstrap', async () => {
+    invokeMock.mockResolvedValueOnce(undefined);
+    await clearVaultData();
+    expect(invokeMock).toHaveBeenCalledWith('clear_vault');
+  });
+
+  it('resetBootstrapDatabase allows bootstrapDatabase to run again', async () => {
+    const mod = await (async () => {
+      vi.resetModules();
+      return import('./queries');
+    })();
+    await mod.bootstrapDatabase();
+    const callsAfterFirst = executeSqlMock.mock.calls.length;
+    await mod.bootstrapDatabase();
+    expect(executeSqlMock.mock.calls.length).toBe(callsAfterFirst);
+
+    mod.resetBootstrapDatabase();
+    await mod.bootstrapDatabase();
+    expect(executeSqlMock.mock.calls.length).toBeGreaterThan(callsAfterFirst);
   });
 });

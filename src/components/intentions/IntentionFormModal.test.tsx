@@ -74,6 +74,68 @@ describe('IntentionFormModal', () => {
     );
   });
 
+  it('shows habit fields only for recurring cadence', async () => {
+    const user = userEvent.setup();
+    renderModal();
+
+    expect(screen.queryByLabelText(/Sessions per week/i)).not.toBeInTheDocument();
+    expect(screen.queryByText('Mon')).not.toBeInTheDocument();
+
+    await user.selectOptions(screen.getByLabelText(/Cadence/i), 'recurring');
+    expect(screen.getByLabelText(/Sessions per week/i)).toBeInTheDocument();
+    expect(screen.getByText('Mon')).toBeInTheDocument();
+    expect(screen.getByText('Sun')).toBeInTheDocument();
+  });
+
+  it('submits sessions/week target and sorted preferred weekdays', async () => {
+    const user = userEvent.setup();
+    const { onSave } = renderModal();
+
+    await user.type(screen.getByPlaceholderText(/Study Rust async patterns/i), 'Gym');
+    await user.selectOptions(screen.getByLabelText(/Cadence/i), 'recurring');
+    await user.selectOptions(screen.getByLabelText(/Sessions per week/i), '3');
+    await user.click(screen.getByText('Fri'));
+    await user.click(screen.getByText('Mon'));
+    await user.click(screen.getByText('Wed'));
+    await user.click(screen.getByRole('button', { name: /Save Intention/i }));
+
+    expect(onSave).toHaveBeenCalledWith(
+      expect.objectContaining({ isRecurring: true, targetSessionsPerWeek: 3, preferredWeekdays: [1, 3, 5] }),
+    );
+  });
+
+  it('clears habit fields when switched back to one-off', async () => {
+    const user = userEvent.setup();
+    const { onSave } = renderModal();
+
+    await user.type(screen.getByPlaceholderText(/Study Rust async patterns/i), 'Task');
+    await user.selectOptions(screen.getByLabelText(/Cadence/i), 'recurring');
+    await user.selectOptions(screen.getByLabelText(/Sessions per week/i), '5');
+    await user.click(screen.getByText('Tue'));
+    await user.selectOptions(screen.getByLabelText(/Cadence/i), 'one-off');
+    await user.click(screen.getByRole('button', { name: /Save Intention/i }));
+
+    expect(onSave).toHaveBeenCalledWith(
+      expect.objectContaining({ isRecurring: false, targetSessionsPerWeek: null, preferredWeekdays: [] }),
+    );
+  });
+
+  it('prefills habit fields in edit mode', async () => {
+    const user = userEvent.setup();
+    const intention = makeIntention({ targetSessionsPerWeek: 4, preferredWeekdays: [1, 3] });
+    const { onSave } = renderModal({ intention });
+
+    expect((screen.getByLabelText(/Sessions per week/i) as HTMLSelectElement).value).toBe('4');
+    expect(screen.getByText('Mon')).toHaveClass('border-accent');
+    expect(screen.getByText('Wed')).toHaveClass('border-accent');
+    expect(screen.getByText('Tue')).not.toHaveClass('border-accent');
+
+    await user.click(screen.getByRole('button', { name: /Save Intention/i }));
+    expect(onSave).toHaveBeenCalledWith(
+      expect.objectContaining({ targetSessionsPerWeek: 4, preferredWeekdays: [1, 3] }),
+    );
+  });
+
   it('prefills fields in edit mode', async () => {
     const user = userEvent.setup();
     const intention = makeIntention();

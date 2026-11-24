@@ -54,6 +54,27 @@ describe('QuickLogModal', () => {
     });
   });
 
+  it('submits null categoryId when Uncategorized is selected', async () => {
+    const user = userEvent.setup();
+    const { onSave } = renderModal();
+
+    await user.type(screen.getByPlaceholderText(/Coffee with a friend/i), 'Errands');
+    await user.selectOptions(screen.getByLabelText(/Category/i), '');
+    await user.click(screen.getByRole('button', { name: /Save to Reality/i }));
+
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ categoryId: null }));
+  });
+
+  it('closes after a successful save', async () => {
+    const user = userEvent.setup();
+    const { onClose } = renderModal();
+
+    await user.type(screen.getByPlaceholderText(/Coffee with a friend/i), 'Nap');
+    await user.click(screen.getByRole('button', { name: /Save to Reality/i }));
+
+    expect(onClose).toHaveBeenCalled();
+  });
+
   it('renders nothing when closed', () => {
     const onSave = vi.fn();
     const { container } = render(

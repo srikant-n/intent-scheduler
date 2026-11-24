@@ -90,6 +90,46 @@ describe('TimeLogFormModal', () => {
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ taskId: 'task-1' }));
   });
 
+  it('auto-fills the category from the linked intention', async () => {
+    const user = userEvent.setup();
+    const { onSave } = renderModal();
+
+    await user.selectOptions(screen.getByLabelText(/Link intention/i), 'task-1');
+    expect((screen.getByLabelText(/Category/i) as HTMLSelectElement).value).toBe('cat-1');
+
+    await user.click(screen.getByRole('button', { name: /Save Log/i }));
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ taskId: 'task-1', categoryId: 'cat-1' }));
+  });
+
+  it('prefills start time from defaultStartTime', () => {
+    renderModal({ defaultStartTime: '08:30' });
+    expect((screen.getByLabelText('Start') as HTMLInputElement).value).toBe('08:30');
+  });
+
+  it('shows delete only in edit mode and invokes it', async () => {
+    const user = userEvent.setup();
+    const onDelete = vi.fn().mockResolvedValue(undefined);
+    const { unmount } = render(
+      <TimeLogFormModal
+        open
+        onClose={vi.fn()}
+        date="2026-11-22"
+        log={makeLog()}
+        tasks={tasks}
+        categories={categories}
+        onSave={vi.fn()}
+        onDelete={onDelete}
+      />,
+    );
+    await user.click(screen.getByRole('button', { name: /^Delete$/i }));
+    expect(onDelete).toHaveBeenCalled();
+    unmount();
+
+    // Delete only renders when the parent supplies an onDelete handler
+    renderModal();
+    expect(screen.queryByRole('button', { name: /^Delete$/i })).not.toBeInTheDocument();
+  });
+
   it('prefills all fields in edit mode', async () => {
     const user = userEvent.setup();
     const log = makeLog();

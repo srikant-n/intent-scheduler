@@ -125,6 +125,12 @@ describe('isPendingRolloverBlock', () => {
     expect(isPendingRolloverBlock(makeBlock({ status: 'dismissed', scheduledDate: '2026-11-20' }), today, 600)).toBe(false);
     expect(isPendingRolloverBlock(makeBlock({ status: 'missed', scheduledDate: '2026-11-20' }), today, 600)).toBe(false);
   });
+
+  it('blocks with linked actual minutes are not pending', () => {
+    const block = makeBlock({ scheduledDate: '2026-11-20' });
+    expect(isPendingRolloverBlock(block, today, 600, true)).toBe(false);
+    expect(isPendingRolloverBlock(block, today, 600, false)).toBe(true);
+  });
 });
 
 describe('filterSortIntentions', () => {
@@ -165,6 +171,15 @@ describe('filterSortIntentions', () => {
     const sorted = filterSortIntentions(items, { ...base, sort: 'category' }, categories);
     // Alpha(t2) < Beta(t1) < uncategorized 'zzz'(t3)
     expect(sorted.map((i) => i.id)).toEqual(['t2', 't1', 't3']);
+  });
+
+  it('breaks category-sort ties by title', () => {
+    const sameCat = [
+      makeIntention({ id: 'a2', title: 'Zulu', categoryId: 'cat-a' }),
+      makeIntention({ id: 'a1', title: 'Alpha', categoryId: 'cat-a' }),
+    ];
+    const sorted = filterSortIntentions(sameCat, { ...base, sort: 'category' }, categories);
+    expect(sorted.map((i) => i.id)).toEqual(['a1', 'a2']);
   });
 });
 
@@ -215,5 +230,27 @@ describe('enrichLogs', () => {
     expect(enriched[4].displayTitle).toBe('Run');
     expect(enriched[1].displayCategory?.name).toBe('Health'); // via task.categoryId
     expect(enriched[0].category?.name).toBe('Health');
+  });
+
+  it('log categoryId wins over task categoryId', () => {
+    const other = makeCategory({ id: 'cat-2', name: 'Admin' });
+    const task = makeIntention({ id: 'task-1', title: 'Run', categoryId: 'cat-1' });
+    const log = makeLog({ id: 'l1', taskId: 'task-1', categoryId: 'cat-2' });
+    const [enriched] = enrichLogs([log], [task], [makeCategory(), other]);
+    expect(enriched.category?.name).toBe('Admin');
+  });
+
+  it('falls back to category name for displayTitle, then Activity', () => {
+    const logs = [
+      makeLog({ id: 'l1', categoryId: 'cat-1' }), // no task/customTitle -> category name
+      makeLog({ id: 'l2', categoryId: 'missing' }), // unknown category -> Activity
+      makeLog({ id: 'l3' }), // nothing at all -> Activity
+    ];
+    const enriched = enrichLogs(logs, [], categories);
+    expect(enriched[0].displayTitle).toBe('Health');
+    expect(enriched[0].displayCategory?.name).toBe('Health');
+    expect(enriched[1].displayTitle).toBe('Activity');
+    expect(enriched[1].displayCategory).toBeUndefined();
+    expect(enriched[2].displayTitle).toBe('Activity');
   });
 });
