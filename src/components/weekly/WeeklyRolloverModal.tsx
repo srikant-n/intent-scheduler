@@ -6,6 +6,8 @@ import { Field, Input } from '@/components/common/Field';
 import type { EnrichedScheduleBlock } from '@/types/database';
 import { formatDuration, formatTime12, todayISO } from '@/utils/time';
 
+/** Batch rollover for pending blocks: +1 day, next Monday, custom reschedule,
+ * dismiss, or return to the intentions backlog. */
 export type WeeklyRolloverAction = 'next-day' | 'next-monday' | 'reschedule' | 'dismiss' | 'return';
 
 export interface RolloverBatchResult {
@@ -20,6 +22,7 @@ interface Props {
   onApply: (action: WeeklyRolloverAction, blocks: EnrichedScheduleBlock[], reschedule?: { date: string; startTime: string }) => Promise<RolloverBatchResult>;
 }
 
+/** Multi-select batch rollover modal with per-item success/failure reporting. */
 export function WeeklyRolloverModal({ open, onClose, blocks, onApply }: Props) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [rescheduleDate, setRescheduleDate] = useState(todayISO());

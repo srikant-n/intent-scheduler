@@ -4,6 +4,7 @@ import { Button } from '@/components/common/Button';
 import { Field, Input, Select } from '@/components/common/Field';
 import type { Category, Intention, TimeLog, TimeLogMood } from '@/types/database';
 
+/** Payload emitted on save — maps to create/update time log mutations. */
 export interface TimeLogFormValues {
   taskId: string | null;
   customTitle: string;
@@ -35,6 +36,8 @@ const moods: { value: TimeLogMood; label: string }[] = [
   { value: 'firefight', label: 'Firefight' },
 ];
 
+/** Create/edit a reality log. Supports linking an intention (which auto-fills
+ * its category) or staying fully ad-hoc with a custom title. */
 export function TimeLogFormModal({ open, onClose, date, log, tasks, categories, defaultStartTime, onSave, onDelete }: Props) {
   const [taskId, setTaskId] = useState('');
   const [customTitle, setCustomTitle] = useState('');

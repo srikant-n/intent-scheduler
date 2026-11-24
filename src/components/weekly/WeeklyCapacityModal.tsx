@@ -11,6 +11,7 @@ interface Props {
   onSave: (capacity: WeeklyCapacity) => Promise<void>;
 }
 
+/** Edit per-weekday planned-minute capacity (stored as JSON in app_settings). */
 export function WeeklyCapacityModal({ open, onClose, capacity, onSave }: Props) {
   const [values, setValues] = useState<WeeklyCapacity>({ ...capacity });
   const [saving, setSaving] = useState(false);
@@ -22,6 +23,7 @@ export function WeeklyCapacityModal({ open, onClose, capacity, onSave }: Props) 
   const submit = async () => {
     setSaving(true);
     try {
+      // Clamp each day to a non-negative integer before persisting.
       const cleaned: WeeklyCapacity = {};
       for (let day = 1; day <= 7; day += 1) {
         cleaned[day] = Math.max(0, Math.round(Number(values[day]) || 0));

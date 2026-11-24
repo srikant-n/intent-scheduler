@@ -5,6 +5,7 @@ import { Field, Input, Select, Textarea } from '@/components/common/Field';
 import type { Category, Intention, ScheduleBlock } from '@/types/database';
 import { minutesToTime, timeToMinutes } from '@/utils/time';
 
+/** Payload emitted on save — the parent maps this to create/update mutations. */
 export interface ScheduleBlockFormValues {
   taskId: string;
   scheduledDate: string;
@@ -30,6 +31,9 @@ interface Props {
   onLogActual?: (durationMins: number) => Promise<void>;
 }
 
+/** Create/edit a planned time block. Duration and end time are kept in sync —
+ * editing either recomputes the other. Also exposes Start Timer / Log Actual
+ * shortcuts when editing an existing block. */
 export function ScheduleBlockFormModal({ open, onClose, date, block, tasks, categories, defaultStartTime, defaultTaskId, onSave, onDelete, onStartTimer, onLogActual }: Props) {
   const [taskId, setTaskId] = useState('');
   const [startTime, setStartTime] = useState('09:00');
@@ -42,6 +46,7 @@ export function ScheduleBlockFormModal({ open, onClose, date, block, tasks, cate
   const task = useMemo(() => tasks.find((item) => item.id === taskId), [tasks, taskId]);
   const category = useMemo(() => categories.find((item) => item.id === task?.categoryId), [categories, task]);
 
+  // Re-seed the form whenever the modal opens or the target block/defaults change.
   useEffect(() => {
     if (!open) return;
     const initialTaskId = block?.taskId ?? defaultTaskId ?? tasks[0]?.id ?? '';

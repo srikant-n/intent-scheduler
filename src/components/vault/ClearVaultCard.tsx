@@ -10,6 +10,8 @@ interface ClearVaultCardProps {
   onNotify: (message: string, kind?: 'success' | 'error') => void;
 }
 
+/** Factory-reset card: wipes all tables in one Rust transaction, then the app
+ * re-seeds default categories/settings on next load. Two-step confirm modal. */
 export function ClearVaultCard({ onNotify }: ClearVaultCardProps) {
   const queryClient = useQueryClient();
   const healthQuery = useVaultHealth();

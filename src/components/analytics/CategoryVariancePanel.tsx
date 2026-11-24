@@ -8,6 +8,7 @@ interface Props {
   dates: string[];
 }
 
+/** Category breakdown: stacked daily chart + planned/actual/variance/realization table. */
 export function CategoryVariancePanel({ snapshot, dates }: Props) {
   return (
     <section className="card p-5">

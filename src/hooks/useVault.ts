@@ -23,8 +23,11 @@ export interface VaultHealth {
   lastImportAt: string | null;
 }
 
+// Read-only PRAGMA probes shown on the vault health card.
 const PRAGMA_KEYS = ['journal_mode', 'synchronous', 'cache_size', 'foreign_keys', 'auto_vacuum', 'page_size'] as const;
 
+/** Aggregated storage health: DB file info (via Rust), table counts,
+ * integrity_check result, pragma values, and last export/import timestamps. */
 export function useVaultHealth() {
   return useQuery({
     queryKey: ['vault', 'health'],
@@ -50,6 +53,7 @@ export function useVaultHealth() {
   });
 }
 
+/** Dry-run of the JSON export so the UI can show row counts and estimated size. */
 export function useVaultExportPreview() {
   return useQuery({
     queryKey: ['vault', 'export-preview'],

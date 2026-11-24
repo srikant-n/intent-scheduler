@@ -7,6 +7,7 @@ import type {
 import { timeToMinutes } from '@/utils/time';
 import { enrichBlocks, enrichLogs } from '@/utils/enrich';
 
+/** Re-exported for convenience — most callers only need this module. */
 export { enrichBlocks, enrichLogs };
 
 export interface DailySummary {
@@ -18,6 +19,8 @@ export interface DailySummary {
   logCount: number;
 }
 
+/** Headline day metrics: planned vs actual minutes, unplanned share, and
+ * `alignment` (% of plan executed; 100 when nothing was planned but time was logged). */
 export function computeDailySummary(blocks: ScheduleBlock[], logs: TimeLog[]): DailySummary {
   const plannedMins = blocks
     .filter((block) => block.status !== 'dismissed' && block.status !== 'rolled')
@@ -28,6 +31,8 @@ export function computeDailySummary(blocks: ScheduleBlock[], logs: TimeLog[]): D
   return { plannedMins, actualMins, unplannedMins, alignment, blockCount: blocks.length, logCount: logs.length };
 }
 
+/** A block is eligible for rollover when it's still `planned`, has no linked
+ * actual minutes, and its end time has passed (past date, or today past end_time). */
 export function isPendingRolloverBlock(
   block: ScheduleBlock,
   today: string,
@@ -44,6 +49,8 @@ export function isPendingRolloverBlock(
 export type IntentionFilter = 'all' | 'recurring' | 'one-off' | 'archived';
 export type IntentionSort = 'category' | 'duration-desc' | 'duration-asc' | 'recent';
 
+/** Filter + sort the intentions list. `category` sort falls back to 'zzz' so
+ * uncategorized items land last alphabetically. */
 export function filterSortIntentions(
   intentions: Intention[],
   options: { filter: IntentionFilter; search: string; sort: IntentionSort },
@@ -65,6 +72,7 @@ export function filterSortIntentions(
   return items;
 }
 
+/** Group intentions by category id, sorted by category name with "Uncategorized" last. */
 export function groupIntentionsByCategory(
   filtered: Intention[],
   categories: Category[],

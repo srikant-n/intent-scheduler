@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import type { Category } from '@/types/database';
 
+/** Pill showing a category's name in its color; renders nothing when category is null. */
 export function CategoryBadge({ category, className }: { category?: Category | null; className?: string }) {
   if (!category) return null;
   return (

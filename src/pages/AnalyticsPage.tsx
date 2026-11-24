@@ -20,12 +20,18 @@ interface AnalyticsPageProps {
   onDateChange: (date: string) => void;
 }
 
+// Lower bound for "all history" queries — blocks/logs are fetched from year 2000
+// so estimation drift and lifetime stats are computed over the full dataset.
 const HISTORY_START = '2000-01-01';
 
+/** Time Analytics view: KPI grid, category variance, daily rhythm,
+ * estimation drift, rollover stats, and reflection insights for one week. */
 export function AnalyticsPage({ date, onDateChange }: AnalyticsPageProps) {
   const weekDates = useMemo(() => weekDatesISO(date), [date]);
   const weekEnd = weekEndISO(date);
 
+  // Fetch ALL blocks/logs up to week end — panels like EstimationDriftPanel
+  // need lifetime history, not just the displayed week.
   const blocksQuery = useScheduleRange(HISTORY_START, weekEnd);
   const logsQuery = useTimeLogsRange(HISTORY_START, weekEnd);
   const allBlocks = useMemo(() => blocksQuery.data ?? [], [blocksQuery.data]);

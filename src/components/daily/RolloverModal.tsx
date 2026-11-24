@@ -15,6 +15,8 @@ interface Props {
   onDismiss: (block: EnrichedScheduleBlock) => Promise<void>;
 }
 
+/** End-of-day review: each pending planned block can move to tomorrow,
+ * return to the intentions backlog (block deleted), or be dismissed. */
 export function RolloverModal({ open, onClose, date, blocks, onMoveNextDay, onReturnToIntentions, onDismiss }: Props) {
   const [busyId, setBusyId] = useState<string | null>(null);
   const nextDate = addDaysISO(date, 1);

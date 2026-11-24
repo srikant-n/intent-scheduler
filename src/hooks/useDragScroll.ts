@@ -1,8 +1,12 @@
 import { useCallback, useRef } from 'react';
 
+// Pointer-drag panning for scrollable boards (weekly planner). Ignnores drags
+// that start on interactive elements so buttons/inputs keep working; requires
+// DRAG_THRESHOLD px of movement before scrolling kicks in.
 const DRAG_THRESHOLD = 4;
 const INTERACTIVE_SELECTOR = 'button, a, input, select, textarea, [draggable="true"], [contenteditable="true"]';
 
+/** Attach `ref` + `onPointerDown` to a scroll container for click-and-drag panning. */
 export function useDragScroll() {
   const ref = useRef<HTMLDivElement | null>(null);
 

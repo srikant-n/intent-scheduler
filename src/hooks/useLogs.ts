@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createTimeLog, deleteTimeLog, listTimeLogs, listTimeLogsRange, updateTimeLog } from '@/db/queries';
 import type { TimeLog, TimeLogMood } from '@/types/database';
 
+/** Time logs for a single date plus CRUD mutations. */
 export function useTimeLogs(date: string) {
   const queryClient = useQueryClient();
   const query = useQuery({ queryKey: ['logs', 'day', date], queryFn: () => listTimeLogs(date) });
@@ -25,6 +26,7 @@ export function useTimeLogs(date: string) {
   return { logs: query.data ?? [], isLoading: query.isLoading, create, update, remove };
 }
 
+/** Time logs across a date range plus CRUD mutations (vault CSV export, analytics). */
 export function useTimeLogsRange(startDate: string, endDate: string) {
   const queryClient = useQueryClient();
   const query = useQuery({

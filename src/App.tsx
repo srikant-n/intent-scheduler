@@ -11,12 +11,16 @@ import { useIntentions } from '@/hooks/useIntentions';
 import { bootstrapDatabase } from '@/db/queries';
 import { todayISO } from '@/utils/time';
 
+/** Root component: owns the active view + selected date, bootstraps the DB
+ * (runs migrations + seeds defaults), and renders sidebar/topbar/pages. */
 export default function App() {
   const [view, setView] = useState<ViewKey>('daily');
   const [date, setDate] = useState(todayISO());
   const [quickLogOpen, setQuickLogOpen] = useState(false);
   const { intentions } = useIntentions('active');
 
+  // Runs once on mount: applies pending SQL migrations and seeds default
+  // categories/settings so every view has data to render.
   useEffect(() => {
     void bootstrapDatabase().catch((error) => console.error('Failed to bootstrap database', error));
   }, []);

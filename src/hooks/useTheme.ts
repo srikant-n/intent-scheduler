@@ -3,9 +3,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getSetting, setSetting } from '@/db/queries';
 import type { AccentPreset, ThemeMode } from '@/types/database';
 
+// app_settings keys for appearance preferences.
 const THEME_KEY = 'theme_mode';
 const ACCENT_KEY = 'accent_color';
 
+// Toggle .dark class + data attributes on <html>; CSS variables do the rest.
+// localStorage is only a first-paint cache to avoid a flash before SQLite loads.
 function applyTheme(mode: ThemeMode, accent: AccentPreset, systemDark: boolean) {
   const dark = mode === 'dark' || (mode === 'system' && systemDark);
   const root = document.documentElement;
@@ -20,6 +23,8 @@ function applyTheme(mode: ThemeMode, accent: AccentPreset, systemDark: boolean) 
   }
 }
 
+/** Theme mode + accent preset. Reads from app_settings (SQLite is authoritative),
+ * live-updates on OS theme changes, and persists instantly without reload. */
 export function useTheme() {
   const queryClient = useQueryClient();
   const themeQuery = useQuery({ queryKey: ['setting', THEME_KEY], queryFn: () => getSetting(THEME_KEY) });

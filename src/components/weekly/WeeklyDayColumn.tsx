@@ -21,6 +21,8 @@ interface Props {
   onDropBlock: (block: EnrichedScheduleBlock) => void;
 }
 
+// Priority-ordered status pill: rollover warnings first, then plan-vs-actual
+// variance, capacity overflow, allocation state, or "Ready" for future days.
 function statusPill(summary: WeeklyDaySummary): { text: string; className: string } | null {
   if (summary.capacityMins <= 0 && summary.plannedMins === 0 && summary.actualMins === 0) {
     return { text: 'No capacity set', className: 'bg-surface-high text-text-subtle' };
@@ -44,6 +46,8 @@ function statusPill(summary: WeeklyDaySummary): { text: string; className: strin
   return null;
 }
 
+/** One day column on the weekly board: capacity bar, block cards, drop target
+ * for intentions/blocks, add-task button, and a status pill. */
 export function WeeklyDayColumn({ summary, blocks, actualByBlock, categoryOf, mode, onAdd, onBlockClick, onDropTask, onDropBlock }: Props) {
   const [dragOver, setDragOver] = useState(false);
   const isToday = summary.date === todayISO();
@@ -80,7 +84,7 @@ export function WeeklyDayColumn({ summary, blocks, actualByBlock, categoryOf, mo
   return (
     <div
       className={clsx(
-        'flex min-h-[560px] w-[168px] shrink-0 flex-col rounded-xl p-2 shadow-sm transition',
+        'flex min-h-140 w-42 shrink-0 flex-col rounded-xl p-2 shadow-sm transition',
         isToday
           ? 'border-2 border-accent/40 bg-surface ring-2 ring-accent/20'
           : clsx('border', isWeekend ? 'border-border/60 bg-surface-low/75' : 'border-border bg-surface-low'),
@@ -155,4 +159,5 @@ export function WeeklyDayColumn({ summary, blocks, actualByBlock, categoryOf, mo
   );
 }
 
+// Re-exported so WeeklyPage can use the same MIME key for drag payloads.
 export { BLOCK_MIME };

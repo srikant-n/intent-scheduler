@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getSetting, setSetting } from '@/db/queries';
 import { parseWeeklyCapacity, serializeWeeklyCapacity, WEEKLY_CAPACITY_KEY, type WeeklyCapacity } from '@/utils/capacity';
 
+/** Per-weekday planned-minute capacity, persisted as JSON in app_settings.
+ * Falls back to DEFAULT_WEEKLY_CAPACITY while loading or on malformed data. */
 export function useWeeklyCapacity() {
   const queryClient = useQueryClient();
   const query = useQuery({

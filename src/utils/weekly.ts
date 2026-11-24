@@ -2,6 +2,8 @@ import type { Category, Intention, ScheduleBlock, TimeLog } from '@/types/databa
 import { capacityForWeekday, type WeeklyCapacity } from '@/utils/capacity';
 import { isoWeekdayISO } from '@/utils/time';
 
+/** Per-day rollup for the weekly planner: planned vs actual vs unplanned minutes,
+ * capacity utilization, and count of blocks awaiting rollover. */
 export interface WeeklyDaySummary {
   date: string;
   isoWeekday: number;
@@ -14,6 +16,7 @@ export interface WeeklyDaySummary {
   pendingRolloverCount: number;
 }
 
+/** Planned-vs-actual minutes aggregated per category across the week. */
 export interface WeeklyCategoryBalance {
   categoryId: string | null;
   name: string;
@@ -22,6 +25,7 @@ export interface WeeklyCategoryBalance {
   actualMins: number;
 }
 
+/** Full weekly aggregate powering the WeekSummary panel and capacity/habit modals. */
 export interface WeeklySummary {
   days: WeeklyDaySummary[];
   totalPlannedMins: number;
@@ -36,10 +40,14 @@ export interface WeeklySummary {
   habitAdherence: { plannedSessions: number; fulfilledSessions: number; pct: number | null };
 }
 
+/** A block counts toward the week while it's planned, completed, or missed —
+ * dismissed and rolled blocks are excluded (rolled blocks live on a later date). */
 function plannedBlock(block: ScheduleBlock): boolean {
   return block.status === 'planned' || block.status === 'completed' || block.status === 'missed';
 }
 
+/** Aggregate a Mon–Sun week of blocks + logs into day summaries, totals,
+ * per-category balance, and habit adherence for recurring intentions. */
 export function buildWeeklySummary(input: {
   weekDates: string[];
   blocks: ScheduleBlock[];

@@ -47,6 +47,8 @@ function PriorityChip({ priority }: { priority: string | null }) {
   );
 }
 
+/** Intentions view: filterable/sortable/grouped backlog with quick-add bar,
+ * full form modal, category management, archive, and "add to today". */
 export function IntentionsPage() {
   const [filter, setFilter] = useState<Filter>('all');
   const [sort, setSort] = useState<Sort>('category');
@@ -90,6 +92,7 @@ export function IntentionsPage() {
     [active.intentions],
   );
 
+  // Shared create/update payload — empty strings normalize to NULL in SQLite.
   const saveIntention = async (values: IntentionFormValues) => {
     const payload = {
       title: values.title,
@@ -132,6 +135,8 @@ export function IntentionsPage() {
     }
   };
 
+  // One-click schedule: drop the intention into the next 15-min slot today,
+  // sized by its default duration.
   const addToToday = async (item: Intention) => {
     const now = new Date();
     const start = snapMinutes(now.getHours() * 60 + now.getMinutes(), 15);

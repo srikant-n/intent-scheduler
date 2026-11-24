@@ -5,6 +5,7 @@ interface Props {
   snapshot: AnalyticsSnapshot;
 }
 
+/** Counts/minutes for rolled, dismissed, missed, and still-pending blocks. */
 export function RolloverAnalyticsPanel({ snapshot }: Props) {
   const { rollover } = snapshot;
   const cards = [

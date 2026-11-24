@@ -28,6 +28,8 @@ interface DailyPageProps {
   onOpenIntentions: () => void;
 }
 
+/** Dual-Track Today view: day stats header, Intent-vs-Reality timeline, intentions
+ * sidebar (filter + quick add + drag source), and all block/log/timer modals. */
 export function DailyPage({ date, onDateChange, quickLogOpen, onQuickLogOpenChange, onOpenIntentions }: DailyPageProps) {
   const [blockForm, setBlockForm] = useState<{ open: boolean; block: ScheduleBlock | null; startTime?: string }>({ open: false, block: null });
   const [logForm, setLogForm] = useState<{ open: boolean; log: TimeLog | null; startTime?: string }>({ open: false, log: null });
@@ -69,6 +71,8 @@ export function DailyPage({ date, onDateChange, quickLogOpen, onQuickLogOpenChan
     );
   }, [enrichedBlocks, enrichedLogs]);
 
+  // Drop an intention onto the Intent track → create a block at the snapped time,
+  // using the intention's default duration (30m fallback).
   const handleDropTask = async (task: Intention, startTime: string) => {
     const duration = task.defaultDurationMins ?? 30;
     await schedule.create.mutateAsync({
@@ -80,6 +84,7 @@ export function DailyPage({ date, onDateChange, quickLogOpen, onQuickLogOpenChan
     });
   };
 
+  // Retiming preserves the block's planned duration — only start/end shift.
   const moveBlockToTime = async (block: ScheduleBlock, startTime: string) => {
     const duration = block.plannedDurationMins;
     await schedule.update.mutateAsync({
@@ -90,6 +95,7 @@ export function DailyPage({ date, onDateChange, quickLogOpen, onQuickLogOpenChan
     });
   };
 
+  // Clamp the log's start so its full duration fits inside the configured day bounds.
   const moveLogToTime = async (log: TimeLog, startTime: string) => {
     const dayStart = (dayBounds.data?.start ?? 6) * 60;
     const dayEnd = (dayBounds.data?.end ?? 22) * 60;
@@ -126,6 +132,7 @@ export function DailyPage({ date, onDateChange, quickLogOpen, onQuickLogOpenChan
     setBlockForm({ open: false, block: null });
   };
 
+  // One-click "Log Actual": creates a time log linked to the block and marks it completed.
   const logActualForBlock = async (durationMins: number) => {
     if (!blockForm.block) return;
     const task = intentions.find((item) => item.id === blockForm.block?.taskId);
@@ -179,6 +186,8 @@ export function DailyPage({ date, onDateChange, quickLogOpen, onQuickLogOpenChan
     });
   };
 
+  // Rollover: clone the block onto the next day (lineage via rolledFromBlockId)
+  // and mark the original 'rolled' so it no longer counts as pending intent.
   const moveBlockNextDay = async (block: EnrichedScheduleBlock) => {
     const nextDate = addDaysISO(block.scheduledDate, 1);
     await schedule.create.mutateAsync({
@@ -193,6 +202,7 @@ export function DailyPage({ date, onDateChange, quickLogOpen, onQuickLogOpenChan
     await schedule.update.mutateAsync({ id: block.id, status: 'rolled' });
   };
 
+  // "Return to intentions" just deletes the block — the intention itself stays in the backlog.
   const returnBlockToIntentions = async (block: EnrichedScheduleBlock) => {
     await schedule.remove.mutateAsync(block.id);
   };

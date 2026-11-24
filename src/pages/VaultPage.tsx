@@ -11,9 +11,12 @@ interface ToastState {
   kind: 'success' | 'error';
 }
 
+/** Data Vault view: JSON export/restore, CSV export, storage health, and
+ * factory reset — all operating on the local SQLite database. */
 export function VaultPage() {
   const [toast, setToast] = useState<ToastState | null>(null);
 
+  // Shared toast callback for vault cards — auto-dismisses after ~3.6s.
   const notify = useCallback((message: string, kind: 'success' | 'error' = 'success') => {
     setToast({ message, kind });
   }, []);

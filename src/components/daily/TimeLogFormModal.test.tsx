@@ -1,3 +1,5 @@
+// Tests for TimeLogFormModal: editing/creating time logs, task linking,
+// category auto-fill, and mood/notes fields.
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';

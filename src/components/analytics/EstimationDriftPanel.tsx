@@ -20,6 +20,7 @@ const biasClass: Record<DriftBias, string> = {
   insufficient: 'bg-surface-high text-text-subtle',
 };
 
+/** Estimation accuracy report: aggregate stats, per-task bias badges, recent drifted sessions. */
 export function EstimationDriftPanel({ snapshot }: Props) {
   const { drift } = snapshot;
   return (

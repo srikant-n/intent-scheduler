@@ -1,5 +1,8 @@
+// app_settings key holding the per-weekday capacity map as JSON
+// ({"1":180,...,"7":90}, ISO weekday → planned minutes).
 export const WEEKLY_CAPACITY_KEY = 'weekly_capacity_minutes';
 
+// Fallback capacity used when no setting is stored or the stored JSON is malformed.
 export const DEFAULT_WEEKLY_CAPACITY: Record<number, number> = {
   1: 180,
   2: 180,
@@ -22,6 +25,7 @@ export const WEEKDAY_LABELS: Record<number, string> = {
 
 export type WeeklyCapacity = Record<number, number>;
 
+/** Parse the stored JSON capacity string, merging over defaults; malformed input falls back to defaults. */
 export function parseWeeklyCapacity(raw: string | null | undefined): WeeklyCapacity {
   const capacity: WeeklyCapacity = { ...DEFAULT_WEEKLY_CAPACITY };
   if (!raw) return capacity;
@@ -37,6 +41,7 @@ export function parseWeeklyCapacity(raw: string | null | undefined): WeeklyCapac
   return capacity;
 }
 
+/** Serialize capacity as JSON with keys ordered Mon(1)…Sun(7) for stable diffs. */
 export function serializeWeeklyCapacity(capacity: WeeklyCapacity): string {
   const ordered: Record<string, number> = {};
   for (let day = 1; day <= 7; day += 1) ordered[String(day)] = capacity[day] ?? 0;

@@ -12,6 +12,7 @@ interface ModalProps {
   wide?: boolean;
 }
 
+/** Centered dialog: backdrop click or Escape closes. `wide` widens to max-w-3xl. */
 export function Modal({ open, onClose, title, subtitle, children, footer, wide }: ModalProps) {
   useEffect(() => {
     if (!open) return;

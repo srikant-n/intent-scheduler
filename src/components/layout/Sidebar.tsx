@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { useTheme } from '@/hooks/useTheme';
 import type { AccentPreset, ThemeMode } from '@/types/database';
 
+/** The five top-level views; `enabled` supports phased rollouts (all enabled today). */
 export type ViewKey = 'daily' | 'weekly' | 'intentions' | 'analytics' | 'vault';
 
 const navItems: { key: ViewKey; label: string; icon: typeof CalendarDays; enabled: boolean }[] = [
@@ -35,6 +36,7 @@ interface SidebarProps {
   onQuickLog: () => void;
 }
 
+/** Left rail: view switcher, Quick Log button, theme/accent pickers. */
 export function Sidebar({ view, onChange, intentionsCount, onQuickLog }: SidebarProps) {
   const { themeMode, accent, setThemeMode, setAccent } = useTheme();
 

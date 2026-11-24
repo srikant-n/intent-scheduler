@@ -1,7 +1,11 @@
 @import "tailwindcss";
 
+/* Enable Tailwind's `dark:` variant driven by the `.dark` class on <html>,
+   toggled by the theme hook rather than the OS prefers-color-scheme. */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Default (Ember) light theme — all semantic color tokens live here so
+   accent presets below only need to override the accent family. */
 :root {
   --canvas: #fff8f5;
   --surface: #ffffff;
@@ -26,6 +30,7 @@
   color-scheme: light;
 }
 
+/* Dark theme — same token set, remapped for low-light surfaces. */
 .dark {
   --canvas: #121318;
   --surface: #18191e;
@@ -50,6 +55,9 @@
   color-scheme: dark;
 }
 
+/* Accent presets: selected via `data-accent` on <html>. Ember uses the :root
+   defaults; the rest tint the whole neutral palette toward the accent hue via
+   color-mix so surfaces/borders subtly shift with the theme. */
 [data-accent='ember'] {
   --accent: #ea580c;
   --accent-strong: #c2410c;
@@ -115,6 +123,8 @@
   --border: color-mix(in srgb, var(--accent) 6%, #eae6df);
   --border-strong: color-mix(in srgb, var(--accent) 10%, #d6d0c7);
 }
+/* Dark variants of the accent presets — brighter accent hues for contrast on
+   dark surfaces, with the same tinted-neutral palette approach. */
 .dark[data-accent='ember'] {
   --accent: #f97316;
   --accent-strong: #ea580c;
@@ -190,6 +200,8 @@
   --border-strong: color-mix(in srgb, var(--accent) 14%, #475569);
 }
 
+/* Expose the CSS variables as Tailwind theme colors (bg-canvas, text-text, …)
+   and register the bundled font. */
 @theme inline {
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);
@@ -234,6 +246,8 @@ body {
   scrollbar-color: var(--border-strong) transparent;
 }
 
+/* Shared primitives: card surface, frosted-glass overlay, and the daily
+   timeline's hour/grid lines and draggable/resizable block styling. */
 .card {
   background: var(--surface);
   border: 1px solid var(--border);

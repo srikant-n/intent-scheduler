@@ -4,6 +4,7 @@ import type { Category, EnrichedScheduleBlock } from '@/types/database';
 import { CategoryBadge } from '@/components/common/Badge';
 import { formatDuration, formatSignedDuration, formatTime12 } from '@/utils/time';
 
+/** Board display mode: 'draft' shows planned times, 'reality' shows actuals + variance. */
 export type BoardMode = 'draft' | 'reality';
 
 interface Props {
@@ -21,6 +22,8 @@ function StatusIcon({ status }: { status: EnrichedScheduleBlock['status'] }) {
   return <Circle size={13} className="text-text-subtle" />;
 }
 
+/** Compact card for a schedule block on the weekly board. ↺ marks blocks that
+ * were rolled from an earlier date. */
 export function WeeklyBlockCard({ block, category, actualMins, mode, onClick, onDragStart }: Props) {
   const variance = actualMins > 0 ? actualMins - block.plannedDurationMins : null;
   const completed = block.status === 'completed';

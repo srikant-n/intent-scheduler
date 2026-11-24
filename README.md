@@ -27,9 +27,9 @@ See the full specification in [`Docs/Personal Task & Time Tracker - Application 
 
 ### Daily & Weekly Schedule Planner (Intent)
 
-- **Daily dual-track view** — side-by-side "Planned" and "Actuals" timelines; drag Intentions onto time-blocked grid slots snapped to 15/30-minute intervals.
+- **Daily dual-track view** — side-by-side "Planned" (Intent) and "Actuals" (Reality) timelines with a shared time ruler, live "now" marker, category badges, On-Intent/Unplanned chips, and planned-vs-actual variance on each block; drag Intentions onto time-blocked grid slots snapped to 15/30-minute intervals.
 - **Weekly planner board** — horizontally scrollable Monday–Sunday columns with per-weekday capacity bars, exact `HH:MM` block cards, status styling, linked actual minutes/variance, drag-and-drop intention scheduling and block moves with overlap confirmation.
-- **Per-weekday capacity** — editable minute targets per ISO weekday stored as JSON in `app_settings` (`weekly_capacity_minutes`), seeded with Mon–Fri 360 / Sat 240 / Sun 180.
+- **Per-weekday capacity** — editable minute targets per ISO weekday stored as JSON in `app_settings` (`weekly_capacity_minutes`), seeded with Mon–Fri 180 / Sat 120 / Sun 90.
 - **Habit distribution** — recurring intentions carry `target_sessions_per_week` plus optional preferred ISO weekdays; the distribution modal previews deficit-filling proposals within remaining capacity before writing non-duplicate blocks.
 - **Batch weekly rollover** — pending blocks (past end time, no linked actual minutes) can be moved +1 day, moved to next Monday, rescheduled, dismissed, or returned to the backlog; every move preserves `rolled_from_block_id` lineage.
 - **Weekly CSV export** — one enriched row per schedule block for the Mon–Sun week, saved via the native save dialog through a `.csv`-only Rust command.
@@ -44,7 +44,7 @@ See the full specification in [`Docs/Personal Task & Time Tracker - Application 
 
 ### Daily & Weekly Time Analytics
 
-- Week-scoped dashboard (previous/next/this week) with KPI grid, per-category planned-vs-actual variance and tendency labels, stacked daily category chart, Mon–Sun planned-vs-actual rhythm, estimation drift grading with task-level bias detection, rollover analytics, and deterministic local reflection insights (no external services).
+- Week-scoped dashboard (previous/next/this week) with KPI grid, per-category planned-vs-actual variance and tendency labels, stacked daily category chart, Mon–Sun planned-vs-actual rhythm with a per-day variance table, estimation drift grading with task-level bias detection, rollover analytics, and deterministic local reflection insights (no external services).
 
 ### Data Portability & Vault
 
@@ -56,7 +56,7 @@ See the full specification in [`Docs/Personal Task & Time Tracker - Application 
 
 ### Appearance & Themes
 
-- Light / Dark / Auto (follow Windows) modes plus five accent presets (Ember, Indigo, Emerald, Rose, Violet) selectable from the sidebar.
+- Light / Dark / Auto (follow Windows) modes plus six accent presets (Ember, Indigo, Emerald, Rose, Violet, Graphite) selectable from the sidebar.
 - Preferences persisted in the local `app_settings` table, applied instantly via CSS variables and Tailwind dark mode — no restarts.
 - Plus Jakarta Sans variable font bundled locally.
 

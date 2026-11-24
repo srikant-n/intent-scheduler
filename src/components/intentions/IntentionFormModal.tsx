@@ -4,6 +4,7 @@ import { Button } from '@/components/common/Button';
 import { Field, Input, Select, Textarea } from '@/components/common/Field';
 import type { Category, Intention } from '@/types/database';
 
+/** Payload emitted on save — maps to create/update intention mutations. */
 export interface IntentionFormValues {
   title: string;
   categoryId: string | null;
@@ -23,6 +24,7 @@ interface Props {
   onSave: (values: IntentionFormValues) => Promise<void>;
 }
 
+// Preset duration options + ISO weekday chips for habit preferences.
 const durations = [15, 20, 25, 30, 45, 60, 90, 120];
 const weekdayOptions = [
   { day: 1, label: 'Mon' },
@@ -34,6 +36,8 @@ const weekdayOptions = [
   { day: 7, label: 'Sun' },
 ];
 
+/** Create/edit an intention. Habit fields (sessions/week, preferred days) only
+ * apply to recurring intentions and are cleared for one-offs. */
 export function IntentionFormModal({ open, onClose, intention, categories, onSave }: Props) {
   const [title, setTitle] = useState('');
   const [categoryId, setCategoryId] = useState('');
@@ -66,6 +70,8 @@ export function IntentionFormModal({ open, onClose, intention, categories, onSav
         categoryId: categoryId || null,
         isRecurring,
         defaultDurationMins: duration ? Number(duration) : null,
+        // Habit cadence fields are meaningless for one-off tasks — send null/[] so
+        // the DB never stores stale targets on a non-recurring intention.
         targetSessionsPerWeek: isRecurring && targetSessions ? Number(targetSessions) : null,
         preferredWeekdays: isRecurring ? preferredDays : [],
         notes,

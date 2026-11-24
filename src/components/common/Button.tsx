@@ -10,6 +10,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
 }
 
+/** Shared button with variant (primary/secondary/ghost/danger) and size presets. */
 export function Button({ variant = 'secondary', size = 'md', className, children, ...props }: ButtonProps) {
   return (
     <button

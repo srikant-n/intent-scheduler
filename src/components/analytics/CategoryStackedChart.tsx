@@ -7,8 +7,10 @@ interface Props {
   dates: string[];
 }
 
+// Pixel cap for the tallest bar so charts stay compact regardless of totals.
 const MAX_BAR = 140;
 
+/** Stacked-bar chart: one bar per weekday, segments = categories, from actual log minutes. */
 export function CategoryStackedChart({ slices, dates }: Props) {
   const byDate = new Map<string, DailyCategorySlice[]>();
   for (const slice of slices) {

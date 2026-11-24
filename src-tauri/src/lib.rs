@@ -1,3 +1,13 @@
+//! Tauri backend for Intent Scheduler.
+//!
+//! Responsibilities:
+//! - Register SQL migrations (001–003) on the `sqlite:tracker.db` plugin DB.
+//! - Expose filesystem commands used by the Data Vault (save text files,
+//!   report DB file size, reveal the DB in Explorer).
+//! - Perform vault import/clear inside a single rusqlite transaction on a
+//!   dedicated connection — the plugin's connection pool can't span
+//!   BEGIN/COMMIT across separate `execute` calls.
+
 use rusqlite::{params_from_iter, types::Value as SqlValue, Connection};
 use serde::Serialize;
 use serde_json::Value as JsonValue;
@@ -27,6 +37,8 @@ fn allowed_text_extension(path: &str) -> bool {
     lower.ends_with(".csv") || lower.ends_with(".json")
 }
 
+/// Write a CSV/JSON export to a user-picked absolute path. Restricted to
+/// `.csv`/`.json` extensions as a guardrail against arbitrary file writes.
 #[tauri::command]
 fn save_text_file(path: String, contents: String) -> Result<(), String> {
     if !allowed_text_extension(&path) {
@@ -42,6 +54,8 @@ fn save_text_file(path: String, contents: String) -> Result<(), String> {
     std::fs::write(target, contents).map_err(|err| err.to_string())
 }
 
+/// Report the on-disk size of `tracker.db` (+ its WAL) so the Vault health
+/// card can show real storage footprint.
 #[tauri::command]
 fn get_database_file_info(app: tauri::AppHandle) -> Result<DatabaseFileInfo, String> {
     let db_path = database_path(&app)?;
@@ -59,6 +73,9 @@ fn get_database_file_info(app: tauri::AppHandle) -> Result<DatabaseFileInfo, Str
     })
 }
 
+/// Open the DB file's parent folder in the OS file manager. Path is
+/// canonicalized and must stay inside the app data dir — prevents the frontend
+/// from making Explorer open arbitrary locations.
 #[tauri::command]
 fn reveal_path_in_explorer(app: tauri::AppHandle, path: String) -> Result<(), String> {
     let data_dir = app
@@ -99,6 +116,8 @@ fn reveal_path_in_explorer(app: tauri::AppHandle, path: String) -> Result<(), St
 // connection. (plugin-sql's pool cannot span BEGIN/COMMIT across execute calls.)
 // ---------------------------------------------------------------------------
 
+// Each entry maps the vault JSON key → physical table → allowed columns.
+// Column order defines INSERT column/placeholder order.
 const VAULT_TABLES: &[(&str, &str, &[&str])] = &[
     ("categories", "categories", &["id", "name", "color_hex", "created_at"]),
     (
@@ -156,6 +175,7 @@ const VAULT_TABLES: &[(&str, &str, &[&str])] = &[
     ("settings", "app_settings", &["key", "value", "updated_at"]),
 ];
 
+// Children before parents so FK constraints don't block the wipe.
 const VAULT_DELETE_ORDER: &[&str] = &[
     "time_logs",
     "schedule_blocks",
@@ -164,6 +184,8 @@ const VAULT_DELETE_ORDER: &[&str] = &[
     "app_settings",
 ];
 
+// JSON → SQLite value coercion. Objects/arrays can't be represented in the
+// schema, so they degrade to NULL (frontend validation already filters them).
 fn json_to_sql(value: &JsonValue) -> SqlValue {
     match value {
         JsonValue::Null => SqlValue::Null,
@@ -193,6 +215,11 @@ struct VaultImportStats {
     tables: Vec<(&'static str, VaultTableStats)>,
 }
 
+/// Restore a validated vault payload.
+/// - `merge`: INSERT OR IGNORE — existing UUIDs are skipped, nothing is deleted.
+/// - `replace`: DELETE all tables first, then plain INSERT.
+/// Any error aborts the closure → `tx` drops → automatic rollback, so the DB
+/// is never left half-imported.
 #[tauri::command]
 fn import_vault(app: tauri::AppHandle, data: JsonValue, mode: String) -> Result<VaultImportStats, String> {
     if mode != "merge" && mode != "replace" {
@@ -266,6 +293,8 @@ fn import_vault(app: tauri::AppHandle, data: JsonValue, mode: String) -> Result<
     }
 }
 
+/// Factory reset: DELETE every table in child→parent order inside one
+/// transaction. Default categories/settings re-seed on next app bootstrap.
 #[tauri::command]
 fn clear_vault(app: tauri::AppHandle) -> Result<(), String> {
     let db_path = database_path(&app)?;
@@ -294,6 +323,7 @@ fn clear_vault(app: tauri::AppHandle) -> Result<(), String> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // Ordered migrations applied by tauri-plugin-sql on first DB open.
     let migrations = vec![
         Migration {
             version: 1,

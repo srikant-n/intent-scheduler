@@ -54,6 +54,8 @@ interface BlockFormState {
   taskId?: string;
 }
 
+/** Weekly Planner view: 7-day board with capacity bar, habit distribution,
+ * week rollover modal, and CSV export. Draft/Review board modes. */
 export function WeeklyPage({ date, onDateChange }: WeeklyPageProps) {
   const weekDates = useMemo(() => weekDatesISO(date), [date]);
   const weekStart = weekStartISO(date);
@@ -94,6 +96,8 @@ export function WeeklyPage({ date, onDateChange }: WeeklyPageProps) {
 
   const enrichedBlocks = useMemo(() => enrichBlocks(blocks, allIntentions), [blocks, allIntentions]);
 
+  // Week-level aggregates: actual minutes per block, IDs still eligible for
+  // rollover, and the full capacity/planned/actual summary for the header bar.
   const actualByBlock = useMemo(() => {
     const map = new Map<string, number>();
     for (const log of logs) {
@@ -119,6 +123,7 @@ export function WeeklyPage({ date, onDateChange }: WeeklyPageProps) {
     [weekDates, blocks, logs, allIntentions, categories, capacity, pendingIds],
   );
 
+  // Only unfinished blocks reach the board — rolled/dismissed ones are hidden.
   const blocksByDate = useMemo(() => {
     const map = new Map<string, EnrichedScheduleBlock[]>();
     const visible = enrichedBlocks
@@ -144,6 +149,8 @@ export function WeeklyPage({ date, onDateChange }: WeeklyPageProps) {
   const firstSlotFor = (targetDate: string, durationMins: number) =>
     firstAvailableSlot(blocks, targetDate, durationMins, dayStartMinutes, dayEndMinutes, snapInterval);
 
+  // Drop an intention on a day column → find the first free snapped slot for
+  // its default duration and pre-fill the block form at that time.
   const handleDropTask = (task: Intention, targetDate: string) => {
     const duration = task.defaultDurationMins ?? 30;
     const slot = firstSlotFor(targetDate, duration) ?? {
@@ -157,6 +164,7 @@ export function WeeklyPage({ date, onDateChange }: WeeklyPageProps) {
     await schedule.update.mutateAsync({ id: block.id, scheduledDate: targetDate });
   };
 
+  // Cross-day move: warn before overwriting an overlapping block on the target day.
   const handleDropBlock = (block: EnrichedScheduleBlock, targetDate: string) => {
     if (block.scheduledDate === targetDate) return;
     const overlaps = blocksOverlapOnDate(blocks, targetDate, block.startTime, block.endTime, block.id);
@@ -211,6 +219,8 @@ export function WeeklyPage({ date, onDateChange }: WeeklyPageProps) {
     setBlockForm({ open: false, block: null, date });
   };
 
+  // Habit distribution: create all proposed blocks sequentially (each is its
+  // own mutation; partial success is acceptable since proposals are additive).
   const applyHabitProposals = async (proposals: Proposal[]) => {
     for (const proposal of proposals) {
       await schedule.create.mutateAsync({
@@ -224,6 +234,8 @@ export function WeeklyPage({ date, onDateChange }: WeeklyPageProps) {
     }
   };
 
+  // Move a block to a new date while preserving rollover lineage — clones the
+  // block onto the target and marks the source 'rolled'.
   const moveWithLineage = async (block: EnrichedScheduleBlock, targetDate: string, startTime?: string, endTime?: string) => {
     await schedule.create.mutateAsync({
       taskId: block.taskId,
@@ -237,6 +249,8 @@ export function WeeklyPage({ date, onDateChange }: WeeklyPageProps) {
     await schedule.update.mutateAsync({ id: block.id, status: 'rolled' });
   };
 
+  // Batch rollover: dismiss / return-to-intentions / next-day / next-Monday /
+  // reschedule, run per block with partial-failure reporting.
   const applyRollover = async (
     action: WeeklyRolloverAction,
     items: EnrichedScheduleBlock[],
@@ -260,6 +274,7 @@ export function WeeklyPage({ date, onDateChange }: WeeklyPageProps) {
     return { succeeded: result.succeeded.length, failed: result.failed.length };
   };
 
+  // Week CSV export via the native save dialog (Rust command).
   const exportCsv = async () => {
     const rows = weeklyCsvRows({ weekDates, blocks, logs, intentions: allIntentions });
     const csv = toCsv(rows);

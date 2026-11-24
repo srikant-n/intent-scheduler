@@ -1,6 +1,8 @@
 import type { EnrichedTimeLog } from '@/types/database';
 import { isValidISODate, isValidTime } from '@/utils/time';
 
+// Vault = the app's JSON backup format. Versioned so future schema changes can
+// be detected on import. Field names use snake_case to mirror DB columns.
 export const VAULT_SCHEMA_VERSION = 1;
 
 export type VaultRow = Record<string, unknown>;
@@ -30,6 +32,8 @@ export interface VaultDataCounts {
 
 const TABLE_KEYS = ['settings', 'categories', 'tasks', 'scheduleBlocks', 'timeLogs'] as const;
 
+// Allowed enum values mirrored from the DB schema — validated on import so bad
+// payloads fail before touching SQLite.
 const TASK_STATUSES = new Set(['active', 'archived']);
 const BLOCK_STATUSES = new Set(['planned', 'completed', 'missed', 'dismissed', 'rolled']);
 const MOODS = new Set(['restorative', 'energizing', 'distraction', 'firefight']);
@@ -173,6 +177,8 @@ function validateTimeLogs(rows: VaultRow[], taskIds: Set<string>, blockIds: Set<
   });
 }
 
+/** Collect human-readable validation issues for the relational `data` section
+ * (referential integrity, enums, formats). Empty array = valid. */
 export function vaultRowIssues(data: VaultPayload['data']): string[] {
   const issues: string[] = [];
   const categoryIds = new Set(data.categories.map((row) => row.id).filter((id): id is string => typeof id === 'string'));
@@ -187,6 +193,8 @@ export function vaultRowIssues(data: VaultPayload['data']): string[] {
   return issues;
 }
 
+/** Validate a full parsed vault file: metadata (schemaVersion etc.) plus every
+ * table's shape and rows. Returns all issues found, not just the first. */
 export function vaultPayloadIssues(payload: unknown): string[] {
   const issues: string[] = [];
   if (!isRecord(payload)) return ['File is not a JSON object'];
@@ -222,6 +230,7 @@ export function vaultPayloadIssues(payload: unknown): string[] {
   return [...issues, ...vaultRowIssues(data as unknown as VaultPayload['data'])];
 }
 
+/** Parse + validate raw JSON text into a VaultPayload. `issues` is non-empty when invalid. */
 export function parseVaultJson(text: string): { payload: VaultPayload; issues: string[] } {
   let parsed: unknown;
   try {
@@ -233,6 +242,7 @@ export function parseVaultJson(text: string): { payload: VaultPayload; issues: s
   return { payload: parsed as VaultPayload, issues };
 }
 
+/** Row counts per table, used by the export preview and vault health card. */
 export function vaultCounts(data: VaultPayload['data']): VaultDataCounts {
   return {
     settings: data.settings.length,
@@ -243,6 +253,7 @@ export function vaultCounts(data: VaultPayload['data']): VaultDataCounts {
   };
 }
 
+/** Assemble the export payload: metadata envelope + the five data sections. */
 export function buildVaultPayload(input: {
   settings: VaultRow[];
   categories: VaultRow[];
@@ -268,6 +279,7 @@ export function buildVaultPayload(input: {
   };
 }
 
+/** Flatten an enriched log into the CSV column set used by the time-logs export. */
 export function vaultLogToCsvRow(log: EnrichedTimeLog): Record<string, string | number | null> {
   return {
     id: log.id,
@@ -286,6 +298,7 @@ export function vaultLogToCsvRow(log: EnrichedTimeLog): Record<string, string | 
   };
 }
 
+/** Human-readable byte size (B/KB/MB/GB) for export estimates. */
 export function formatBytes(bytes: number): string {
   if (!Number.isFinite(bytes) || bytes < 0) return '0 B';
   if (bytes < 1024) return `${bytes} B`;

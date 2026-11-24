@@ -17,6 +17,7 @@ interface RestoreVaultCardProps {
   onNotify: (message: string, kind?: 'success' | 'error') => void;
 }
 
+// The two import strategies offered to the user.
 const MODES: { key: VaultImportMode; label: string; badge: string; badgeClass: string; description: string; confirmText: string }[] = [
   {
     key: 'merge',
@@ -37,6 +38,8 @@ const MODES: { key: VaultImportMode; label: string; badge: string; badgeClass: s
   },
 ];
 
+/** JSON vault restore: drag-and-drop file picker → client-side validation →
+ * Merge (INSERT OR IGNORE) or Replace (wipe + insert) via a Rust transaction. */
 export function RestoreVaultCard({ onNotify }: RestoreVaultCardProps) {
   const queryClient = useQueryClient();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -46,6 +49,9 @@ export function RestoreVaultCard({ onNotify }: RestoreVaultCardProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [importing, setImporting] = useState(false);
 
+  // Parse + validate the picked file immediately so issues show before the user
+  // even chooses an import mode. `payload` may be partial when issues exist —
+  // the import button stays disabled until validation is clean.
   const loadFile = async (selected: File) => {
     if (!selected.name.toLowerCase().endsWith('.json')) {
       onNotify('Only .json vault files are supported', 'error');

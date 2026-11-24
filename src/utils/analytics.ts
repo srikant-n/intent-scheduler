@@ -19,16 +19,19 @@ import { isoWeekdayISO, todayISO } from '@/utils/time';
 
 const UNCATEGORIZED = { id: null, name: 'Uncategorized', colorHex: '#78716c' };
 
+/** Blocks that represent real intent for analytics — excludes dismissed/rolled. */
 function plannedStatuses(block: ScheduleBlock): boolean {
   return block.status === 'planned' || block.status === 'completed' || block.status === 'missed';
 }
 
+/** Total logged minutes linked to a schedule block (a block can have several log entries). */
 function linkedActualMins(blockId: string, logs: TimeLog[]): number {
   return logs
     .filter((log) => log.scheduleBlockId === blockId)
     .reduce((sum, log) => sum + log.durationMins, 0);
 }
 
+/** Letter grade for estimation accuracy: A ≤10%, B ≤20%, C ≤35%, else D. */
 function driftGrade(avgAbsPct: number | null): string {
   if (avgAbsPct == null) return '—';
   if (avgAbsPct <= 10) return 'A';
@@ -37,6 +40,9 @@ function driftGrade(avgAbsPct: number | null): string {
   return 'D';
 }
 
+/** Per-session and per-task estimation drift: compares each planned block's
+ * duration against its linked actual minutes. Bias flags chronic under/over-
+ * estimation only after ≥2 sessions to avoid noise. */
 function buildDrift(
   blocks: ScheduleBlock[],
   logs: TimeLog[],
@@ -102,6 +108,8 @@ function buildDrift(
   };
 }
 
+/** Deterministic rule-based reflections — no LLM, just threshold checks over the
+ * week's aggregate stats. Capped at 6 insights, ordered by significance. */
 function buildInsights(input: {
   plannedMins: number;
   actualMins: number;
@@ -159,6 +167,9 @@ function buildInsights(input: {
   return insights.slice(0, 6);
 }
 
+/** Build the full analytics snapshot for a Mon–Sun week. `allBlocks`/`allLogs`
+ * may span a wider range — drift uses all history up to week end while the
+ * headline metrics stay week-scoped. */
 export function buildAnalyticsSnapshot(input: {
   weekDates: string[];
   allBlocks: ScheduleBlock[];
@@ -362,6 +373,8 @@ export function buildAnalyticsSnapshot(input: {
   };
 }
 
+/** One enriched row per schedule block in the week for the weekly CSV export,
+ * including linked actual minutes and plan-vs-actual variance. */
 export function weeklyCsvRows(input: {
   weekDates: string[];
   blocks: ScheduleBlock[];

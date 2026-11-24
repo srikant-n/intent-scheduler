@@ -20,10 +20,14 @@ interface Props {
   onApply: (proposals: HabitProposal[]) => Promise<void>;
 }
 
+/** Preview + apply for the greedy habit scheduler: shows proposed blocks and
+ * unmet targets before writing anything to the plan. */
 export function HabitDistributionModal({ open, onClose, weekDates, intentions, existingBlocks, capacity, dayStartHour, dayEndHour, snapInterval, onApply }: Props) {
   const [applying, setApplying] = useState(false);
   const [applied, setApplied] = useState(false);
 
+  // Recomputed live so the preview always reflects current blocks/capacity;
+  // `open` in deps forces recompute each time the modal is shown.
   const result = useMemo(
     () => computeHabitDistribution(intentions, { weekDates, existingBlocks, capacity, dayStartHour, dayEndHour, snapInterval }),
     [intentions, weekDates, existingBlocks, capacity, dayStartHour, dayEndHour, snapInterval, open],

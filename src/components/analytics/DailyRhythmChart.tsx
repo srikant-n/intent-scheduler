@@ -7,8 +7,10 @@ interface Props {
   snapshot: AnalyticsSnapshot;
 }
 
+// Pixel cap for the tallest bar pair.
 const MAX_BAR = 120;
 
+/** Planned-vs-actual bar pairs per weekday, plus a per-day variance table. */
 export function DailyRhythmChart({ snapshot }: Props) {
   const maxVal = Math.max(1, ...snapshot.dailyRhythm.map((d) => Math.max(d.plannedMins, d.actualMins)));
   const avgPlanned = snapshot.dailyRhythm.length > 0

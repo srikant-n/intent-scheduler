@@ -33,6 +33,8 @@ interface ExportVaultCardProps {
   onNotify: (message: string, kind?: 'success' | 'error') => void;
 }
 
+/** Export card: full JSON vault download (with size preview) and CSV time-log
+ * export with date-range presets. */
 export function ExportVaultCard({ onNotify }: ExportVaultCardProps) {
   const queryClient = useQueryClient();
   const [busy, setBusy] = useState<'json' | 'csv' | null>(null);

@@ -1,3 +1,5 @@
+// Unit tests for the vault pipeline: JSON parse/validate, payload building,
+// record counts, byte formatting, and CSV row serialization.
 import { describe, expect, it } from 'vitest';
 import {
   buildVaultPayload,

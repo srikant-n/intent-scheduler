@@ -7,6 +7,7 @@ import { Input } from '@/components/common/Field';
 import { useCategories } from '@/hooks/useCategories';
 import type { Category } from '@/types/database';
 
+// Preset swatches offered in the color picker.
 const palette = ['#ea580c', '#4f46e5', '#059669', '#d97706', '#8b5cf6', '#e11d48', '#0891b2', '#65a30d'];
 
 interface Props {
@@ -14,10 +15,13 @@ interface Props {
   onClose: () => void;
 }
 
+// Falls back to the first palette color for the native color input, which
+// requires a valid #rrggbb value.
 function normalizeHex(value: string): string {
   return /^#[0-9a-fA-F]{6}$/.test(value) ? value : palette[0];
 }
 
+/** Palette swatches plus a native color input for arbitrary hex values. */
 function ColorPicker({ value, onChange }: { value: string; onChange: (color: string) => void }) {
   const isCustom = Boolean(value) && !palette.includes(normalizeHex(value).toLowerCase());
   return (
@@ -51,6 +55,8 @@ function ColorPicker({ value, onChange }: { value: string; onChange: (color: str
   );
 }
 
+/** CRUD for categories. Deleting a category is two-click confirm; tasks/logs
+ * referencing it fall back to uncategorized via ON DELETE SET NULL. */
 export function ManageCategoriesModal({ open, onClose }: Props) {
   const { categories, create, update, remove } = useCategories();
   const [newName, setNewName] = useState('');

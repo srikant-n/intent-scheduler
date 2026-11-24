@@ -12,10 +12,13 @@ interface Props {
 }
 
 function cadenceLabel(habit: Intention): string {
+  // With a target: "3×/wk". Without: fall back to preferred-day count or "Recurring".
   if (!habit.targetSessionsPerWeek) return habit.preferredWeekdays.length > 0 ? `${habit.preferredWeekdays.length}×/wk` : 'Recurring';
   return `${habit.targetSessionsPerWeek}×/wk`;
 }
 
+/** Sidebar list of recurring intentions ("habit templates") that can be dragged
+ * onto the weekly board, with per-habit adherence percentages. */
 export function HabitPool({ intentions, blocks, categories, onConfigure }: Props) {
   const habits = intentions.filter((item) => item.isRecurring && item.status === 'active');
   const categoryOf = (id: string | null) => categories.find((c) => c.id === id);
@@ -33,6 +36,7 @@ export function HabitPool({ intentions, blocks, categories, onConfigure }: Props
 
       <div className="flex flex-col gap-1.5">
         {habits.map((habit) => {
+          // Sessions that count: anything not dismissed/rolled; adherence = completed / weekly target.
           const sessions = blocks.filter((b) => b.taskId === habit.id && b.status !== 'dismissed' && b.status !== 'rolled');
           const fulfilled = sessions.filter((b) => b.status === 'completed').length;
           const target = habit.targetSessionsPerWeek;

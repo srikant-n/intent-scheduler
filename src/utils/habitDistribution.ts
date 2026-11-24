@@ -32,16 +32,20 @@ export interface HabitDistributionOptions {
   snapInterval: number;
 }
 
+/** Blocks that still count toward the week — dismissed/rolled blocks are excluded everywhere. */
 function countsTowardWeek(block: ScheduleBlock): boolean {
   return block.status !== 'dismissed' && block.status !== 'rolled';
 }
 
+/** Total planned minutes already on `date` (excluding dismissed/rolled). */
 function dayPlannedMinutes(blocks: ScheduleBlock[], date: string): number {
   return blocks
     .filter((block) => block.scheduledDate === date && countsTowardWeek(block))
     .reduce((sum, block) => sum + block.plannedDurationMins, 0);
 }
 
+/** First-fit search for a free `durationMins` slot on `date`, scanning snapped
+ * start times within [dayStart, dayEnd] and skipping ranges overlapping existing blocks. */
 function findSlot(
   blocks: ScheduleBlock[],
   date: string,
@@ -65,6 +69,7 @@ function findSlot(
   return null;
 }
 
+/** Public wrapper around {@link findSlot} for single-slot lookups (e.g. drag-to-schedule). */
 export function firstAvailableSlot(
   blocks: ScheduleBlock[],
   date: string,
@@ -76,6 +81,7 @@ export function firstAvailableSlot(
   return findSlot(blocks, date, durationMins, dayStartMinutes, dayEndMinutes, snapInterval);
 }
 
+/** Whether any counted block on `date` overlaps [startTime, endTime), optionally excluding one block (for move/resize checks). */
 export function blocksOverlapOnDate(
   blocks: ScheduleBlock[],
   date: string,
@@ -92,6 +98,10 @@ export function blocksOverlapOnDate(
   );
 }
 
+/** Greedy habit scheduler: for each active recurring intention with a weekly
+ * session target, place the deficit (target − already-planned) into free slots,
+ * preferring the task's preferred weekdays then days with most remaining capacity.
+ * Returns proposed blocks plus per-task skips when capacity/slots run out. */
 export function computeHabitDistribution(
   intentions: Intention[],
   options: HabitDistributionOptions,

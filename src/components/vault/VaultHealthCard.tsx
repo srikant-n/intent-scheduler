@@ -24,6 +24,8 @@ function relativeTime(iso: string | null): string {
   return `${days} day${days === 1 ? '' : 's'} ago`;
 }
 
+/** Storage health dashboard: DB file size, row counts, integrity check,
+ * pragma values, last export/import timestamps, reveal-in-Explorer. */
 export function VaultHealthCard({ onNotify }: VaultHealthCardProps) {
   const healthQuery = useVaultHealth();
   const health = healthQuery.data;

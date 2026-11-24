@@ -7,6 +7,8 @@ import { Button } from '@/components/common/Button';
 import { categoryById } from '@/hooks/useCategories';
 import { formatDuration } from '@/utils/time';
 
+/** Floating pill pinned to the bottom of the window showing the running timer
+ * with pause/resume/stop/discard. Renders nothing when no timer is active. */
 export function ActiveTimerBar() {
   const { timer, elapsedLabel, isPaused, pauseTimer, resumeTimer, stopTimer, discardTimer } = useActiveTimer();
   const { categories } = useCategories();

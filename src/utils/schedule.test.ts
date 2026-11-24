@@ -1,3 +1,5 @@
+// Unit tests for schedule slot math: clamp, overlapMinutes, rangesOverlap,
+// and firstAvailableSlot placement within day bounds.
 import { describe, expect, it } from 'vitest';
 import { clamp, overlapMinutes, rangesOverlap } from './schedule';
 

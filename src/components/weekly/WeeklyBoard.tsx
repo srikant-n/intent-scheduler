@@ -16,6 +16,7 @@ interface Props {
   onDropBlock: (block: EnrichedScheduleBlock, targetDate: string) => void;
 }
 
+/** Horizontally scrollable Mon–Sun board of day columns with click-drag panning. */
 export function WeeklyBoard({ days, blocksByDate, actualByBlock, categoryOf, mode, onAdd, onBlockClick, onDropTask, onDropBlock }: Props) {
   const { ref, onPointerDown } = useDragScroll();
   return (

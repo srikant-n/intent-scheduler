@@ -5,6 +5,7 @@ interface TopBarProps {
   date: string;
 }
 
+/** Sticky header showing the viewed date context plus a live clock (updates every second). */
 export function TopBar({ date }: TopBarProps) {
   const [now, setNow] = useState(() => new Date());
 

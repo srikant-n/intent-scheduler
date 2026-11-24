@@ -1,8 +1,13 @@
 import type { TimeLogMood } from '@/types/database';
 
+/** Derived analytics types produced by `buildAnalyticsSnapshot` — none of these
+ * are persisted; they're computed on demand for the Time Analytics page. */
+
 export type DriftBias = 'underestimated' | 'overestimated' | 'spot-on' | 'insufficient';
 export type Tendency = 'under-realized' | 'over-realized' | 'on-track' | 'insufficient';
 
+/** Planned vs actual minutes for one category, with a tendency label
+ * (under-realized <70%, over-realized >130%, else on-track). */
 export interface CategoryVariance {
   categoryId: string | null;
   name: string;
@@ -30,6 +35,7 @@ export interface DailyCategorySlice {
   minutes: number;
 }
 
+/** One planned-vs-actual comparison for a single schedule block that has logs. */
 export interface DriftSession {
   blockId: string;
   taskId: string;
@@ -39,6 +45,7 @@ export interface DriftSession {
   varianceMins: number;
 }
 
+/** Per-task estimation bias across all sessions up to the analyzed week. */
 export interface TaskDrift {
   taskId: string;
   title: string;
@@ -48,6 +55,7 @@ export interface TaskDrift {
   bias: DriftBias;
 }
 
+/** Aggregate estimation-drift report: session stats, letter grade, per-task bias, recent sessions. */
 export interface EstimationDrift {
   sessions: number;
   avgVarianceMins: number;
@@ -57,6 +65,7 @@ export interface EstimationDrift {
   recentSessions: DriftSession[];
 }
 
+/** A block that was rolled to a later date, dismissed, or missed. */
 export interface RolloverEvent {
   blockId: string;
   taskTitle: string;
@@ -65,6 +74,7 @@ export interface RolloverEvent {
   minutes: number;
 }
 
+/** Rollover outcomes for the week: resolved events plus still-pending blocks. */
 export interface RolloverStats {
   rolledCount: number;
   dismissedCount: number;
@@ -77,12 +87,14 @@ export interface RolloverStats {
   events: RolloverEvent[];
 }
 
+/** Log count + minutes grouped by mood tag. */
 export interface MoodBucket {
   mood: TimeLogMood;
   count: number;
   minutes: number;
 }
 
+/** A log entry surfaced in the reflections feed (has notes or a mood tag). */
 export interface ReflectionEntry {
   logId: string;
   logDate: string;
@@ -92,6 +104,7 @@ export interface ReflectionEntry {
   minutes: number;
 }
 
+/** Everything the Time Analytics page renders for one week — see buildAnalyticsSnapshot. */
 export interface AnalyticsSnapshot {
   weekStart: string;
   weekEnd: string;

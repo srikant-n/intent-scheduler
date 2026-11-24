@@ -12,6 +12,7 @@ interface Props {
   onSave: (values: { customTitle: string; categoryId: string | null; durationMins: number; notes: string; mood: TimeLogMood | null }) => Promise<void>;
 }
 
+// Duration presets offered in the quick-log dropdown.
 const presets = [15, 25, 30, 45, 60, 90];
 const moods: { value: TimeLogMood; label: string }[] = [
   { value: 'restorative', label: 'Restorative' },
@@ -20,6 +21,8 @@ const moods: { value: TimeLogMood; label: string }[] = [
   { value: 'firefight', label: 'Firefight' },
 ];
 
+/** Fast ad-hoc log for unplanned activity: title + category + duration + mood,
+ * no intention or schedule block required. */
 export function QuickLogModal({ open, onClose, categories, onSave }: Props) {
   const [title, setTitle] = useState('');
   const [categoryId, setCategoryId] = useState('');

@@ -4,6 +4,7 @@ import { createTimeLog, getActiveTimer, saveActiveTimer, updateScheduleBlock } f
 import type { ActiveTimerState, Intention, ScheduleBlock, TimeLogMood } from '@/types/database';
 import { deriveLogTimes, elapsedMs, formatElapsed, uuid } from '@/utils/time';
 
+/** Input for startTimer — provide a task, a block, or a custom title (quick log). */
 export interface StartTimerInput {
   task?: Intention | null;
   block?: ScheduleBlock | null;
@@ -13,6 +14,9 @@ export interface StartTimerInput {
   notes?: string | null;
 }
 
+/** The global active timer. State persists in app_settings so a running timer
+ * survives app restarts; stopping writes a time_logs row (and marks a linked
+ * block completed). Starting a new timer auto-stops and logs the previous one. */
 export function useActiveTimer() {
   const queryClient = useQueryClient();
   const [now, setNow] = useState(() => Date.now());
@@ -35,6 +39,8 @@ export function useActiveTimer() {
     return elapsedMs(timer.startedAt, timer.accumulatedPausedMs, timer.pausedAt, now);
   }, [timer, now]);
 
+  // Writes the elapsed run to time_logs and clears persisted timer state.
+  // `saveLog=false` (discard) drops the run without logging.
   const finalizeTimer = async (value: ActiveTimerState, saveLog: boolean) => {
     const finalElapsed = elapsedMs(value.startedAt, value.accumulatedPausedMs, value.pausedAt);
     if (saveLog && finalElapsed > 0) {

@@ -15,10 +15,17 @@ import { invoke } from '@tauri-apps/api/core';
 import pkg from '../../package.json';
 import { executeSql, selectRows } from './client';
 
+// ---------------------------------------------------------------------------
+// Data-access layer: all SQL lives here. Rows come back snake_case and are
+// mapped to the camelCase types in src/types/database.ts. Writes validate
+// inputs (dates, times, positive ints) before hitting SQLite.
+// ---------------------------------------------------------------------------
+
 function nowIso(): string {
   return new Date().toISOString();
 }
 
+// Raw row shapes mirroring the SQLite schema (snake_case columns).
 interface CategoryRow {
   id: string;
   name: string;
@@ -78,10 +85,14 @@ interface SettingRow {
   updated_at: string;
 }
 
+// --- Row → domain-type mappers (snake_case → camelCase) ---
+
 function mapCategory(row: CategoryRow): Category {
   return { id: row.id, name: row.name, colorHex: row.color_hex, createdAt: row.created_at };
 }
 
+// preferred_weekdays is stored as a JSON array string; parse defensively so a
+// corrupt value degrades to "no preference" instead of breaking the UI.
 function parsePreferredWeekdays(raw: string | null): number[] {
   if (!raw) return [];
   try {
@@ -142,6 +153,8 @@ function mapTimeLog(row: TimeLogRow): TimeLog {
   };
 }
 
+// --- Input validators (throw before a bad value reaches SQLite) ---
+
 function assertDate(value: string) {
   if (!isValidISODate(value)) throw new Error(`Invalid date: ${value}`);
 }
@@ -154,11 +167,13 @@ function assertPositiveInt(value: number, label: string) {
   if (!Number.isInteger(value) || value <= 0) throw new Error(`${label} must be a positive integer`);
 }
 
+/** Read an app_settings value; null when unset. */
 export async function getSetting(key: string): Promise<string | null> {
   const rows = await selectRows<SettingRow>('SELECT key, value, updated_at FROM app_settings WHERE key = $1', [key]);
   return rows[0]?.value ?? null;
 }
 
+/** Upsert an app_settings value (INSERT … ON CONFLICT DO UPDATE). */
 export async function setSetting(key: string, value: string): Promise<void> {
   await executeSql(
     `INSERT INTO app_settings (key, value, updated_at)
@@ -168,16 +183,19 @@ export async function setSetting(key: string, value: string): Promise<void> {
   );
 }
 
+/** All settings as camelCase rows, ordered by key (used by vault export). */
 export async function getAllSettings(): Promise<AppSetting[]> {
   const rows = await selectRows<SettingRow>('SELECT key, value, updated_at FROM app_settings ORDER BY key');
   return rows.map((row) => ({ key: row.key, value: row.value, updatedAt: row.updated_at }));
 }
 
+/** Categories sorted case-insensitively by name. */
 export async function listCategories(): Promise<Category[]> {
   const rows = await selectRows<CategoryRow>('SELECT id, name, color_hex, created_at FROM categories ORDER BY name COLLATE NOCASE');
   return rows.map(mapCategory);
 }
 
+/** Insert a category; throws on empty name or duplicate (UNIQUE) name. */
 export async function createCategory(input: { name: string; colorHex: string }): Promise<Category> {
   const name = input.name.trim();
   if (!name) throw new Error('Category name is required');
@@ -192,16 +210,19 @@ export async function createCategory(input: { name: string; colorHex: string }):
   return { id, name, colorHex: input.colorHex, createdAt };
 }
 
+/** Rename/recolor a category. */
 export async function updateCategory(id: string, input: { name: string; colorHex: string }): Promise<void> {
   const name = input.name.trim();
   if (!name) throw new Error('Category name is required');
   await executeSql('UPDATE categories SET name = $1, color_hex = $2 WHERE id = $3', [name, input.colorHex, id]);
 }
 
+/** Delete a category. FK ON DELETE SET NULL clears task/log references. */
 export async function deleteCategory(id: string): Promise<void> {
   await executeSql('DELETE FROM categories WHERE id = $1', [id]);
 }
 
+/** Intentions filtered by status (default 'active'), newest first. */
 export async function listIntentions(status: TaskStatus = 'active'): Promise<Intention[]> {
   const rows = await selectRows<TaskRow>(
     `SELECT ${TASK_COLUMNS} FROM tasks WHERE status = $1 ORDER BY created_at DESC`,
@@ -210,11 +231,14 @@ export async function listIntentions(status: TaskStatus = 'active'): Promise<Int
   return rows.map(mapTask);
 }
 
+/** All intentions regardless of status (used by pickers and enrichment). */
 export async function listAllIntentions(): Promise<Intention[]> {
   const rows = await selectRows<TaskRow>(`SELECT ${TASK_COLUMNS} FROM tasks ORDER BY created_at DESC`);
   return rows.map(mapTask);
 }
 
+/** Insert an intention. Habit fields (target sessions, preferred weekdays) are
+ * only persisted for recurring items — they're cleared otherwise. */
 export async function createIntention(input: {
   title: string;
   categoryId: string | null;
@@ -253,6 +277,7 @@ export async function createIntention(input: {
   };
 }
 
+/** Update an intention; same recurring-field normalization as create. */
 export async function updateIntention(
   id: string,
   input: {
@@ -281,14 +306,18 @@ export async function updateIntention(
   );
 }
 
+/** Soft-delete: mark an intention archived (keeps history intact). */
 export async function archiveIntention(id: string): Promise<void> {
   await executeSql("UPDATE tasks SET status = 'archived' WHERE id = $1", [id]);
 }
 
+/** Un-archive an intention. */
 export async function restoreIntention(id: string): Promise<void> {
   await executeSql("UPDATE tasks SET status = 'active' WHERE id = $1", [id]);
 }
 
+/** Hard-delete an intention. Blocks cascade; logs are detached first
+ * (schedule_block_id/task_id set to NULL) so history survives. */
 export async function deleteIntention(id: string): Promise<void> {
   await executeSql('UPDATE time_logs SET schedule_block_id = NULL WHERE schedule_block_id IN (SELECT id FROM schedule_blocks WHERE task_id = $1)', [id]);
   await executeSql('UPDATE time_logs SET task_id = NULL WHERE task_id = $1', [id]);
@@ -296,6 +325,7 @@ export async function deleteIntention(id: string): Promise<void> {
   await executeSql('DELETE FROM tasks WHERE id = $1', [id]);
 }
 
+/** All schedule blocks for one date, ordered by start_time. */
 export async function listScheduleBlocks(date: string): Promise<ScheduleBlock[]> {
   assertDate(date);
   const rows = await selectRows<ScheduleBlockRow>(
@@ -305,6 +335,7 @@ export async function listScheduleBlocks(date: string): Promise<ScheduleBlock[]>
   return rows.map(mapScheduleBlock);
 }
 
+/** All schedule blocks in [startDate, endDate], ordered by date then start_time. */
 export async function listScheduleBlocksRange(startDate: string, endDate: string): Promise<ScheduleBlock[]> {
   assertDate(startDate);
   assertDate(endDate);
@@ -316,6 +347,7 @@ export async function listScheduleBlocksRange(startDate: string, endDate: string
   return rows.map(mapScheduleBlock);
 }
 
+/** Insert a schedule block (the "intent"). Validates date/time/duration first. */
 export async function createScheduleBlock(input: {
   taskId: string;
   scheduledDate: string;
@@ -351,6 +383,8 @@ export async function createScheduleBlock(input: {
   };
 }
 
+/** Partial update of a schedule block. Reads the current row first so omitted
+ * fields are preserved (notes uses undefined-vs-null to distinguish). */
 export async function updateScheduleBlock(
   id: string,
   input: Partial<{
@@ -392,10 +426,13 @@ export async function updateScheduleBlock(
   );
 }
 
+/** Delete a schedule block (logs keep their data; schedule_block_id is SET NULL by FK). */
 export async function deleteScheduleBlock(id: string): Promise<void> {
   await executeSql('DELETE FROM schedule_blocks WHERE id = $1', [id]);
 }
 
+/** Run an async action over a list, collecting per-item successes/failures
+ * instead of aborting on the first error (used by batch rollover). */
 export async function runBatchActions<T>(
   items: T[],
   action: (item: T) => Promise<void>,
@@ -413,6 +450,7 @@ export async function runBatchActions<T>(
   return { succeeded, failed };
 }
 
+/** Time logs for one date, ordered by start time (untimed logs fall back to created_at). */
 export async function listTimeLogs(date: string): Promise<TimeLog[]> {
   assertDate(date);
   const rows = await selectRows<TimeLogRow>(
@@ -422,6 +460,7 @@ export async function listTimeLogs(date: string): Promise<TimeLog[]> {
   return rows.map(mapTimeLog);
 }
 
+/** Time logs in [startDate, endDate], ordered by date then start time. */
 export async function listTimeLogsRange(startDate: string, endDate: string): Promise<TimeLog[]> {
   assertDate(startDate);
   assertDate(endDate);
@@ -433,6 +472,8 @@ export async function listTimeLogsRange(startDate: string, endDate: string): Pro
   return rows.map(mapTimeLog);
 }
 
+/** Insert a time log. `isAdHoc` defaults to true when nothing links the log
+ * to a task or schedule block (spontaneous activity). */
 export async function createTimeLog(input: {
   taskId?: string | null;
   scheduleBlockId?: string | null;
@@ -489,6 +530,7 @@ export async function createTimeLog(input: {
   };
 }
 
+/** Partial update of a time log; read-merge-write like updateScheduleBlock. */
 export async function updateTimeLog(
   id: string,
   input: Partial<{
@@ -536,10 +578,12 @@ export async function updateTimeLog(
   );
 }
 
+/** Delete a time log. */
 export async function deleteTimeLog(id: string): Promise<void> {
   await executeSql('DELETE FROM time_logs WHERE id = $1', [id]);
 }
 
+/** The persisted active timer (JSON in app_settings), or null when no timer is running. */
 export async function getActiveTimer(): Promise<ActiveTimerState | null> {
   const raw = await getSetting('active_timer');
   if (!raw) return null;
@@ -551,10 +595,12 @@ export async function getActiveTimer(): Promise<ActiveTimerState | null> {
   }
 }
 
+/** Persist (or clear, with null) the active timer state. */
 export async function saveActiveTimer(timer: ActiveTimerState | null): Promise<void> {
   await setSetting('active_timer', timer ? JSON.stringify(timer) : 'null');
 }
 
+// Seeded on first launch (guarded by the categories_seeded flag).
 const DEFAULT_CATEGORIES = [
   { name: 'Health & Movement', colorHex: '#059669' },
   { name: 'Deep Learning', colorHex: '#4f46e5' },
@@ -571,6 +617,7 @@ export interface VaultCounts {
   settings: number;
 }
 
+/** Row counts per table for the vault health card. */
 export async function getVaultCounts(): Promise<VaultCounts> {
   const count = async (table: string) => {
     const rows = await selectRows<{ count: number }>(`SELECT COUNT(*) AS count FROM ${table}`);
@@ -586,6 +633,8 @@ export async function getVaultCounts(): Promise<VaultCounts> {
   return { blocks, logs, tasks, categories, settings };
 }
 
+// Allowlist of PRAGMA names readable via getPragmaValue — prevents arbitrary
+// SQL-ish input from reaching the pragma interface.
 const ALLOWED_PRAGMAS = new Set([
   'journal_mode',
   'synchronous',
@@ -596,6 +645,7 @@ const ALLOWED_PRAGMAS = new Set([
   'encoding',
 ]);
 
+/** Read one allowlisted PRAGMA value (e.g. 'journal_mode') as a string. */
 export async function getPragmaValue(name: string): Promise<string> {
   if (!ALLOWED_PRAGMAS.has(name)) throw new Error(`PRAGMA ${name} is not allowed`);
   const rows = await selectRows<Record<string, unknown>>(`PRAGMA ${name}`);
@@ -605,16 +655,20 @@ export async function getPragmaValue(name: string): Promise<string> {
   return value == null ? '' : String(value);
 }
 
+/** Run PRAGMA integrity_check; returns 'ok' or the joined error messages. */
 export async function runIntegrityCheck(): Promise<string> {
   const rows = await selectRows<Record<string, unknown>>('PRAGMA integrity_check');
   const messages = rows.map((row) => String(Object.values(row)[0] ?? '')).filter(Boolean);
   return messages.length === 0 ? 'ok' : messages.join('; ');
 }
 
+/** Compact the database file (reclaims free pages). */
 export async function vacuumDatabase(): Promise<void> {
   await executeSql('VACUUM');
 }
 
+/** Dump every table into the vault JSON payload (settings included — theme and
+ * capacity preferences travel with the backup). */
 export async function exportVaultPayload(): Promise<VaultPayload> {
   const [settings, categories, tasks, scheduleBlocks, timeLogs] = await Promise.all([
     selectRows<VaultRow>('SELECT key, value, updated_at FROM app_settings ORDER BY key'),
@@ -643,6 +697,8 @@ export interface VaultImportStats {
   tables: { table: string; attempted: number; written: number }[];
 }
 
+/** Validate then import a vault payload via the Rust `import_vault` command.
+ * `merge` = INSERT OR IGNORE; `replace` = wipe + insert, both in one transaction. */
 export async function importVaultPayload(payload: VaultPayload, mode: VaultImportMode): Promise<VaultImportStats> {
   const issues = vaultPayloadIssues(payload);
   if (issues.length > 0) {
@@ -659,10 +715,13 @@ export async function importVaultPayload(payload: VaultPayload, mode: VaultImpor
   };
 }
 
+/** Stamp vault_last_export_at / vault_last_import_at for the health card. */
 export async function recordVaultEvent(kind: 'export' | 'import'): Promise<void> {
   await setSetting(`vault_last_${kind}_at`, nowIso());
 }
 
+/** Wipe all app data via the Rust `clear_vault` transaction, then reset the
+ * bootstrap cache so the next launch re-seeds categories/settings. */
 export async function clearVaultData(): Promise<void> {
   // The actual delete runs in a single Rust transaction so partial wipes
   // are impossible (plugin-sql's pool cannot span BEGIN/COMMIT across calls).
@@ -674,6 +733,9 @@ export function resetBootstrapDatabase(): void {
   bootstrapPromise = null;
 }
 
+/** Default settings written on first launch. NOTE: weekly_capacity_minutes
+ * default (360/240/180) predates the reduced defaults in utils/capacity.ts —
+ * only applies to databases seeded before that change. */
 const DEFAULT_SETTINGS: Record<string, string> = {
   theme_mode: 'system',
   accent_color: 'ember',
@@ -685,6 +747,8 @@ const DEFAULT_SETTINGS: Record<string, string> = {
 
 let bootstrapPromise: Promise<void> | null = null;
 
+/** First-launch seeding: default categories (once, guarded by flag) and any
+ * missing default settings. Memoized so concurrent callers share one run. */
 export function bootstrapDatabase(): Promise<void> {
   bootstrapPromise ??= bootstrapDatabaseInternal().catch((error) => {
     bootstrapPromise = null;

@@ -23,8 +23,13 @@ interface DailyTimelineProps {
   onDropLog: (log: TimeLog, startTime: string) => void;
 }
 
+// Grid snap for drag/drop and click-to-plan (matches the spec's 15-min interval).
 const SNAP = 15;
 
+/** Dual-track daily planner: Intent (planned blocks) on the left, a shared time
+ * ruler in the middle, Reality (actual logs) on the right. Supports drag-and-drop
+ * of intentions/blocks/logs onto snapped slots, click-to-create, and shows a
+ * live "now" line when viewing today. Dismissed/rolled blocks are hidden. */
 export function DailyTimeline({
   date,
   blocks,
@@ -51,8 +56,10 @@ export function DailyTimeline({
   const hours = useMemo(() => Array.from({ length: Math.floor(totalMinutes / 60) + 1 }, (_, i) => startMinutes + i * 60), [startMinutes, totalMinutes]);
   const untimedLogs = logs.filter((log) => !log.startTime);
   const timedLogs = logs.filter((log) => log.startTime);
+  // Dismissed and rolled blocks don't represent current intent — hide them.
   const visibleBlocks = blocks.filter((block) => block.status !== 'dismissed' && block.status !== 'rolled');
 
+  // Live clock for the "now" marker; ticks every 30s and only runs for today.
   const [nowMinutes, setNowMinutes] = useState(() => {
     const now = new Date();
     return now.getHours() * 60 + now.getMinutes();
@@ -69,6 +76,9 @@ export function DailyTimeline({
   const showNowLine = isToday && nowMinutes >= startMinutes && nowMinutes <= endMinutes;
   const nowTop = ((nowMinutes - startMinutes) / totalMinutes) * height;
 
+  // Convert a pointer position inside a track to a snapped start time.
+  // For drags, offset by half the dragged element's height so the block's
+  // vertical center lands under the cursor.
   const timeFromEvent = (event: React.DragEvent<HTMLElement> | React.MouseEvent<HTMLElement>, ref: HTMLDivElement | null) => {
     if (!ref) return minutesToTime(startMinutes);
     const rect = ref.getBoundingClientRect();
@@ -79,6 +89,7 @@ export function DailyTimeline({
     return minutesToTime(Math.min(endMinutes - SNAP, Math.max(startMinutes, snapped)));
   };
 
+  // Planned-track drop: blocks first (move), then intentions (new block).
   const handleDrop = (event: React.DragEvent<HTMLElement>, ref: HTMLDivElement | null) => {
     event.preventDefault();
     suppressClickUntil.current = Date.now() + 300;
@@ -102,6 +113,7 @@ export function DailyTimeline({
     }
   };
 
+  // Reality-track drop: only time logs can land here (retiming an existing log).
   const handleLogDrop = (event: React.DragEvent<HTMLElement>) => {
     event.preventDefault();
     suppressClickUntil.current = Date.now() + 300;
@@ -115,6 +127,7 @@ export function DailyTimeline({
     }
   };
 
+  // Pixel position/height for a block or log on the timeline.
   const blockStyle = (start: string, durationMins: number) => {
     const top = ((timeToMinutes(start) - startMinutes) / totalMinutes) * height;
     const h = Math.max(18, (durationMins / totalMinutes) * height);

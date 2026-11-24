@@ -8,6 +8,7 @@ import {
 } from '@/db/queries';
 import type { ScheduleBlock, ScheduleStatus } from '@/types/database';
 
+/** Schedule blocks for a single date plus CRUD mutations. */
 export function useScheduleBlocks(date: string) {
   const queryClient = useQueryClient();
   const query = useQuery({ queryKey: ['schedule', 'day', date], queryFn: () => listScheduleBlocks(date) });
@@ -31,6 +32,7 @@ export function useScheduleBlocks(date: string) {
   return { blocks: query.data ?? [], isLoading: query.isLoading, create, update, remove };
 }
 
+/** Read-only query for blocks across a date range (weekly planner, analytics). */
 export function useScheduleRange(startDate: string, endDate: string) {
   return useQuery({
     queryKey: ['schedule', 'range', startDate, endDate],
@@ -38,6 +40,7 @@ export function useScheduleRange(startDate: string, endDate: string) {
   });
 }
 
+/** Mutation-only variant for callers that manage their own block queries. */
 export function useScheduleMutations() {
   const queryClient = useQueryClient();
   const invalidate = () => {

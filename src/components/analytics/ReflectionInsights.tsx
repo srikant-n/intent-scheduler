@@ -7,6 +7,7 @@ interface Props {
   snapshot: AnalyticsSnapshot;
 }
 
+// Display labels for the four mood tags.
 const moodLabels: Record<Mood, string> = {
   restorative: 'Restorative',
   energizing: 'Energizing',
@@ -14,6 +15,7 @@ const moodLabels: Record<Mood, string> = {
   firefight: 'Firefight',
 };
 
+/** Rule-based insights list, mood distribution, and recent noted logs. */
 export function ReflectionInsights({ snapshot }: Props) {
   const totalMoods = snapshot.moods.reduce((s, m) => s + m.minutes, 0);
   return (

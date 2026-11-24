@@ -11,6 +11,7 @@ function pct(part: number, whole: number): number {
   return whole > 0 ? Math.round((part / whole) * 100) : 0;
 }
 
+// Fidelity label thresholds: ≥90% High Flow, ≥70% Steady, else Drifting.
 function fidelityBadge(pct: number | null): { label: string; className: string } {
   if (pct == null) return { label: 'No data', className: 'bg-surface-high text-text-subtle' };
   if (pct >= 90) return { label: 'High Flow', className: 'bg-accent-soft text-accent' };
@@ -18,12 +19,15 @@ function fidelityBadge(pct: number | null): { label: string; className: string }
   return { label: 'Drifting', className: 'bg-warning-soft text-warning' };
 }
 
+/** Header panel for the weekly planner: planned/actual/fidelity tiles plus a
+ * per-category balance bar. */
 export function WeekSummary({ summary, anchorDate }: Props) {
   const weekStart = weekDatesISO(anchorDate)[0];
   const utilization = summary.utilizationPct ?? 0;
   const fidelity = summary.pacingFidelityPct;
   const fidelityInfo = fidelityBadge(fidelity);
   const plannedVsActual = summary.totalPlannedMins > 0 ? summary.totalActualMins - summary.totalPlannedMins : null;
+  // Balance bar uses planned shares when any exist, else actual shares.
   const balanceBasis = summary.categoryBalance.reduce((s, c) => s + c.plannedMins, 0) > 0
     ? summary.categoryBalance.map((c) => ({ ...c, share: c.plannedMins }))
     : summary.categoryBalance.map((c) => ({ ...c, share: c.actualMins }));

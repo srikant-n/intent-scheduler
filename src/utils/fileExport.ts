@@ -7,6 +7,8 @@ export interface SaveTextFileOptions {
   filterName?: string;
 }
 
+/** Open the native save dialog, then write via the `save_text_file` Rust command
+ * (which restricts writes to absolute .csv/.json paths). Returns false if cancelled. */
 export async function saveTextFile(
   defaultFileName: string,
   contents: string,

@@ -1,9 +1,11 @@
 import { InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react';
 import clsx from 'clsx';
 
+// Shared control styling so inputs/selects/textareas look identical everywhere.
 const controlClass =
   'w-full rounded-lg border border-border bg-surface-low px-3 py-2 text-sm text-text placeholder:text-text-subtle outline-none transition focus:border-accent focus:ring-2 focus:ring-accent-soft';
 
+/** Label wrapper for form controls; renders an optional hint line. */
 export function Field({ label, children, hint }: { label: string; children: ReactNode; hint?: string }) {
   return (
     <label className="block">

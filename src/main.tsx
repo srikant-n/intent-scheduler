@@ -5,6 +5,8 @@ import '@fontsource-variable/plus-jakarta-sans';
 import './index.css';
 import App from './App';
 
+// Shared React Query client — 10s staleTime avoids refetch churn, and
+// refetchOnWindowFocus is off since the app is a focused desktop window.
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

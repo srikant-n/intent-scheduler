@@ -1,7 +1,11 @@
+// DB row shapes (snake_case columns) mapped to camelCase TS fields.
+// Dates are 'YYYY-MM-DD', timestamps ISO-8601, all ids UUID v4 strings.
+
 export type ThemeMode = 'light' | 'dark' | 'system';
 export type AccentPreset = 'ember' | 'indigo' | 'emerald' | 'rose' | 'violet' | 'graphite';
 export type TaskStatus = 'active' | 'archived';
 export type ScheduleStatus = 'planned' | 'completed' | 'missed' | 'dismissed' | 'rolled';
+/** Energy/mood tag on a time log, used by analytics reflections. */
 export type TimeLogMood = 'restorative' | 'energizing' | 'distraction' | 'firefight';
 
 export interface Category {
@@ -11,6 +15,8 @@ export interface Category {
   createdAt: string;
 }
 
+/** An intention — the "menu" item that can be scheduled. Recurring intentions
+ * carry a weekly session target and optional preferred weekdays (ISO 1–7). */
 export interface Intention {
   id: string;
   title: string;
@@ -25,6 +31,8 @@ export interface Intention {
   createdAt: string;
 }
 
+/** A planned time block (the "intent"). `rolledFromBlockId` preserves lineage
+ * when a block is rolled over to a later date. */
 export interface ScheduleBlock {
   id: string;
   taskId: string;
@@ -38,6 +46,8 @@ export interface ScheduleBlock {
   createdAt: string;
 }
 
+/** An actual time log (the "reality"). All link fields are nullable so ad-hoc
+ * activities can be logged without an intention or schedule block. */
 export interface TimeLog {
   id: string;
   taskId: string | null;
@@ -60,6 +70,7 @@ export interface AppSetting {
   updatedAt: string;
 }
 
+/** Persisted active-timer state (app_settings) so a running timer survives reloads. */
 export interface ActiveTimerState {
   id: string;
   taskId: string | null;
@@ -81,10 +92,12 @@ export interface DailySummary {
   logCount: number;
 }
 
+/** Block with its parent task resolved — the shape timeline/planner components consume. */
 export interface EnrichedScheduleBlock extends ScheduleBlock {
   task?: Intention;
 }
 
+/** Log with resolved task/category plus display fallbacks — see enrichLogs. */
 export interface EnrichedTimeLog extends TimeLog {
   task?: Intention;
   category?: Category;

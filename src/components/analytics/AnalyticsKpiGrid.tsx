@@ -6,6 +6,7 @@ interface Props {
   snapshot: AnalyticsSnapshot;
 }
 
+/** Four headline stat cards for the selected week: planned, actual, ad-hoc, drift grade. */
 export function AnalyticsKpiGrid({ snapshot }: Props) {
   const stats = [
     { label: 'Planned Intent', value: formatDuration(snapshot.plannedMins), icon: CalendarClock, hint: `${snapshot.blockCount} blocks` },

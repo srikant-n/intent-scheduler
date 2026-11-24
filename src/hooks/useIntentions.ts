@@ -10,6 +10,8 @@ import {
 } from '@/db/queries';
 import type { Intention, TaskStatus } from '@/types/database';
 
+/** Intentions filtered by status with create/update/archive/restore/delete mutations.
+ * Mutations also invalidate 'schedule' since blocks embed task display data. */
 export function useIntentions(status: TaskStatus = 'active') {
   const queryClient = useQueryClient();
   const query = useQuery({ queryKey: ['intentions', status], queryFn: () => listIntentions(status) });
@@ -43,6 +45,7 @@ export function useIntentions(status: TaskStatus = 'active') {
   };
 }
 
+/** All intentions regardless of status — for pickers/autocomplete, with create/update only. */
 export function useAllIntentions() {
   const queryClient = useQueryClient();
   const query = useQuery({ queryKey: ['intentions', 'all'], queryFn: listAllIntentions });
