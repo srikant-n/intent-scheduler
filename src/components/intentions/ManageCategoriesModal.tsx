@@ -14,18 +14,39 @@ interface Props {
   onClose: () => void;
 }
 
+function normalizeHex(value: string): string {
+  return /^#[0-9a-fA-F]{6}$/.test(value) ? value : palette[0];
+}
+
 function ColorPicker({ value, onChange }: { value: string; onChange: (color: string) => void }) {
+  const isCustom = Boolean(value) && !palette.includes(normalizeHex(value).toLowerCase());
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       {palette.map((color) => (
         <button
           key={color}
           type="button"
           onClick={() => onChange(color)}
-          className={clsx('h-7 w-7 rounded-full border-2 transition', value === color ? 'border-text' : 'border-transparent')}
+          className={clsx('h-7 w-7 rounded-full border-2 transition', value.toLowerCase() === color ? 'border-text' : 'border-transparent')}
           style={{ backgroundColor: color }}
         />
       ))}
+      <label
+        title="Custom color"
+        className={clsx(
+          'relative flex h-7 w-7 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 transition',
+          isCustom ? 'border-text' : 'border-dashed border-text-subtle hover:border-text-muted',
+        )}
+        style={isCustom ? { backgroundColor: value } : { background: 'conic-gradient(#ea580c, #e11d48, #8b5cf6, #0891b2, #65a30d, #d97706, #ea580c)' }}
+      >
+        <input
+          type="color"
+          value={normalizeHex(value)}
+          onChange={(event) => onChange(event.target.value)}
+          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+        />
+        {!isCustom && <span className="text-[11px] font-bold text-white drop-shadow">+</span>}
+      </label>
     </div>
   );
 }

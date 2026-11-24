@@ -1,5 +1,5 @@
 import type { AnalyticsSnapshot } from '@/types/analytics';
-import { formatDuration, todayISO } from '@/utils/time';
+import { formatDuration, formatSignedDuration, todayISO } from '@/utils/time';
 import { WEEKDAY_LABELS } from '@/utils/capacity';
 import clsx from 'clsx';
 
@@ -56,6 +56,41 @@ export function DailyRhythmChart({ snapshot }: Props) {
             </div>
           );
         })}
+      </div>
+      <div className="mt-4 overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="border-b border-border text-left text-[10px] uppercase tracking-wider text-text-subtle">
+              <th className="pb-2 pr-3">Day</th>
+              <th className="pb-2 pr-3">Date</th>
+              <th className="pb-2 pr-3 text-right">Planned</th>
+              <th className="pb-2 pr-3 text-right">Actual</th>
+              <th className="pb-2 text-right">Variance</th>
+            </tr>
+          </thead>
+          <tbody>
+            {snapshot.dailyRhythm.map((day) => {
+              const isToday = day.date === today;
+              const variance = day.actualMins - day.plannedMins;
+              return (
+                <tr key={day.date} className={clsx('border-b border-border/60 last:border-0', isToday && 'bg-accent-soft/40')}>
+                  <td className={clsx('py-2 pr-3 font-semibold', isToday ? 'text-accent' : 'text-text')}>
+                    {WEEKDAY_LABELS[day.isoWeekday]}
+                  </td>
+                  <td className="py-2 pr-3 text-text-muted">{day.date}</td>
+                  <td className="py-2 pr-3 text-right text-text-muted">{formatDuration(day.plannedMins)}</td>
+                  <td className="py-2 pr-3 text-right text-text-muted">{formatDuration(day.actualMins)}</td>
+                  <td className={clsx('py-2 text-right font-semibold', variance >= 0 ? 'text-warning' : 'text-success')}>
+                    {formatSignedDuration(variance)}
+                  </td>
+                </tr>
+              );
+            })}
+            {snapshot.dailyRhythm.length === 0 && (
+              <tr><td colSpan={5} className="py-6 text-center text-text-muted">No daily data for this week.</td></tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </section>
   );

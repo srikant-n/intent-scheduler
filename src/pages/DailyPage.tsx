@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { CalendarClock, MoonStar, Plus, Timer, TrendingUp, Zap } from 'lucide-react';
+import { CalendarClock, Leaf, MoonStar, Plus, Timer, TrendingUp, Zap } from 'lucide-react';
 import { useCategories } from '@/hooks/useCategories';
 import { useIntentions } from '@/hooks/useIntentions';
 import { useScheduleBlocks, useScheduleMutations } from '@/hooks/useSchedule';
@@ -32,10 +32,12 @@ export function DailyPage({ date, onDateChange, quickLogOpen, onQuickLogOpenChan
   const [blockForm, setBlockForm] = useState<{ open: boolean; block: ScheduleBlock | null; startTime?: string }>({ open: false, block: null });
   const [logForm, setLogForm] = useState<{ open: boolean; log: TimeLog | null; startTime?: string }>({ open: false, log: null });
   const [rolloverOpen, setRolloverOpen] = useState(false);
+  const [menuFilter, setMenuFilter] = useState<'all' | 'recurring' | 'one-off'>('all');
+  const [quickAddTitle, setQuickAddTitle] = useState('');
 
   const { blocks, isLoading: blocksLoading } = useScheduleBlocks(date);
   const { logs, isLoading: logsLoading } = useTimeLogs(date);
-  const { intentions } = useIntentions('active');
+  const { intentions, create: createIntention } = useIntentions('active');
   const { categories } = useCategories();
   const schedule = useScheduleMutations();
   const timeLogs = useTimeLogs(date);
@@ -201,6 +203,20 @@ export function DailyPage({ date, onDateChange, quickLogOpen, onQuickLogOpenChan
 
   const weekDates = useMemo(() => Array.from({ length: 7 }, (_, i) => addDaysISO(date, i - 3)), [date]);
 
+  const menuIntentions = useMemo(
+    () => intentions.filter((item) => menuFilter === 'all' || (menuFilter === 'recurring') === item.isRecurring),
+    [intentions, menuFilter],
+  );
+  const recurringCount = intentions.filter((item) => item.isRecurring).length;
+  const oneOffCount = intentions.length - recurringCount;
+
+  const submitQuickAdd = async () => {
+    const title = quickAddTitle.trim();
+    if (!title) return;
+    await createIntention.mutateAsync({ title, categoryId: null, isRecurring: false, defaultDurationMins: null });
+    setQuickAddTitle('');
+  };
+
   return (
     <div className="space-y-5">
       <section className="card relative overflow-hidden p-5">
@@ -232,17 +248,48 @@ export function DailyPage({ date, onDateChange, quickLogOpen, onQuickLogOpenChan
           </div>
         </div>
         <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {[
-            { label: 'Intent Target', value: formatDuration(summary.plannedMins), icon: CalendarClock },
-            { label: 'Tracked Reality', value: formatDuration(summary.actualMins), icon: Timer },
-            { label: 'Alignment', value: `${summary.alignment}%`, icon: TrendingUp },
-            { label: 'Unplanned Drift', value: formatDuration(summary.unplannedMins), icon: Zap },
-          ].map((stat) => (
-            <div key={stat.label} className="rounded-xl border border-border bg-surface-low p-3">
-              <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-text-muted"><span>{stat.label}</span><stat.icon size={15} /></div>
-              <div className="mt-1 text-xl font-bold text-text">{stat.value}</div>
+          <div className="flex items-center justify-between rounded-xl border border-border bg-surface-low p-3">
+            <div className="flex flex-col">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-text-muted">Intent Target</span>
+              <span className="mt-0.5 text-lg font-bold text-text">{formatDuration(summary.plannedMins)}</span>
             </div>
-          ))}
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-high text-text-muted">
+              <CalendarClock size={16} />
+            </div>
+          </div>
+          <div className="flex items-center justify-between rounded-xl border border-border bg-surface-low p-3">
+            <div className="flex flex-col">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-text-muted">Tracked Reality</span>
+              <span className="mt-0.5 text-lg font-bold text-accent">{formatDuration(summary.actualMins)}</span>
+            </div>
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent-soft text-accent">
+              <Timer size={16} />
+            </div>
+          </div>
+          <div className="flex items-center justify-between rounded-xl border border-border bg-surface-low p-3">
+            <div className="flex flex-col">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-text-muted">Alignment Pacing</span>
+              <div className="mt-0.5 flex items-center gap-1.5">
+                <span className="text-lg font-bold text-success">{summary.alignment}% Harmony</span>
+                <TrendingUp size={15} className="text-success" />
+              </div>
+            </div>
+            <div className="flex h-6 w-12 items-center">
+              <svg className="h-full w-full overflow-visible text-success" viewBox="0 0 48 20" fill="none">
+                <path d="M2 14 Q 14 6, 24 10 T 46 4" stroke="currentColor" strokeLinecap="round" strokeWidth="2.5" />
+                <circle cx="46" cy="4" r="2.5" fill="currentColor" />
+              </svg>
+            </div>
+          </div>
+          <div className="flex items-center justify-between rounded-xl border border-border bg-surface-low p-3">
+            <div className="flex flex-col">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-text-muted">Mindful Drift</span>
+              <span className="mt-0.5 text-lg font-bold text-text-muted">{formatDuration(summary.unplannedMins)} Ad-hoc</span>
+            </div>
+            <span className="rounded-full bg-surface-high px-2 py-0.5 text-[10px] font-bold text-text-muted">
+              {summary.unplannedMins === 0 ? 'On Track' : 'Gentle Pace'}
+            </span>
+          </div>
         </div>
       </section>
 
@@ -275,12 +322,47 @@ export function DailyPage({ date, onDateChange, quickLogOpen, onQuickLogOpenChan
 
         <aside className="space-y-3">
           <div className="card p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-sm font-bold text-text">Intentions Menu</h2>
+            <div className="mb-1 flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <h2 className="text-sm font-bold text-text">Intentions Menu</h2>
+                <span className="rounded-full bg-surface-high px-2 py-0.5 text-[10px] font-bold text-text-muted">{intentions.length} items</span>
+              </div>
               <button onClick={onOpenIntentions} className="text-xs font-semibold text-accent hover:underline">Manage</button>
             </div>
-            <div className="max-h-[520px] space-y-2 overflow-y-auto pr-1">
-              {intentions.slice(0, 30).map((item) => {
+            <p className="mb-3 text-[11px] text-text-muted">Drag intentions onto open Intent slots in the timeline.</p>
+            <div className="mb-3 grid grid-cols-3 gap-0.5 rounded-lg bg-surface-low p-0.5 text-[11px]">
+              {([
+                ['all', `All (${intentions.length})`],
+                ['recurring', `Recurring (${recurringCount})`],
+                ['one-off', `One-Off (${oneOffCount})`],
+              ] as const).map(([key, label]) => (
+                <button
+                  key={key}
+                  onClick={() => setMenuFilter(key)}
+                  className={clsx(
+                    'rounded-md px-1 py-1 font-semibold transition',
+                    menuFilter === key ? 'border border-border-strong bg-surface text-text shadow-sm' : 'text-text-muted hover:text-text',
+                  )}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <div className="mb-3 flex items-center gap-1.5 rounded-lg border border-border bg-surface px-2.5 py-1.5 shadow-xs transition focus-within:border-accent">
+              <Plus size={14} className="shrink-0 text-accent" />
+              <input
+                value={quickAddTitle}
+                onChange={(event) => setQuickAddTitle(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') void submitQuickAdd();
+                }}
+                placeholder="Quick add intention…"
+                className="w-full bg-transparent text-xs text-text placeholder:text-text-subtle focus:outline-none"
+              />
+              <kbd className="rounded border border-border bg-surface-low px-1.5 py-0.5 text-[9px] font-bold text-text-muted">↵</kbd>
+            </div>
+            <div className="max-h-[380px] space-y-2 overflow-y-auto pr-1">
+              {menuIntentions.slice(0, 30).map((item) => {
                 const category = categories.find((entry) => entry.id === item.categoryId);
                 return (
                   <div
@@ -301,8 +383,26 @@ export function DailyPage({ date, onDateChange, quickLogOpen, onQuickLogOpenChan
                   </div>
                 );
               })}
-              {intentions.length === 0 && <p className="text-xs text-text-muted">No active intentions. Create some in the Intentions view.</p>}
+              {menuIntentions.length === 0 && (
+                <p className="text-xs text-text-muted">
+                  {intentions.length === 0 ? 'No active intentions. Create some in the Intentions view.' : 'No intentions match this filter.'}
+                </p>
+              )}
             </div>
+          </div>
+          <div className="rounded-xl bg-surface-low p-3 shadow-sm">
+            <div className="mb-1 flex items-center justify-between text-text-muted">
+              <div className="flex items-center gap-1.5">
+                <Leaf size={13} className="text-accent" />
+                <span className="text-[10px] font-bold uppercase tracking-wider">Gentle Observation</span>
+              </div>
+              <span className="text-[10px] font-semibold">Local SQLite</span>
+            </div>
+            <p className="text-[11px] font-medium italic text-text">
+              {summary.plannedMins === 0
+                ? 'An open day. Drag an intention onto the timeline to set an intention.'
+                : `${summary.alignment}% harmony today — ${formatDuration(summary.actualMins)} tracked against ${formatDuration(summary.plannedMins)} planned.`}
+            </p>
           </div>
           <Button variant="secondary" className="w-full" onClick={() => openBlockForm()}><Plus size={15} /> Plan a block manually</Button>
         </aside>

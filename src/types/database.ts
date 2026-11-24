@@ -1,5 +1,5 @@
 export type ThemeMode = 'light' | 'dark' | 'system';
-export type AccentPreset = 'ember' | 'indigo' | 'emerald' | 'rose' | 'violet';
+export type AccentPreset = 'ember' | 'indigo' | 'emerald' | 'rose' | 'violet' | 'graphite';
 export type TaskStatus = 'active' | 'archived';
 export type ScheduleStatus = 'planned' | 'completed' | 'missed' | 'dismissed' | 'rolled';
 export type TimeLogMood = 'restorative' | 'energizing' | 'distraction' | 'firefight';

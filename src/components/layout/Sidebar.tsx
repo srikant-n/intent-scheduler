@@ -19,6 +19,7 @@ const accents: { key: AccentPreset; label: string; color: string }[] = [
   { key: 'emerald', label: 'Emerald', color: '#059669' },
   { key: 'rose', label: 'Rose', color: '#e11d48' },
   { key: 'violet', label: 'Violet', color: '#7c3aed' },
+  { key: 'graphite', label: 'Graphite', color: '#4b5563' },
 ];
 
 const themes: { key: ThemeMode; label: string }[] = [

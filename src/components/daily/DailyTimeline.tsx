@@ -1,7 +1,8 @@
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { CheckCircle2, RefreshCw, Sparkles, Zap } from 'lucide-react';
 import type { Category, EnrichedScheduleBlock, EnrichedTimeLog, Intention, ScheduleBlock, TimeLog } from '@/types/database';
 import { categoryById } from '@/hooks/useCategories';
-import { formatDuration, formatTime12, minutesToTime, timeToMinutes } from '@/utils/time';
+import { formatDuration, formatTime12, minutesToTime, timeToMinutes, todayISO } from '@/utils/time';
 import { getDragSourceHeight, setDragSourceHeight, BLOCK_DRAG_MIME, LOG_DRAG_MIME } from '@/utils/dragContext';
 import clsx from 'clsx';
 
@@ -25,6 +26,7 @@ interface DailyTimelineProps {
 const SNAP = 15;
 
 export function DailyTimeline({
+  date,
   blocks,
   logs,
   categories,
@@ -49,6 +51,23 @@ export function DailyTimeline({
   const hours = useMemo(() => Array.from({ length: Math.floor(totalMinutes / 60) + 1 }, (_, i) => startMinutes + i * 60), [startMinutes, totalMinutes]);
   const untimedLogs = logs.filter((log) => !log.startTime);
   const timedLogs = logs.filter((log) => log.startTime);
+  const visibleBlocks = blocks.filter((block) => block.status !== 'dismissed' && block.status !== 'rolled');
+
+  const [nowMinutes, setNowMinutes] = useState(() => {
+    const now = new Date();
+    return now.getHours() * 60 + now.getMinutes();
+  });
+  const isToday = date === todayISO();
+  useEffect(() => {
+    if (!isToday) return;
+    const interval = window.setInterval(() => {
+      const now = new Date();
+      setNowMinutes(now.getHours() * 60 + now.getMinutes());
+    }, 30_000);
+    return () => window.clearInterval(interval);
+  }, [isToday]);
+  const showNowLine = isToday && nowMinutes >= startMinutes && nowMinutes <= endMinutes;
+  const nowTop = ((nowMinutes - startMinutes) / totalMinutes) * height;
 
   const timeFromEvent = (event: React.DragEvent<HTMLElement> | React.MouseEvent<HTMLElement>, ref: HTMLDivElement | null) => {
     if (!ref) return minutesToTime(startMinutes);
@@ -102,134 +121,216 @@ export function DailyTimeline({
     return { top, height: h };
   };
 
+  const trackGridLines = hours.map((minutes) => (
+    <div
+      key={minutes}
+      className={clsx('absolute left-0 right-0 timeline-grid-line', minutes !== startMinutes && 'timeline-hour-line')}
+      style={{ top: ((minutes - startMinutes) / totalMinutes) * height }}
+    />
+  ));
+
   return (
     <div className="card overflow-hidden">
-      <div className="grid grid-cols-[64px_1fr_1fr] border-b border-border bg-surface-low/70">
-        <div className="px-3 py-3 text-[11px] font-bold uppercase tracking-wider text-text-subtle">Time</div>
-        <div className="border-l border-border px-3 py-3">
-          <div className="text-xs font-bold uppercase tracking-wider text-text">Intent</div>
-          <div className="text-[11px] text-text-subtle">Planned schedule</div>
-        </div>
-        <div className="border-l border-border px-3 py-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-xs font-bold uppercase tracking-wider text-text">Reality</div>
-              <div className="text-[11px] text-text-subtle">Actual executed</div>
-            </div>
-            <span className="rounded-full bg-success-soft px-2 py-0.5 text-[10px] font-bold text-success">Live</span>
+      {/* Track header labels */}
+      <div className="grid grid-cols-[minmax(0,1fr)_64px_minmax(0,1fr)] items-center gap-2 border-b border-border bg-surface-low/70 px-3 py-3">
+        <div className="flex min-w-0 items-center justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-1.5">
+            <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-text-subtle" />
+            <span className="text-xs font-bold uppercase tracking-wider text-text">Intent</span>
+            <span className="truncate text-[11px] text-text-muted">(Planned Schedule)</span>
           </div>
+          <span className="ml-2 shrink-0 text-[11px] font-semibold text-text-muted">{visibleBlocks.length} Blocks</span>
+        </div>
+        <div className="text-center text-[10px] font-bold uppercase tracking-widest text-text-subtle">Time Ruler</div>
+        <div className="flex min-w-0 items-center justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-1.5">
+            <span className="inline-flex items-center gap-1 rounded-full bg-success-soft px-2 py-0.5 text-[10px] font-bold text-success">
+              <Sparkles size={10} /> On Intent
+            </span>
+            <span className="text-xs font-bold uppercase tracking-wider text-text">Reality</span>
+            <span className="truncate text-[11px] text-text-muted">(Actual Executed)</span>
+          </div>
+          <span className="ml-2 flex shrink-0 items-center gap-1 text-[11px] font-semibold text-success">
+            <RefreshCw size={12} /> Live Synced
+          </span>
         </div>
       </div>
 
-      <div className="grid grid-cols-[64px_1fr_1fr]">
-        <div className="relative" style={{ height }}>
-          {hours.map((minutes) => (
-            <div key={minutes} className="absolute right-2 -translate-y-1/2 text-[10px] text-text-subtle" style={{ top: ((minutes - startMinutes) / totalMinutes) * height }}>
-              {formatTime12(minutesToTime(minutes))}
-            </div>
-          ))}
-        </div>
-
-        <div
-          ref={plannedRef}
-          className="relative border-l border-border"
-          style={{ height }}
-          onDragOver={(event) => event.preventDefault()}
-          onDrop={(event) => handleDrop(event, plannedRef.current)}
-          onClick={(event) => {
-            if (Date.now() < suppressClickUntil.current) return;
-            onPlannedSlotClick(timeFromEvent(event, plannedRef.current));
-          }}
-        >
-          {hours.map((minutes) => (
-            <div key={minutes} className={clsx('absolute left-0 right-0 timeline-grid-line', minutes !== startMinutes && 'timeline-hour-line')} style={{ top: ((minutes - startMinutes) / totalMinutes) * height }} />
-          ))}
-          {blocks
-            .filter((block) => block.status !== 'dismissed' && block.status !== 'rolled')
-            .map((block) => {
+      {/* Timeline canvas */}
+      <div className="relative">
+        <div className="grid grid-cols-[minmax(0,1fr)_64px_minmax(0,1fr)]">
+          {/* Intent track */}
+          <div
+            ref={plannedRef}
+            className="relative border-r border-border"
+            style={{ height }}
+            onDragOver={(event) => event.preventDefault()}
+            onDrop={(event) => handleDrop(event, plannedRef.current)}
+            onClick={(event) => {
+              if (Date.now() < suppressClickUntil.current) return;
+              onPlannedSlotClick(timeFromEvent(event, plannedRef.current));
+            }}
+          >
+            {trackGridLines}
+            {visibleBlocks.map((block) => {
               const task = block.task;
               const category = categoryById(categories, task?.categoryId);
+              const accent = category?.colorHex ?? 'var(--accent)';
               const style = blockStyle(block.startTime, block.plannedDurationMins);
               const linkedLogs = logs.filter((log) => log.scheduleBlockId === block.id);
               const actualMins = linkedLogs.reduce((sum, log) => sum + log.durationMins, 0);
               const variance = actualMins - block.plannedDurationMins;
               return (
-                <button
-                  key={block.id}
-                  type="button"
-                  draggable
-                  onDragStart={(event) => {
-                    setDragSourceHeight(event.currentTarget.getBoundingClientRect().height);
-                    event.dataTransfer.setData(BLOCK_DRAG_MIME, JSON.stringify(block));
-                    event.dataTransfer.effectAllowed = 'move';
-                  }}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    if (Date.now() < suppressClickUntil.current) return;
-                    onBlockClick(block);
-                  }}
-                  className={clsx('timeline-block timeline-block-planned px-2 py-1.5 text-left', block.status === 'completed' && 'border-success/60')}
-                  style={{ ...style, borderColor: category?.colorHex ?? 'var(--border-strong)' }}
-                >
-                  <div className="flex items-center justify-between gap-1">
-                    <span className="truncate text-xs font-bold text-text">{task?.title ?? 'Planned block'}</span>
-                    {block.status === 'completed' && <span className="text-[10px] font-bold text-success">Done</span>}
-                  </div>
-                  <div className="mt-0.5 flex items-center justify-between text-[10px] text-text-muted">
-                    <span>{formatTime12(block.startTime)} – {formatTime12(block.endTime)}</span>
-                    <span>{formatDuration(block.plannedDurationMins)}</span>
-                  </div>
-                  {actualMins > 0 && (
-                    <div className={clsx('mt-1 text-[10px] font-semibold', variance >= 0 ? 'text-warning' : 'text-success')}>
-                      Actual {formatDuration(actualMins)} ({variance >= 0 ? '+' : ''}{formatDuration(variance)})
+                <div key={block.id} className="absolute left-1 right-1" style={style}>
+                  <button
+                    type="button"
+                    draggable
+                    onDragStart={(event) => {
+                      setDragSourceHeight(event.currentTarget.getBoundingClientRect().height);
+                      event.dataTransfer.setData(BLOCK_DRAG_MIME, JSON.stringify(block));
+                      event.dataTransfer.effectAllowed = 'move';
+                    }}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      if (Date.now() < suppressClickUntil.current) return;
+                      onBlockClick(block);
+                    }}
+                    className="flex h-full w-full cursor-grab flex-col justify-between rounded-lg border border-dashed p-1.5 text-left shadow-xs transition hover:shadow-sm active:cursor-grabbing"
+                    style={{
+                      borderColor: `${accent}88`,
+                      backgroundColor: `color-mix(in srgb, ${accent} 10%, var(--surface))`,
+                    }}
+                  >
+                    <div className="flex items-start justify-between gap-1">
+                      <div className="flex min-w-0 items-center gap-1.5">
+                        {block.status === 'completed' ? (
+                          <CheckCircle2 size={13} className="shrink-0 text-success" />
+                        ) : (
+                          <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: accent }} />
+                        )}
+                        <span className="truncate text-[11px] font-bold text-text">{task?.title ?? 'Planned block'}</span>
+                      </div>
+                      {category && (
+                        <span
+                          className="inline-flex shrink-0 items-center gap-1 rounded-full border px-1.5 py-px text-[9px] font-bold tracking-wide"
+                          style={{ color: accent, borderColor: `${accent}55`, backgroundColor: `${accent}1f` }}
+                        >
+                          <span className="h-1 w-1 rounded-full" style={{ backgroundColor: accent }} />
+                          {category.name}
+                        </span>
+                      )}
                     </div>
-                  )}
-                </button>
+                    <div className="flex items-center justify-between text-[10px] font-medium text-text-muted">
+                      <span>
+                        {formatTime12(block.startTime)} – {formatTime12(block.endTime)}
+                      </span>
+                      <span>{formatDuration(block.plannedDurationMins)}</span>
+                    </div>
+                    {actualMins > 0 && (
+                      <div className={clsx('text-[10px] font-semibold', variance >= 0 ? 'text-warning' : 'text-success')}>
+                        Actual {formatDuration(actualMins)} ({variance >= 0 ? '+' : ''}{formatDuration(variance)})
+                      </div>
+                    )}
+                  </button>
+                </div>
               );
             })}
+          </div>
+
+          {/* Time ruler */}
+          <div className="relative border-x border-border" style={{ height }}>
+            {trackGridLines}
+            {hours.map((minutes) => (
+              <div
+                key={minutes}
+                className={clsx(
+                  'absolute left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10px] font-semibold',
+                  minutes === startMinutes ? 'text-text-subtle' : 'text-text-muted',
+                )}
+                style={{ top: ((minutes - startMinutes) / totalMinutes) * height }}
+              >
+                {formatTime12(minutesToTime(minutes))}
+              </div>
+            ))}
+          </div>
+
+          {/* Reality track */}
+          <div
+            ref={actualRef}
+            className="relative"
+            style={{ height }}
+            onDragOver={(event) => event.preventDefault()}
+            onDrop={handleLogDrop}
+            onClick={(event) => {
+              if (Date.now() < suppressClickUntil.current) return;
+              onActualSlotClick(timeFromEvent(event, actualRef.current));
+            }}
+          >
+            {trackGridLines}
+            {timedLogs.map((log) => {
+              const start = log.startTime ?? minutesToTime(startMinutes);
+              const category = log.displayCategory;
+              const accent = category?.colorHex ?? 'var(--accent)';
+              const style = blockStyle(start, log.durationMins);
+              const onIntent = Boolean(log.scheduleBlockId);
+              return (
+                <div key={log.id} className="absolute left-1 right-1" style={style}>
+                  <button
+                    type="button"
+                    draggable
+                    onDragStart={(event) => {
+                      setDragSourceHeight(event.currentTarget.getBoundingClientRect().height);
+                      event.dataTransfer.setData(LOG_DRAG_MIME, JSON.stringify(log));
+                      event.dataTransfer.effectAllowed = 'move';
+                    }}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      if (Date.now() < suppressClickUntil.current) return;
+                      onLogClick(log);
+                    }}
+                    className="flex h-full w-full cursor-grab flex-col justify-between rounded-lg border border-border bg-surface-high p-1.5 text-left shadow-xs transition hover:shadow-sm active:cursor-grabbing"
+                  >
+                    <div className="flex items-start justify-between gap-1">
+                      <div className="flex min-w-0 items-center gap-1.5">
+                        <span className="h-3.5 w-1 shrink-0 rounded-full" style={{ backgroundColor: accent }} />
+                        <span className="truncate text-[11px] font-bold text-text">{log.displayTitle}</span>
+                      </div>
+                      {onIntent ? (
+                        <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-success-soft px-1.5 py-px text-[9px] font-bold tracking-wide text-success">
+                          <Sparkles size={9} /> On Intent
+                        </span>
+                      ) : (
+                        <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-accent-soft px-1.5 py-px text-[9px] font-bold tracking-wide text-accent">
+                          <Zap size={9} /> Unplanned
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between text-[10px] font-medium text-text-muted">
+                      <span>
+                        {formatTime12(log.startTime)} – {formatTime12(log.endTime)}
+                      </span>
+                      <span>Actual: {formatDuration(log.durationMins)}</span>
+                    </div>
+                  </button>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
-        <div
-          ref={actualRef}
-          className="relative border-l border-border"
-          style={{ height }}
-          onDragOver={(event) => event.preventDefault()}
-          onDrop={handleLogDrop}
-          onClick={(event) => {
-            if (Date.now() < suppressClickUntil.current) return;
-            onActualSlotClick(timeFromEvent(event, actualRef.current));
-          }}
-        >
-          {hours.map((minutes) => (
-            <div key={minutes} className={clsx('absolute left-0 right-0 timeline-grid-line', minutes !== startMinutes && 'timeline-hour-line')} style={{ top: ((minutes - startMinutes) / totalMinutes) * height }} />
-          ))}
-          {timedLogs.map((log) => {
-            const start = log.startTime ?? minutesToTime(startMinutes);
-            const category = log.displayCategory;
-            const style = blockStyle(start, log.durationMins);
-            return (
-              <button
-                key={log.id}
-                type="button"
-                draggable
-                onDragStart={(event) => {
-                  setDragSourceHeight(event.currentTarget.getBoundingClientRect().height);
-                  event.dataTransfer.setData(LOG_DRAG_MIME, JSON.stringify(log));
-                  event.dataTransfer.effectAllowed = 'move';
-                }}
-                onClick={(event) => { event.stopPropagation(); onLogClick(log); }}
-                className="timeline-block timeline-block-actual cursor-grab px-2 py-1.5 text-left active:cursor-grabbing"
-                style={{ ...style, borderColor: category?.colorHex ?? 'var(--accent)' }}
-              >
-                <div className="truncate text-xs font-bold text-text">{log.displayTitle}</div>
-                <div className="mt-0.5 flex items-center justify-between text-[10px] text-text-muted">
-                  <span>{formatTime12(log.startTime)} – {formatTime12(log.endTime)}</span>
-                  <span>{formatDuration(log.durationMins)}</span>
-                </div>
-              </button>
-            );
-          })}
-        </div>
+        {/* Live "now" marker across all tracks */}
+        {showNowLine && (
+          <div className="pointer-events-none absolute left-0 right-0 z-20" style={{ top: nowTop }}>
+            <div className="relative flex items-center">
+              <div className="h-0.5 flex-1 bg-accent/60" />
+              <div className="mx-2 flex items-center gap-1.5 rounded-full bg-accent px-2.5 py-0.5 text-[10px] font-bold text-accent-contrast shadow-sm">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent-contrast" />
+                Now: {formatTime12(minutesToTime(nowMinutes))}
+              </div>
+              <div className="h-0.5 flex-1 bg-accent/60" />
+            </div>
+          </div>
+        )}
       </div>
 
       {untimedLogs.length > 0 && (

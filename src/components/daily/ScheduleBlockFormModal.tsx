@@ -44,15 +44,18 @@ export function ScheduleBlockFormModal({ open, onClose, date, block, tasks, cate
 
   useEffect(() => {
     if (!open) return;
+    const initialTaskId = block?.taskId ?? defaultTaskId ?? tasks[0]?.id ?? '';
+    const initialTask = tasks.find((item) => item.id === initialTaskId);
     const start = block?.startTime ?? defaultStartTime ?? '09:00';
-    const end = block?.endTime ?? minutesToTime(timeToMinutes(start) + (block?.plannedDurationMins ?? task?.defaultDurationMins ?? 60));
-    setTaskId(block?.taskId ?? defaultTaskId ?? tasks[0]?.id ?? '');
+    const fallbackDuration = initialTask?.defaultDurationMins ?? 60;
+    const end = block?.endTime ?? minutesToTime(timeToMinutes(start) + (block?.plannedDurationMins ?? fallbackDuration));
+    setTaskId(initialTaskId);
     setStartTime(start);
     setEndTime(end);
-    setDuration(String(block?.plannedDurationMins ?? (start && end ? Math.max(1, timeToMinutes(end) - timeToMinutes(start)) : task?.defaultDurationMins ?? 60)));
+    setDuration(String(block?.plannedDurationMins ?? (start && end ? Math.max(1, timeToMinutes(end) - timeToMinutes(start)) : fallbackDuration)));
     setNotes(block?.notes ?? '');
     setStatus(block?.status ?? 'planned');
-  }, [open, block, tasks, defaultStartTime, defaultTaskId, task?.defaultDurationMins]);
+  }, [open, block, tasks, defaultStartTime, defaultTaskId]);
 
   const updateEndFromDuration = (value: string) => {
     setDuration(value);

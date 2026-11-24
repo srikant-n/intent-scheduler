@@ -375,7 +375,7 @@ export function IntentionsPage() {
             <form onSubmit={quickAdd} className="flex flex-col gap-3">
               <div className="flex flex-col gap-1">
                 <label className="text-[10px] font-bold uppercase tracking-wider text-text-subtle">Task Title</label>
-                <Input autoFocus value={quickTitle} onChange={(e) => setQuickTitle(e.target.value)} placeholder="e.g. Draft quarterly retrospective" required />
+                <Input autoFocus value={quickTitle} onChange={(e) => setQuickTitle(e.target.value)} placeholder="e.g. Read a book" required />
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-[10px] font-bold uppercase tracking-wider text-text-subtle">Category Taxonomy</label>
@@ -433,7 +433,7 @@ export function IntentionsPage() {
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-[10px] font-bold uppercase tracking-wider text-text-subtle">Notes (Optional)</label>
-                <Input value={quickNotes} onChange={(e) => setQuickNotes(e.target.value)} placeholder="Key deliverable or link..." />
+                <Input value={quickNotes} onChange={(e) => setQuickNotes(e.target.value)} placeholder="Optional context or sub-intent" />
               </div>
               <div className="flex flex-col gap-1.5 pt-1">
                 <Button type="submit" variant="primary" className="w-full" disabled={quickSaving || !quickTitle.trim()}>

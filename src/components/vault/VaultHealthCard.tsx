@@ -1,22 +1,10 @@
 import { useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import { invoke } from '@tauri-apps/api/core';
 import { CheckCircle2, Copy, Database, FolderOpen, ShieldCheck, Sparkles } from 'lucide-react';
 import clsx from 'clsx';
 import { Button } from '@/components/common/Button';
-import { Modal } from '@/components/common/Modal';
 import { useVaultHealth } from '@/hooks/useVault';
-import { vacuumDatabase } from '@/db/queries';
 import { formatBytes } from '@/utils/vault';
-
-const PRAGMA_LABELS: Record<string, string> = {
-  journal_mode: 'journal_mode',
-  synchronous: 'synchronous',
-  cache_size: 'cache_size',
-  foreign_keys: 'foreign_keys',
-  auto_vacuum: 'auto_vacuum',
-  page_size: 'page_size',
-};
 
 interface VaultHealthCardProps {
   onNotify: (message: string, kind?: 'success' | 'error') => void;
@@ -37,11 +25,8 @@ function relativeTime(iso: string | null): string {
 }
 
 export function VaultHealthCard({ onNotify }: VaultHealthCardProps) {
-  const queryClient = useQueryClient();
   const healthQuery = useVaultHealth();
   const health = healthQuery.data;
-  const [vacuuming, setVacuuming] = useState(false);
-  const [pragmaOpen, setPragmaOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const integrityOk = health?.integrity === 'ok';
@@ -49,19 +34,6 @@ export function VaultHealthCard({ onNotify }: VaultHealthCardProps) {
     .filter((value): value is string => Boolean(value))
     .sort()
     .pop() ?? null;
-
-  const runVacuum = async () => {
-    setVacuuming(true);
-    try {
-      await vacuumDatabase();
-      await queryClient.invalidateQueries({ queryKey: ['vault'] });
-      onNotify('VACUUM complete: database compacted and optimized');
-    } catch (error) {
-      onNotify(error instanceof Error ? error.message : 'VACUUM failed', 'error');
-    } finally {
-      setVacuuming(false);
-    }
-  };
 
   const revealExplorer = async () => {
     try {
@@ -145,10 +117,6 @@ export function VaultHealthCard({ onNotify }: VaultHealthCardProps) {
             <Button variant="secondary" size="sm" onClick={revealExplorer} disabled={!health?.fileInfo?.path}>
               <FolderOpen size={15} /> Open in File Explorer
             </Button>
-            <Button variant="secondary" size="sm" onClick={runVacuum} disabled={vacuuming || healthQuery.isLoading}>
-              <Sparkles size={15} className={vacuuming ? 'animate-spin' : ''} />
-              {vacuuming ? 'Optimizing…' : 'Vacuum & Defrag'}
-            </Button>
           </div>
         </div>
 
@@ -185,7 +153,7 @@ export function VaultHealthCard({ onNotify }: VaultHealthCardProps) {
 
           <div className="grid grid-cols-2 gap-2">
             {metrics.map((metric) => (
-              <div key={metric.label} className="rounded-lg bg-surface p-2.5">
+              <div key={metric.label} className="rounded-lg bg-surface-low p-2.5">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-medium text-text">{metric.label}</span>
                   <span className={clsx('h-2 w-2 rounded-full', metric.dot)} />
@@ -196,22 +164,8 @@ export function VaultHealthCard({ onNotify }: VaultHealthCardProps) {
             ))}
           </div>
 
-          <Button variant="secondary" size="sm" className="self-start" onClick={() => setPragmaOpen(true)}>
-            View PRAGMA Specs
-          </Button>
         </div>
       </div>
-
-      <Modal open={pragmaOpen} onClose={() => setPragmaOpen(false)} title="SQLite PRAGMA Configuration" subtitle="Live values read from the running database connection.">
-        <div className="space-y-2">
-          {Object.entries(PRAGMA_LABELS).map(([key, label]) => (
-            <div key={key} className="flex items-center justify-between rounded-lg bg-surface-low px-3 py-2 text-sm">
-              <span className="font-mono text-text-muted">{label}</span>
-              <span className="font-mono font-bold text-text">{health?.pragmas[key] || '—'}</span>
-            </div>
-          ))}
-        </div>
-      </Modal>
     </section>
   );
 }

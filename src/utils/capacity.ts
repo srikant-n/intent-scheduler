@@ -1,13 +1,13 @@
 export const WEEKLY_CAPACITY_KEY = 'weekly_capacity_minutes';
 
 export const DEFAULT_WEEKLY_CAPACITY: Record<number, number> = {
-  1: 360,
-  2: 360,
-  3: 360,
-  4: 360,
-  5: 360,
-  6: 240,
-  7: 180,
+  1: 180,
+  2: 180,
+  3: 180,
+  4: 180,
+  5: 180,
+  6: 120,
+  7: 90,
 };
 
 export const WEEKDAY_LABELS: Record<number, string> = {

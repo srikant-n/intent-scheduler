@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
-import { AlertTriangle, CheckCircle2, Database, Lock, ShieldCheck } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Lock, ShieldCheck } from 'lucide-react';
 import { VaultHealthCard } from '@/components/vault/VaultHealthCard';
 import { ExportVaultCard } from '@/components/vault/ExportVaultCard';
 import { RestoreVaultCard } from '@/components/vault/RestoreVaultCard';
 import { ClearVaultCard } from '@/components/vault/ClearVaultCard';
-import { useVaultHealth } from '@/hooks/useVault';
 import clsx from 'clsx';
 
 interface ToastState {
@@ -14,8 +13,6 @@ interface ToastState {
 
 export function VaultPage() {
   const [toast, setToast] = useState<ToastState | null>(null);
-  const healthQuery = useVaultHealth();
-  const journalMode = healthQuery.data?.pragmas.journal_mode;
 
   const notify = useCallback((message: string, kind: 'success' | 'error' = 'success') => {
     setToast({ message, kind });
@@ -48,11 +45,7 @@ export function VaultPage() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
             </span>
-            <span className="text-xs font-semibold text-text">SQLite Engine Active</span>
-          </div>
-          <div className="flex items-center gap-1.5 rounded-full bg-surface-high px-3 py-1.5 text-xs font-semibold text-text-muted">
-            <Database size={14} className="text-accent" />
-            <span>{journalMode ? `${journalMode.toUpperCase()} Mode` : 'WAL Mode'} Enabled</span>
+            <span className="text-xs font-semibold text-text">Local</span>
           </div>
         </div>
       </section>
@@ -62,8 +55,8 @@ export function VaultPage() {
         <RestoreVaultCard onNotify={notify} />
       </section>
 
-      <VaultHealthCard onNotify={notify} />
       <ClearVaultCard onNotify={notify} />
+      <VaultHealthCard onNotify={notify} />
 
       <section className="flex flex-col items-center justify-between gap-4 rounded-xl border border-border bg-surface-low p-5 lg:flex-row">
         <div className="flex items-center gap-4">

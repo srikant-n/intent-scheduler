@@ -86,7 +86,15 @@ export function TimeLogFormModal({ open, onClose, date, log, tasks, categories, 
       <form onSubmit={submit} className="space-y-4">
         <div className="grid gap-4 md:grid-cols-2">
           <Field label="Link intention (optional)">
-            <Select value={taskId} onChange={(e) => setTaskId(e.target.value)}>
+            <Select
+              value={taskId}
+              onChange={(e) => {
+                const nextTaskId = e.target.value;
+                setTaskId(nextTaskId);
+                const task = tasks.find((item) => item.id === nextTaskId);
+                if (task) setCategoryId(task.categoryId ?? '');
+              }}
+            >
               <option value="">Ad-hoc / custom</option>
               {tasks.map((task) => <option key={task.id} value={task.id}>{task.title}</option>)}
             </Select>

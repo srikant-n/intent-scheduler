@@ -176,7 +176,7 @@ export function ExportVaultCard({ onNotify }: ExportVaultCardProps) {
 
       <div className="flex items-center gap-2 border-t border-border pt-3 text-xs text-text-muted">
         <FileJson size={14} className="text-success" />
-        <span>Exports are compiled completely on-device; no payload is transmitted across networks.</span>
+        <span>Everything happens locally on your device—nothing is sent over the internet.</span>
       </div>
     </section>
   );
