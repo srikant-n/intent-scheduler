@@ -98,11 +98,11 @@ See the full specification in [`Docs/Personal Task & Time Tracker - Application 
 
 All primary keys are UUID v4 strings; dates (`YYYY-MM-DD`) and timestamps (ISO-8601) are stored as text.
 
-Schema evolves via `src-tauri/migrations/` (currently v1–v3):
+Schema evolves via `src-tauri/migrations/` (currently v1–v4):
 
 - **`app_settings`** — key/value preferences (theme, accent, weekly capacity JSON, vault event timestamps)
 - **`categories`** — `id`, `name` (unique), `color_hex`, `created_at`
-- **`tasks`** (Intentions) — `id`, `title`, `category_id`, `is_recurring`, `default_duration_mins`, `target_sessions_per_week`, `preferred_weekdays` (JSON array), `status` (`active`/`archived`), `notes`, `priority`, `created_at`
+- **`tasks`** (Intentions) — `id`, `title`, `category_id`, `is_recurring`, `default_duration_mins`, `target_sessions_per_week`, `preferred_weekdays` (JSON array), `preferred_time` (`HH:MM`), `status` (`active`/`archived`), `notes`, `priority`, `created_at`
 - **`schedule_blocks`** — the *intent*: `task_id`, `scheduled_date`, `start_time`, `end_time`, `planned_duration_mins`, `notes`, `status` (`planned`/`completed`/`missed`/`dismissed`/`rolled`), `rolled_from_block_id`
 - **`time_logs`** — the *reality*: nullable `task_id`/`schedule_block_id`/`custom_title`/`category_id` (supports ad-hoc logs), `log_date`, `start_time`, `end_time`, `duration_mins`, `notes`, `mood`, `is_ad_hoc`, `created_at`
 
@@ -131,7 +131,7 @@ npm run typecheck    # tsc --noEmit
 ```
 intent-scheduler/
 ├── src-tauri/
-│   ├── migrations/            # 001_initial_schema … 003_weekly_habit_analytics
+│   ├── migrations/            # 001_initial_schema … 004_habit_preferred_time
 │   └── src/lib.rs             # Custom commands: save_text_file, vault import/clear, DB health
 ├── src/
 │   ├── components/

@@ -97,6 +97,7 @@ vi.mock('@/components/weekly/WeeklyBoard', () => ({
       defaultDurationMins: 30,
       targetSessionsPerWeek: null,
       preferredWeekdays: [],
+      preferredTime: null,
       status: 'active',
       notes: null,
       priority: null,
@@ -251,6 +252,7 @@ function makeIntention(overrides: Partial<Intention> = {}): Intention {
     defaultDurationMins: 60,
     targetSessionsPerWeek: null,
     preferredWeekdays: [],
+    preferredTime: null,
     status: 'active',
     notes: null,
     priority: null,
@@ -399,6 +401,7 @@ describe('WeeklyPage', () => {
       defaultDurationMins: 30,
       targetSessionsPerWeek: 1,
       preferredWeekdays: [],
+      preferredTime: null,
     })];
     renderWeekly();
 

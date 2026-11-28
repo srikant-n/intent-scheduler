@@ -14,6 +14,7 @@ const tasks: Intention[] = [
     defaultDurationMins: 45,
     targetSessionsPerWeek: null,
     preferredWeekdays: [],
+    preferredTime: null,
     status: 'active',
     notes: null,
     priority: null,

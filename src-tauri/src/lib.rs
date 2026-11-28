@@ -1,7 +1,7 @@
 //! Tauri backend for Intent Scheduler.
 //!
 //! Responsibilities:
-//! - Register SQL migrations (001–003) on the `sqlite:tracker.db` plugin DB.
+//! - Register SQL migrations (001–004) on the `sqlite:tracker.db` plugin DB.
 //! - Expose filesystem commands used by the Data Vault (save text files,
 //!   report DB file size, reveal the DB in Explorer).
 //! - Perform vault import/clear inside a single rusqlite transaction on a
@@ -131,6 +131,7 @@ const VAULT_TABLES: &[(&str, &str, &[&str])] = &[
             "default_duration_mins",
             "target_sessions_per_week",
             "preferred_weekdays",
+            "preferred_time",
             "status",
             "notes",
             "priority",
@@ -341,6 +342,12 @@ pub fn run() {
             version: 3,
             description: "add_weekly_habit_analytics_fields",
             sql: include_str!("../migrations/003_weekly_habit_analytics.sql"),
+            kind: MigrationKind::Up,
+        },
+        Migration {
+            version: 4,
+            description: "add_habit_preferred_time",
+            sql: include_str!("../migrations/004_habit_preferred_time.sql"),
             kind: MigrationKind::Up,
         },
     ];

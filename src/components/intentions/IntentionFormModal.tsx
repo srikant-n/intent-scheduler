@@ -12,6 +12,7 @@ export interface IntentionFormValues {
   defaultDurationMins: number | null;
   targetSessionsPerWeek: number | null;
   preferredWeekdays: number[];
+  preferredTime: string | null;
   notes: string;
   priority: string;
 }
@@ -45,6 +46,7 @@ export function IntentionFormModal({ open, onClose, intention, categories, onSav
   const [duration, setDuration] = useState('45');
   const [targetSessions, setTargetSessions] = useState('');
   const [preferredDays, setPreferredDays] = useState<number[]>([]);
+  const [preferredTime, setPreferredTime] = useState('');
   const [notes, setNotes] = useState('');
   const [priority, setPriority] = useState('none');
   const [saving, setSaving] = useState(false);
@@ -57,6 +59,7 @@ export function IntentionFormModal({ open, onClose, intention, categories, onSav
     setDuration(String(intention?.defaultDurationMins ?? 45));
     setTargetSessions(intention?.targetSessionsPerWeek != null ? String(intention.targetSessionsPerWeek) : '');
     setPreferredDays(intention?.preferredWeekdays ?? []);
+    setPreferredTime(intention?.preferredTime ?? '');
     setNotes(intention?.notes ?? '');
     setPriority(intention?.priority ?? 'none');
   }, [open, intention, categories]);
@@ -74,6 +77,7 @@ export function IntentionFormModal({ open, onClose, intention, categories, onSav
         // the DB never stores stale targets on a non-recurring intention.
         targetSessionsPerWeek: isRecurring && targetSessions ? Number(targetSessions) : null,
         preferredWeekdays: isRecurring ? preferredDays : [],
+        preferredTime: isRecurring ? preferredTime || null : null,
         notes,
         priority: priority === 'none' ? '' : priority,
       });
@@ -129,24 +133,27 @@ export function IntentionFormModal({ open, onClose, intention, categories, onSav
                   {[1, 2, 3, 4, 5, 6, 7].map((n) => <option key={n} value={n}>{n}× / week</option>)}
                 </Select>
               </Field>
-              <Field label="Preferred days" hint="Optional — empty means any day">
-                <div className="flex flex-wrap gap-1 pt-1">
-                  {weekdayOptions.map(({ day, label }) => {
-                    const active = preferredDays.includes(day);
-                    return (
-                      <button
-                        key={day}
-                        type="button"
-                        onClick={() => setPreferredDays((prev) => active ? prev.filter((d) => d !== day) : [...prev, day].sort())}
-                        className={`rounded-md border px-2 py-1 text-[11px] font-bold transition ${active ? 'border-accent bg-accent-soft text-accent' : 'border-border bg-surface text-text-muted hover:text-text'}`}
-                      >
-                        {label}
-                      </button>
-                    );
-                  })}
-                </div>
+              <Field label="Preferred time" hint="Optional — used by Configure Routines">
+                <Input type="time" value={preferredTime} onChange={(e) => setPreferredTime(e.target.value)} />
               </Field>
             </div>
+            <Field label="Preferred days" hint="Optional — empty means any day">
+              <div className="flex flex-wrap gap-1 pt-1">
+                {weekdayOptions.map(({ day, label }) => {
+                  const active = preferredDays.includes(day);
+                  return (
+                    <button
+                      key={day}
+                      type="button"
+                      onClick={() => setPreferredDays((prev) => active ? prev.filter((d) => d !== day) : [...prev, day].sort())}
+                      className={`rounded-md border px-2 py-1 text-[11px] font-bold transition ${active ? 'border-accent bg-accent-soft text-accent' : 'border-border bg-surface text-text-muted hover:text-text'}`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            </Field>
           </div>
         )}
         <Field label="Notes">

@@ -1,7 +1,7 @@
 import type { Intention, ScheduleBlock } from '@/types/database';
 import { capacityForWeekday, type WeeklyCapacity } from '@/utils/capacity';
 import { rangesOverlap } from '@/utils/schedule';
-import { isoWeekdayISO, minutesToTime, snapMinutes } from '@/utils/time';
+import { isoWeekdayISO, isValidTime, minutesToTime, snapMinutes, timeToMinutes } from '@/utils/time';
 
 export interface HabitProposal {
   task: Intention;
@@ -32,6 +32,15 @@ export interface HabitDistributionOptions {
   snapInterval: number;
 }
 
+interface DayCandidate {
+  date: string;
+  isoDay: number;
+  remaining: number;
+  preferred: boolean;
+  slot: { startTime: string; endTime: string };
+  slotDistance: number;
+}
+
 /** Blocks that still count toward the week — dismissed/rolled blocks are excluded everywhere. */
 function countsTowardWeek(block: ScheduleBlock): boolean {
   return block.status !== 'dismissed' && block.status !== 'rolled';
@@ -44,8 +53,8 @@ function dayPlannedMinutes(blocks: ScheduleBlock[], date: string): number {
     .reduce((sum, block) => sum + block.plannedDurationMins, 0);
 }
 
-/** First-fit search for a free `durationMins` slot on `date`, scanning snapped
- * start times within [dayStart, dayEnd] and skipping ranges overlapping existing blocks. */
+/** Find a free `durationMins` slot on `date` within [dayStart, dayEnd], skipping
+ * ranges overlapping existing blocks and preferring starts nearest `preferredStartTime`. */
 function findSlot(
   blocks: ScheduleBlock[],
   date: string,
@@ -53,13 +62,24 @@ function findSlot(
   dayStartMinutes: number,
   dayEndMinutes: number,
   snapInterval: number,
+  preferredStartTime?: string | null,
 ): { startTime: string; endTime: string } | null {
   const dayBlocks = blocks.filter(
     (block) => block.scheduledDate === date && countsTowardWeek(block),
   );
   const first = snapMinutes(dayStartMinutes, snapInterval);
   const last = dayEndMinutes - durationMins;
-  for (let start = first; start <= last; start += snapInterval) {
+  const starts: number[] = [];
+  for (let start = first; start <= last; start += snapInterval) starts.push(start);
+
+  const preferredMinutes = preferredStartTime && isValidTime(preferredStartTime)
+    ? timeToMinutes(preferredStartTime)
+    : null;
+  const orderedStarts = preferredMinutes == null
+    ? starts
+    : [...starts].sort((a, b) => Math.abs(a - preferredMinutes) - Math.abs(b - preferredMinutes) || a - b);
+
+  for (const start of orderedStarts) {
     const end = start + durationMins;
     const overlaps = dayBlocks.some((block) =>
       rangesOverlap(minutesToTime(start), minutesToTime(end), block.startTime, block.endTime),
@@ -77,8 +97,9 @@ export function firstAvailableSlot(
   dayStartMinutes: number,
   dayEndMinutes: number,
   snapInterval: number,
+  preferredStartTime?: string | null,
 ): { startTime: string; endTime: string } | null {
-  return findSlot(blocks, date, durationMins, dayStartMinutes, dayEndMinutes, snapInterval);
+  return findSlot(blocks, date, durationMins, dayStartMinutes, dayEndMinutes, snapInterval, preferredStartTime);
 }
 
 /** Whether any counted block on `date` overlaps [startTime, endTime), optionally excluding one block (for move/resize checks). */
@@ -100,8 +121,9 @@ export function blocksOverlapOnDate(
 
 /** Greedy habit scheduler: for each active recurring intention with a weekly
  * session target, place the deficit (target − already-planned) into free slots,
- * preferring the task's preferred weekdays then days with most remaining capacity.
- * Returns proposed blocks plus per-task skips when capacity/slots run out. */
+ * preferring the task's preferred weekdays, preferred time, then days with most
+ * remaining capacity. Returns proposed blocks plus per-task skips when
+ * capacity/slots run out. */
 export function computeHabitDistribution(
   intentions: Intention[],
   options: HabitDistributionOptions,
@@ -128,22 +150,37 @@ export function computeHabitDistribution(
     let placedForTask = 0;
     const duration = task.defaultDurationMins ?? 30;
     const preferred = new Set(task.preferredWeekdays);
+    const preferredStartMinutes = task.preferredTime && isValidTime(task.preferredTime)
+      ? timeToMinutes(task.preferredTime)
+      : null;
 
     while (deficit > 0) {
       const candidates = weekDates
-        .map((date) => {
+        .map((date): DayCandidate | null => {
           const isoDay = isoWeekdayISO(date);
           const used = dayPlannedMinutes(placed, date);
           const remaining = capacityForWeekday(capacity, isoDay) - used;
-          return { date, isoDay, remaining, preferred: preferred.size === 0 || preferred.has(isoDay) };
+          if (remaining < duration) return null;
+          const slot = findSlot(placed, date, duration, dayStartMinutes, dayEndMinutes, snapInterval, task.preferredTime);
+          if (!slot) return null;
+          const slotDistance = preferredStartMinutes == null
+            ? 0
+            : Math.abs(timeToMinutes(slot.startTime) - preferredStartMinutes);
+          return {
+            date,
+            isoDay,
+            remaining,
+            preferred: preferred.size === 0 || preferred.has(isoDay),
+            slot,
+            slotDistance,
+          };
         })
-        .filter((candidate) => candidate.remaining >= duration)
-        .sort((a, b) => Number(b.preferred) - Number(a.preferred) || b.remaining - a.remaining);
+        .filter((candidate): candidate is DayCandidate => candidate !== null)
+        .sort((a, b) => Number(b.preferred) - Number(a.preferred) || a.slotDistance - b.slotDistance || b.remaining - a.remaining);
 
       let placedThisRound = false;
       for (const candidate of candidates) {
-        const slot = findSlot(placed, candidate.date, duration, dayStartMinutes, dayEndMinutes, snapInterval);
-        if (!slot) continue;
+        const slot = candidate.slot;
         proposals.push({ task, scheduledDate: candidate.date, ...slot, plannedDurationMins: duration });
         placed.push({
           id: `proposal-${proposals.length}`,

@@ -41,6 +41,7 @@ interface TaskRow {
   default_duration_mins: number | null;
   target_sessions_per_week: number | null;
   preferred_weekdays: string | null;
+  preferred_time: string | null;
   status: string;
   notes: string | null;
   priority: string | null;
@@ -48,7 +49,7 @@ interface TaskRow {
 }
 
 const TASK_COLUMNS =
-  'id, title, category_id, is_recurring, default_duration_mins, target_sessions_per_week, preferred_weekdays, status, notes, priority, created_at';
+  'id, title, category_id, is_recurring, default_duration_mins, target_sessions_per_week, preferred_weekdays, preferred_time, status, notes, priority, created_at';
 
 interface ScheduleBlockRow {
   id: string;
@@ -104,6 +105,10 @@ function parsePreferredWeekdays(raw: string | null): number[] {
   }
 }
 
+function parsePreferredTime(raw: string | null): string | null {
+  return raw && isValidTime(raw) ? raw : null;
+}
+
 function mapTask(row: TaskRow): Intention {
   return {
     id: row.id,
@@ -113,6 +118,7 @@ function mapTask(row: TaskRow): Intention {
     defaultDurationMins: row.default_duration_mins,
     targetSessionsPerWeek: row.target_sessions_per_week,
     preferredWeekdays: parsePreferredWeekdays(row.preferred_weekdays),
+    preferredTime: parsePreferredTime(row.preferred_time),
     status: row.status as TaskStatus,
     notes: row.notes,
     priority: row.priority,
@@ -237,8 +243,8 @@ export async function listAllIntentions(): Promise<Intention[]> {
   return rows.map(mapTask);
 }
 
-/** Insert an intention. Habit fields (target sessions, preferred weekdays) are
- * only persisted for recurring items — they're cleared otherwise. */
+/** Insert an intention. Habit fields (target sessions, preferred weekdays/time)
+ * are only persisted for recurring items — they're cleared otherwise. */
 export async function createIntention(input: {
   title: string;
   categoryId: string | null;
@@ -246,6 +252,7 @@ export async function createIntention(input: {
   defaultDurationMins: number | null;
   targetSessionsPerWeek?: number | null;
   preferredWeekdays?: number[];
+  preferredTime?: string | null;
   notes?: string | null;
   priority?: string | null;
 }): Promise<Intention> {
@@ -257,10 +264,12 @@ export async function createIntention(input: {
   const createdAt = nowIso();
   const preferredWeekdays = input.isRecurring ? JSON.stringify(input.preferredWeekdays ?? []) : '[]';
   const targetSessions = input.isRecurring ? (input.targetSessionsPerWeek ?? null) : null;
+  const preferredTime = input.isRecurring ? input.preferredTime || null : null;
+  if (preferredTime) assertTime(preferredTime);
   await executeSql(
-    `INSERT INTO tasks (id, title, category_id, is_recurring, default_duration_mins, target_sessions_per_week, preferred_weekdays, status, notes, priority, created_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, 'active', $8, $9, $10)`,
-    [id, title, input.categoryId, input.isRecurring ? 1 : 0, input.defaultDurationMins, targetSessions, preferredWeekdays, input.notes ?? null, input.priority ?? null, createdAt],
+    `INSERT INTO tasks (id, title, category_id, is_recurring, default_duration_mins, target_sessions_per_week, preferred_weekdays, preferred_time, status, notes, priority, created_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'active', $9, $10, $11)`,
+    [id, title, input.categoryId, input.isRecurring ? 1 : 0, input.defaultDurationMins, targetSessions, preferredWeekdays, preferredTime, input.notes ?? null, input.priority ?? null, createdAt],
   );
   return {
     id,
@@ -270,6 +279,7 @@ export async function createIntention(input: {
     defaultDurationMins: input.defaultDurationMins,
     targetSessionsPerWeek: targetSessions,
     preferredWeekdays: input.isRecurring ? (input.preferredWeekdays ?? []) : [],
+    preferredTime,
     status: 'active',
     notes: input.notes ?? null,
     priority: input.priority ?? null,
@@ -287,6 +297,7 @@ export async function updateIntention(
     defaultDurationMins: number | null;
     targetSessionsPerWeek?: number | null;
     preferredWeekdays?: number[];
+    preferredTime?: string | null;
     notes?: string | null;
     priority?: string | null;
     status?: TaskStatus;
@@ -298,11 +309,13 @@ export async function updateIntention(
   if (input.targetSessionsPerWeek != null) assertPositiveInt(input.targetSessionsPerWeek, 'Target sessions per week');
   const preferredWeekdays = input.isRecurring ? JSON.stringify(input.preferredWeekdays ?? []) : '[]';
   const targetSessions = input.isRecurring ? (input.targetSessionsPerWeek ?? null) : null;
+  const preferredTime = input.isRecurring ? input.preferredTime || null : null;
+  if (preferredTime) assertTime(preferredTime);
   await executeSql(
     `UPDATE tasks
-     SET title = $1, category_id = $2, is_recurring = $3, default_duration_mins = $4, target_sessions_per_week = $5, preferred_weekdays = $6, notes = $7, priority = $8, status = $9
-     WHERE id = $10`,
-    [title, input.categoryId, input.isRecurring ? 1 : 0, input.defaultDurationMins, targetSessions, preferredWeekdays, input.notes ?? null, input.priority ?? null, input.status ?? 'active', id],
+     SET title = $1, category_id = $2, is_recurring = $3, default_duration_mins = $4, target_sessions_per_week = $5, preferred_weekdays = $6, preferred_time = $7, notes = $8, priority = $9, status = $10
+     WHERE id = $11`,
+    [title, input.categoryId, input.isRecurring ? 1 : 0, input.defaultDurationMins, targetSessions, preferredWeekdays, preferredTime, input.notes ?? null, input.priority ?? null, input.status ?? 'active', id],
   );
 }
 

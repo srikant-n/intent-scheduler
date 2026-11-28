@@ -28,6 +28,7 @@ function makeTask(overrides: Partial<Intention> = {}): Intention {
     defaultDurationMins: 60,
     targetSessionsPerWeek: 3,
     preferredWeekdays: [],
+    preferredTime: null,
     status: 'active',
     notes: null,
     priority: null,

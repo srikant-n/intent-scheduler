@@ -25,6 +25,7 @@ const VALID_DATA = {
       default_duration_mins: 30,
       target_sessions_per_week: 3,
       preferred_weekdays: '[1,3,5]',
+      preferred_time: '07:30',
       status: 'active',
       notes: null,
       priority: null,
@@ -157,11 +158,13 @@ describe('parseVaultJson', () => {
     payload.data.scheduleBlocks[0].end_time = '25:00';
     payload.data.scheduleBlocks[0].planned_duration_mins = 0;
     payload.data.timeLogs[0].start_time = 'noon';
+    payload.data.tasks[0].preferred_time = '25:00';
     const issues = vaultPayloadIssues(payload).join('\n');
     expect(issues).toMatch(/start_time/);
     expect(issues).toMatch(/end_time/);
     expect(issues).toMatch(/planned_duration_mins/);
     expect(issues).toMatch(/duration_mins/);
+    expect(issues).toMatch(/preferred_time/);
   });
 });
 

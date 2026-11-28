@@ -17,6 +17,7 @@ function makeHabit(overrides: Partial<Intention> = {}): Intention {
     defaultDurationMins: 30,
     targetSessionsPerWeek: 4,
     preferredWeekdays: [],
+    preferredTime: null,
     status: 'active',
     notes: null,
     priority: null,

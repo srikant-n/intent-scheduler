@@ -28,6 +28,7 @@ function makeTask(overrides: Partial<Intention> = {}): Intention {
     defaultDurationMins: 60,
     targetSessionsPerWeek: 2,
     preferredWeekdays: [],
+    preferredTime: null,
     status: 'active',
     notes: null,
     priority: null,
@@ -144,6 +145,27 @@ describe('computeHabitDistribution', () => {
     );
     expect(result.proposals).toHaveLength(1);
     expect(result.proposals[0].scheduledDate).toBe('2026-11-27'); // Friday
+  });
+
+  it('places sessions at the preferred time when the slot is free', () => {
+    const result = computeHabitDistribution(
+      [makeTask({ targetSessionsPerWeek: 1, preferredTime: '10:30' })],
+      options(),
+    );
+    expect(result.proposals).toHaveLength(1);
+    expect(result.proposals[0].startTime).toBe('10:30');
+    expect(result.proposals[0].endTime).toBe('11:30');
+  });
+
+  it('uses the nearest free slot around the preferred time', () => {
+    const existing = [makeBlock({ taskId: 'other-task', startTime: '10:00', endTime: '11:00' })];
+    const result = computeHabitDistribution(
+      [makeTask({ targetSessionsPerWeek: 1, preferredWeekdays: [1], preferredTime: '10:30' })],
+      options({ existingBlocks: existing }),
+    );
+    expect(result.proposals).toHaveLength(1);
+    expect(result.proposals[0].scheduledDate).toBe('2026-11-23');
+    expect(result.proposals[0].startTime).toBe('11:00');
   });
 
   it('counts existing planned blocks toward the weekly target', () => {

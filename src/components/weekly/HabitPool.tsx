@@ -1,6 +1,6 @@
 import { RefreshCw, SlidersHorizontal } from 'lucide-react';
 import type { Category, EnrichedScheduleBlock, Intention } from '@/types/database';
-import { formatDuration } from '@/utils/time';
+import { formatDuration, formatTime12 } from '@/utils/time';
 import { setDragSourceHeight } from '@/utils/dragContext';
 import clsx from 'clsx';
 
@@ -70,6 +70,7 @@ export function HabitPool({ intentions, blocks, categories, onConfigure }: Props
                 </span>
               </div>
               <span className="text-xs font-semibold text-text transition-colors group-hover:text-accent">{habit.title}</span>
+              {habit.preferredTime && <span className="text-[10px] text-text-subtle">Preferred {formatTime12(habit.preferredTime)}</span>}
               <div className="flex items-center justify-between text-[10px] text-text-muted">
                 <span>{sessions.length} planned{target ? ` / ${target}` : ''}</span>
                 {adherence != null ? (

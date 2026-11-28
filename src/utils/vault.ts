@@ -102,6 +102,9 @@ function validateTasks(rows: VaultRow[], categoryIds: Set<string>, issues: strin
     if (!isNullableInt(row.default_duration_mins)) issues.push(`${label}: "default_duration_mins" must be an integer or null`);
     if (!isNullableInt(row.target_sessions_per_week)) issues.push(`${label}: "target_sessions_per_week" must be an integer or null`);
     if (typeof row.preferred_weekdays !== 'string') issues.push(`${label}: "preferred_weekdays" must be a string`);
+    if (row.preferred_time !== null && row.preferred_time !== undefined && (typeof row.preferred_time !== 'string' || !isValidTime(row.preferred_time))) {
+      issues.push(`${label}: "preferred_time" must be HH:MM or null`);
+    }
     checkString(row, 'created_at', issues, label);
     checkString(row, 'notes', issues, label, false);
     checkString(row, 'priority', issues, label, false);

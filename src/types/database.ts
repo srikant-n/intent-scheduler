@@ -16,7 +16,8 @@ export interface Category {
 }
 
 /** An intention — the "menu" item that can be scheduled. Recurring intentions
- * carry a weekly session target and optional preferred weekdays (ISO 1–7). */
+ * carry a weekly session target, optional preferred weekdays (ISO 1–7), and an
+ * optional preferred start time (`HH:MM`). */
 export interface Intention {
   id: string;
   title: string;
@@ -25,6 +26,7 @@ export interface Intention {
   defaultDurationMins: number | null;
   targetSessionsPerWeek: number | null;
   preferredWeekdays: number[];
+  preferredTime: string | null;
   status: TaskStatus;
   notes: string | null;
   priority: string | null;

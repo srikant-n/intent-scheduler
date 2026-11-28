@@ -15,6 +15,7 @@ const mocks = vi.hoisted(() => ({
       defaultDurationMins: 60,
       targetSessionsPerWeek: null,
       preferredWeekdays: [],
+      preferredTime: null,
       status: 'active',
       notes: null,
       priority: null,

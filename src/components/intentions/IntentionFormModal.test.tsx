@@ -1,6 +1,6 @@
 // Tests for IntentionFormModal: create/edit intention form fields,
 // recurrence/duration/weekday inputs, and validation.
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import type { Category, Intention } from '@/types/database';
@@ -20,6 +20,7 @@ function makeIntention(overrides: Partial<Intention> = {}): Intention {
     defaultDurationMins: 60,
     targetSessionsPerWeek: null,
     preferredWeekdays: [],
+    preferredTime: null,
     status: 'active',
     notes: 'async',
     priority: 'high',
@@ -54,6 +55,7 @@ describe('IntentionFormModal', () => {
       defaultDurationMins: null,
       targetSessionsPerWeek: null,
       preferredWeekdays: [],
+      preferredTime: null,
       notes: '',
       priority: '',
     });
@@ -79,10 +81,12 @@ describe('IntentionFormModal', () => {
     renderModal();
 
     expect(screen.queryByLabelText(/Sessions per week/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Preferred time/i)).not.toBeInTheDocument();
     expect(screen.queryByText('Mon')).not.toBeInTheDocument();
 
     await user.selectOptions(screen.getByLabelText(/Cadence/i), 'recurring');
     expect(screen.getByLabelText(/Sessions per week/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Preferred time/i)).toBeInTheDocument();
     expect(screen.getByText('Mon')).toBeInTheDocument();
     expect(screen.getByText('Sun')).toBeInTheDocument();
   });
@@ -94,13 +98,14 @@ describe('IntentionFormModal', () => {
     await user.type(screen.getByPlaceholderText(/Study Rust async patterns/i), 'Gym');
     await user.selectOptions(screen.getByLabelText(/Cadence/i), 'recurring');
     await user.selectOptions(screen.getByLabelText(/Sessions per week/i), '3');
+    fireEvent.change(screen.getByLabelText(/Preferred time/i), { target: { value: '07:30' } });
     await user.click(screen.getByText('Fri'));
     await user.click(screen.getByText('Mon'));
     await user.click(screen.getByText('Wed'));
     await user.click(screen.getByRole('button', { name: /Save Intention/i }));
 
     expect(onSave).toHaveBeenCalledWith(
-      expect.objectContaining({ isRecurring: true, targetSessionsPerWeek: 3, preferredWeekdays: [1, 3, 5] }),
+      expect.objectContaining({ isRecurring: true, targetSessionsPerWeek: 3, preferredWeekdays: [1, 3, 5], preferredTime: '07:30' }),
     );
   });
 
@@ -111,28 +116,30 @@ describe('IntentionFormModal', () => {
     await user.type(screen.getByPlaceholderText(/Study Rust async patterns/i), 'Task');
     await user.selectOptions(screen.getByLabelText(/Cadence/i), 'recurring');
     await user.selectOptions(screen.getByLabelText(/Sessions per week/i), '5');
+    fireEvent.change(screen.getByLabelText(/Preferred time/i), { target: { value: '18:00' } });
     await user.click(screen.getByText('Tue'));
     await user.selectOptions(screen.getByLabelText(/Cadence/i), 'one-off');
     await user.click(screen.getByRole('button', { name: /Save Intention/i }));
 
     expect(onSave).toHaveBeenCalledWith(
-      expect.objectContaining({ isRecurring: false, targetSessionsPerWeek: null, preferredWeekdays: [] }),
+      expect.objectContaining({ isRecurring: false, targetSessionsPerWeek: null, preferredWeekdays: [], preferredTime: null }),
     );
   });
 
   it('prefills habit fields in edit mode', async () => {
     const user = userEvent.setup();
-    const intention = makeIntention({ targetSessionsPerWeek: 4, preferredWeekdays: [1, 3] });
+    const intention = makeIntention({ targetSessionsPerWeek: 4, preferredWeekdays: [1, 3], preferredTime: '06:45' });
     const { onSave } = renderModal({ intention });
 
     expect((screen.getByLabelText(/Sessions per week/i) as HTMLSelectElement).value).toBe('4');
+    expect((screen.getByLabelText(/Preferred time/i) as HTMLInputElement).value).toBe('06:45');
     expect(screen.getByText('Mon')).toHaveClass('border-accent');
     expect(screen.getByText('Wed')).toHaveClass('border-accent');
     expect(screen.getByText('Tue')).not.toHaveClass('border-accent');
 
     await user.click(screen.getByRole('button', { name: /Save Intention/i }));
     expect(onSave).toHaveBeenCalledWith(
-      expect.objectContaining({ targetSessionsPerWeek: 4, preferredWeekdays: [1, 3] }),
+      expect.objectContaining({ targetSessionsPerWeek: 4, preferredWeekdays: [1, 3], preferredTime: '06:45' }),
     );
   });
 

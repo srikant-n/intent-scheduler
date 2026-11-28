@@ -41,6 +41,7 @@ const task: Intention = {
   defaultDurationMins: 60,
   targetSessionsPerWeek: null,
   preferredWeekdays: [],
+  preferredTime: null,
   status: 'active',
   notes: null,
   priority: null,

@@ -137,6 +137,7 @@ describe('intentions', () => {
     await expect(createIntention({ ...baseInput, title: '  ' })).rejects.toThrow('Intention title is required');
     await expect(createIntention({ ...baseInput, defaultDurationMins: 0 })).rejects.toThrow('positive integer');
     await expect(createIntention({ ...baseInput, defaultDurationMins: 1.5 })).rejects.toThrow('positive integer');
+    await expect(createIntention({ ...baseInput, isRecurring: true, preferredTime: '25:00' })).rejects.toThrow('Invalid time');
     expect(executeSqlMock).not.toHaveBeenCalled();
   });
 
@@ -153,6 +154,7 @@ describe('intentions', () => {
     selectRowsMock.mockResolvedValueOnce([
       {
         id: 't1', title: 'X', category_id: 'c', is_recurring: 1, default_duration_mins: 30,
+        target_sessions_per_week: 2, preferred_weekdays: '[1,3]', preferred_time: '07:30',
         status: 'active', notes: null, priority: null, created_at: 't',
       },
     ]);
@@ -160,6 +162,7 @@ describe('intentions', () => {
     expect(selectRowsMock.mock.calls[0][1]).toEqual(['active']);
     expect(rows[0].isRecurring).toBe(true);
     expect(rows[0].defaultDurationMins).toBe(30);
+    expect(rows[0].preferredTime).toBe('07:30');
   });
 
   it('archiveIntention/restoreIntention update status', async () => {
@@ -397,20 +400,24 @@ describe('intention updates and deletes', () => {
       isRecurring: true,
       targetSessionsPerWeek: 3,
       preferredWeekdays: [1, 3, 5],
+      preferredTime: '07:30',
     });
     let params = executeSqlMock.mock.calls[0][1];
     expect(params?.[5]).toBe(3); // target_sessions_per_week
     expect(params?.[6]).toBe('[1,3,5]'); // preferred_weekdays JSON
+    expect(params?.[7]).toBe('07:30'); // preferred_time
 
     executeSqlMock.mockClear();
     await createIntention({
       ...updateInput,
       targetSessionsPerWeek: 3,
       preferredWeekdays: [1, 3, 5],
+      preferredTime: '07:30',
     });
     params = executeSqlMock.mock.calls[0][1];
     expect(params?.[5]).toBeNull();
     expect(params?.[6]).toBe('[]');
+    expect(params?.[7]).toBeNull();
   });
 
   it('updateIntention validates and normalizes habit fields', async () => {
@@ -424,13 +431,15 @@ describe('intention updates and deletes', () => {
       isRecurring: true,
       targetSessionsPerWeek: 4,
       preferredWeekdays: [2, 4],
+      preferredTime: '18:15',
       status: 'archived',
     });
     const params = executeSqlMock.mock.calls[0][1];
     expect(params?.[4]).toBe(4);
     expect(params?.[5]).toBe('[2,4]');
-    expect(params?.[8]).toBe('archived');
-    expect(params?.[9]).toBe('t1');
+    expect(params?.[6]).toBe('18:15');
+    expect(params?.[9]).toBe('archived');
+    expect(params?.[10]).toBe('t1');
   });
 
   it('deleteIntention detaches logs, removes blocks, then deletes the task', async () => {

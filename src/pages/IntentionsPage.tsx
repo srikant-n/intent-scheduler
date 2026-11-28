@@ -101,6 +101,7 @@ export function IntentionsPage() {
       defaultDurationMins: values.defaultDurationMins,
       targetSessionsPerWeek: values.targetSessionsPerWeek,
       preferredWeekdays: values.preferredWeekdays,
+      preferredTime: values.preferredTime,
       notes: values.notes || null,
       priority: values.priority || null,
     };
@@ -124,6 +125,7 @@ export function IntentionsPage() {
         defaultDurationMins: quickDuration,
         targetSessionsPerWeek: null,
         preferredWeekdays: [],
+        preferredTime: null,
         notes: quickNotes.trim() || null,
         priority: null,
       });

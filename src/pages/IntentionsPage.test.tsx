@@ -65,6 +65,7 @@ vi.mock('@/components/intentions/IntentionFormModal', () => ({
               defaultDurationMins: null,
               targetSessionsPerWeek: null,
               preferredWeekdays: [],
+              preferredTime: null,
               notes: '',
               priority: '',
             }).then(onClose);
@@ -94,6 +95,7 @@ function makeIntention(overrides: Partial<Intention> = {}): Intention {
     defaultDurationMins: 60,
     targetSessionsPerWeek: null,
     preferredWeekdays: [],
+    preferredTime: null,
     status: 'active',
     notes: null,
     priority: null,
@@ -189,6 +191,7 @@ describe('IntentionsPage', () => {
       defaultDurationMins: 45,
       targetSessionsPerWeek: null,
       preferredWeekdays: [],
+      preferredTime: null,
       notes: null,
       priority: null,
     }));
@@ -224,6 +227,7 @@ describe('IntentionsPage', () => {
       defaultDurationMins: null,
       targetSessionsPerWeek: null,
       preferredWeekdays: [],
+      preferredTime: null,
       notes: null,
       priority: null,
     }));
@@ -245,6 +249,7 @@ describe('IntentionsPage', () => {
       defaultDurationMins: null,
       targetSessionsPerWeek: null,
       preferredWeekdays: [],
+      preferredTime: null,
       notes: null,
       priority: null,
     }));
